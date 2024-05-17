@@ -21,6 +21,6 @@ export interface AuthProvider {
 export const initProviders = async (): Promise<ServiceProviders> => {
 	return {
 		authProvider: new GoogleAuth(),
-		currencyRateProvider: await NatsEventer.getInstance()
+		currencyRateProvider: await NatsEventer.getInstance(),
 	};
 };

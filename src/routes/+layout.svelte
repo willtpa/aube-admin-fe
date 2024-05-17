@@ -11,6 +11,7 @@
 					<summary> Services </summary>
 					<ul class="p-2 bg-base-100 rounded-t-none">
 						<li><a href="/rates">Rates</a></li>
+						<li><a href="/accounts">Ledger Accounts</a></li>
 					</ul>
 				</details>
 			</li>

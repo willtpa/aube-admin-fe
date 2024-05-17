@@ -10,6 +10,6 @@ export type Services = {
 export const initServices = (serviceProviders: ServiceProviders): Services => {
 	return {
 		authService: new AuthService(serviceProviders),
-		currencyRateService: new CurrencyRateService(serviceProviders)
+		currencyRateService: new CurrencyRateService(serviceProviders),
 	};
 };

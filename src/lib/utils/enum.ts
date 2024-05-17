@@ -148,5 +148,5 @@ export enum Currency {
 	XSGD = 'XSGD',
 	YER = 'YER',
 	ZAR = 'ZAR',
-	ZMW = 'ZMW'
+	ZMW = 'ZMW',
 }
