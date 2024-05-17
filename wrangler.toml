@@ -1,0 +1,17 @@
+name = "aubesee-admin"
+type = "javascript"
+account_id = "your-cloudflare-account-id"
+workers_dev = true
+compatibility_date = "2024-01-01"
+
+[env.local]
+name = "aubesee-admin-local"
+vars = { API_BASEURL = "", API_KEY = "" }
+
+[env.staging]
+name = "aubesee-admin-staging"
+vars = { API_BASEURL = "", API_KEY = "" }
+
+[env.production]
+name = "aubesee-admin-production"
+vars = { API_BASEURL = "", API_KEY = "" }
