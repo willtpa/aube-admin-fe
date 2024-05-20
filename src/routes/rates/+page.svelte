@@ -8,7 +8,7 @@
 		BTC: null,
 		ETH: null,
 		SOL: null,
-		MATIC: null
+		MATIC: null,
 	};
 
 	async function readFile(filePath: string) {
@@ -53,7 +53,7 @@
 					currencyGrp = { ...(currencyGrp || {}), ...updateCurrencyGrp(currencyGrp, currency) };
 				}
 			},
-			Math.floor(Math.random() * 1_000) + 100
+			Math.floor(Math.random() * 1_000) + 100,
 		);
 	}
 
