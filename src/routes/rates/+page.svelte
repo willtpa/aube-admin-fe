@@ -2,24 +2,13 @@
 	/* eslint-disable @typescript-eslint/no-explicit-any */
 	import { onMount } from 'svelte';
 	import CurrencyRateComponent from '$components/currency-rate.svelte';
+	import type { PageData } from './$types';
 
-	let currency: any = null;
-	let currencyGrp: Record<string, any> = {
-		BTC: null,
-		ETH: null,
-		SOL: null,
-		MATIC: null,
-	};
+	export let data: PageData;
 
-	async function readFile(filePath: string) {
-		try {
-			const content = await fetch(filePath);
-			const result = await content.text();
-			return JSON.parse(result);
-		} catch (error) {
-			console.error('Error reading file:', error);
-		}
-	}
+	const sseURL = data.sseCurrencyRatesURL;
+	let currencyRate: unknown | null = null;
+	let supportedCurrency: Record<string, any> = data.supportedCurrency;
 
 	function upOrDown(targetCurrency: any, currency: any) {
 		if (!targetCurrency) {
@@ -42,31 +31,29 @@
 		return currencyGrp || {};
 	}
 
-	async function subscribeToData() {
-		const data = await readFile('currencyrates.sample.json');
-		setInterval(
-			() => {
-				const rnd = Math.floor(Math.random() * data.length);
-				currency = { ...data[rnd] };
-
-				if (currency) {
-					currencyGrp = { ...(currencyGrp || {}), ...updateCurrencyGrp(currencyGrp, currency) };
-				}
-			},
-			Math.floor(Math.random() * 1_000) + 100,
-		);
+	async function subscribeToCurrencyRates(): Promise<void> {
+		const sse = new EventSource(`${sseURL}`);
+		sse.onmessage = (rate) => {
+			currencyRate = JSON.parse(rate.data);
+			if (currencyRate) {
+				supportedCurrency = {
+					...(supportedCurrency || {}),
+					...updateCurrencyGrp(supportedCurrency, currencyRate),
+				};
+			}
+		};
 	}
 
-	onMount(subscribeToData);
+	onMount(subscribeToCurrencyRates);
 </script>
 
-{#each Object.entries(currencyGrp) as [key]}
-	{#if currencyGrp[key]}
+{#each Object.entries(supportedCurrency) as [key]}
+	{#if supportedCurrency[key]}
 		<CurrencyRateComponent
-			ticker={currencyGrp[key].quote}
-			rate_base_quote={currencyGrp[key].rate_base_quote}
-			id={currencyGrp[key].id}
-			color={currencyGrp[key].color}
+			ticker={supportedCurrency[key].quote}
+			rate_base_quote={supportedCurrency[key].rate_base_quote}
+			id={supportedCurrency[key].id}
+			color={supportedCurrency[key].color}
 		/>
 	{/if}
 {/each}
