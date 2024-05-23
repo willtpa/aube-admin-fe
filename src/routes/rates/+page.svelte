@@ -12,22 +12,22 @@
 	let currencyRate: unknown | null = null;
 	let supportedCurrency: Record<string, any> = data.supportedCurrency;
 
-	function upOrDown(targetCurrency: any, currency: any) {
+	function isPriceUp(targetCurrency: any, currency: any) {
 		if (!targetCurrency) {
 			return;
 		}
-		let color = 'green';
+		let isPriceUp = 'true';
 		if (targetCurrency.rate_base_quote > currency.rate_base_quote) {
-			color = 'red';
+			isPriceUp = 'false';
 		}
-		return color;
+		return isPriceUp;
 	}
 
 	function updateCurrencyGrp(currencyGrp: Record<string, any>, currency: any) {
 		Object.keys(currencyGrp).forEach((key) => {
 			if (currency.quote === key) {
-				const color = upOrDown(currencyGrp[key], currency);
-				currencyGrp[key] = { ...(currencyGrp[key] || {}), ...currency, ...{ color } };
+				const price_up = isPriceUp(currencyGrp[key], currency);
+				currencyGrp[key] = { ...(currencyGrp[key] || {}), ...currency, ...{ price_up } };
 			}
 		});
 		return currencyGrp || {};
@@ -75,7 +75,7 @@
 		(idEl as HTMLElement).innerHTML = `ID: ${rate.id}`;
 		(providersEl as HTMLElement).innerHTML = `<b>Providers Contribution</b> </br>${providersInfo}`;
 		(ratesCountEl as HTMLElement).innerHTML = `Rates Count: ${rate.rates_count}`;
-		(rateDateEl as HTMLElement).innerHTML = `Rate Date: ${rate.rate_date}`;
+		(rateDateEl as HTMLElement).innerHTML = `Rate Date: ${rate.created_at}`;
 		(baseEl as HTMLElement).innerHTML = `Base: ${rate.base}`;
 		(quoteEl as HTMLElement).innerHTML = `Quote: ${rate.quote}`;
 		(rateBaseQuoteEl as HTMLElement).innerHTML = `Rate Base Quote: ${rate.rate_base_quote}`;
@@ -96,12 +96,12 @@
 				ticker={supportedCurrency[key].quote}
 				rateBaseQuote={supportedCurrency[key].rate_base_quote}
 				id={supportedCurrency[key].id}
-				color={supportedCurrency[key].color}
+				price_up={supportedCurrency[key].price_up}
 				rateProviders={{ ...supportedCurrency[key].providers_contrib }}
 			>
 				<div class="px-5 flex items-center">
 					<button
-						class="btn btn-sm btn-outline btn-accent rounded"
+						class="btn btn-sm btn-outline btn-secondary rounded"
 						on:click={async () => await showRateDetails(`${supportedCurrency[key].quote}`)}
 						>Details</button
 					>
