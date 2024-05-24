@@ -3,11 +3,9 @@
 	import { onMount } from 'svelte';
 	import CurrencyRateComponent from '$components/currency-rate.svelte';
 	import type { PageData } from './$types';
+	import { initFxRatesSubscription } from '$lib/providers/sse';
 
 	export let data: PageData;
-
-	const sseURL = data.sseCurrencyRatesURL;
-
 	let currencyRate: unknown | null = null;
 	let supportedCurrency: Record<string, any> = data.supportedCurrency;
 
@@ -33,13 +31,8 @@
 	}
 
 	async function subscribeToCurrencyRates(): Promise<void> {
-		const ping = await fetch(`/rates`, { method: 'GET' });
-		if (!ping.ok) {
-			throw new Error('Ping failed!');
-		}
-		console.log('Ping is successful!');
+		const sse = initFxRatesSubscription();
 
-		const sse = new EventSource(`${sseURL}`);
 		sse.onmessage = (rate) => {
 			currencyRate = JSON.parse(rate.data);
 			if (currencyRate) {
