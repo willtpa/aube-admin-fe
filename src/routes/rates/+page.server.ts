@@ -11,7 +11,7 @@ export const load: PageServerLoad = async () => {
 };
 
 const initRatesSnapshot = async () => {
-	const restfulCurrencyRatesURL = `${PUBLIC_ADMINAPI_HOST}/admin/api/rates`;
+	const restfulCurrencyRatesURL = `${PUBLIC_ADMINAPI_HOST}/v1/admin/api/rates`;
 	const headers = {
 		'CF-Access-Client-Id': `${CF_ACCESS_CLIENT_ID}`,
 		'CF-Access-Client-Secret': `${CF_ACCESS_CLIENT_SECRET}`,

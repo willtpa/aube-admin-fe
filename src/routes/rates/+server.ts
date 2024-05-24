@@ -3,7 +3,7 @@ import { CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET } from '$env/static/privat
 import { json } from '@sveltejs/kit';
 
 export async function GET() {
-	const restfulCurrencyRatesURL = `${PUBLIC_ADMINAPI_HOST}/admin/api/rates`;
+	const restfulCurrencyRatesURL = `${PUBLIC_ADMINAPI_HOST}/v1/admin/api/rates`;
 	const headers = {
 		'CF-Access-Client-Id': `${CF_ACCESS_CLIENT_ID}`,
 		'CF-Access-Client-Secret': `${CF_ACCESS_CLIENT_SECRET}`,

@@ -6,15 +6,15 @@ compatibility_date = "2024-01-01"
 
 [env.development]
 PUBLIC_ADMINAPI_HOST="http://localhost:8085"
-PUBLIC_ADMINAPI_PREFIX="admin/api"
+PUBLIC_ADMINAPI_PREFIX="v1/admin/api"
 PUBLIC_RATES_SSE_PREFIX="rates/sse"
 
 [env.staging]
 vars = { PUBLIC_ADMINAPI_HOST="https://stag.auberun.io" }
-PUBLIC_ADMINAPI_PREFIX="admin/api/stag"
+PUBLIC_ADMINAPI_PREFIX="v1/admin/api/stag"
 PUBLIC_RATES_SSE_PREFIX="rates/sse/stag"
 
 [env.production]
 PUBLIC_ADMINAPI_HOST="https://prod.auberun.io"
-PUBLIC_ADMINAPI_PREFIX="admin/api/prod"
+PUBLIC_ADMINAPI_PREFIX="v1/admin/api/prod"
 PUBLIC_RATES_SSE_PREFIX="rates/sse/prod"
