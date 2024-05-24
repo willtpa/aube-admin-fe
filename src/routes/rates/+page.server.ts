@@ -5,28 +5,36 @@ import {
 	PUBLIC_ADMINAPI_PREFIX,
 	PUBLIC_RATES_SSE_PREFIX,
 } from '$env/static/public';
+import { CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET } from '$env/static/private';
 
 export const load: PageServerLoad = async () => {
-	// const baseUrl = `${url.origin}`;
-	// const data = await readFile(`${baseUrl}/supported-currencies.json`);
+	const response = await initRatesSnapshot();
+
+	return {
+		restfulCurrencyRatesURL: response.restfulCurrencyRatesURL,
+		sseCurrencyRatesURL: response.sseCurrencyRatesURL,
+		supportedCurrency: response.supportedCurrency,
+	};
+};
+
+const initRatesSnapshot = async () => {
 	const restfulCurrencyRatesURL = `${PUBLIC_ADMINAPI_HOST}/${PUBLIC_ADMINAPI_PREFIX}/rates`;
 	const sseCurrencyRatesURL = `${PUBLIC_ADMINAPI_HOST}/${PUBLIC_ADMINAPI_PREFIX}/${PUBLIC_RATES_SSE_PREFIX}?stream=fxrates`;
-	// const supportedCurrency = data.reduce((acc: Record<string, unknown>, curr: string) => {
-	// 	acc[curr] = null;
-	// 	return acc;
-	// }, {});
-	const supportedCurrency = await ratesSnapshot();
+	const headers = {
+		'CF-Access-Client-Id': `${CF_ACCESS_CLIENT_ID}`,
+		'CF-Access-Client-Secret': `${CF_ACCESS_CLIENT_SECRET}`,
+	};
+
+	const response = await fetch(restfulCurrencyRatesURL, { headers });
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+
+	const supportedCurrency = await response.json();
 
 	return {
 		restfulCurrencyRatesURL,
 		sseCurrencyRatesURL,
 		supportedCurrency,
 	};
-};
-
-const ratesSnapshot = async () => {
-	const restfulCurrencyRatesURL = `${PUBLIC_ADMINAPI_HOST}/${PUBLIC_ADMINAPI_PREFIX}/rates`;
-	const response = await fetch(restfulCurrencyRatesURL);
-	const data = await response.json();
-	return data;
 };

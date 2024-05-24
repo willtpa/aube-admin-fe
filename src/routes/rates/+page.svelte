@@ -7,7 +7,6 @@
 	export let data: PageData;
 
 	const sseURL = data.sseCurrencyRatesURL;
-	const restfulURL = data.restfulCurrencyRatesURL;
 
 	let currencyRate: unknown | null = null;
 	let supportedCurrency: Record<string, any> = data.supportedCurrency;
@@ -34,6 +33,12 @@
 	}
 
 	async function subscribeToCurrencyRates(): Promise<void> {
+		const ping = await fetch(`/rates`, { method: 'GET' });
+		if (!ping.ok) {
+			throw new Error('Ping failed!');
+		}
+		console.log('Ping is successful!');
+
 		const sse = new EventSource(`${sseURL}`);
 		sse.onmessage = (rate) => {
 			currencyRate = JSON.parse(rate.data);
@@ -47,10 +52,14 @@
 	}
 
 	async function rateSnapshotByTicker(ticker: string) {
-		const result = await fetch(`${restfulURL}`);
-		const rates = await result.json();
+		const result = await fetch(`/rates`, { method: 'GET' });
+		if (!result.ok) {
+			throw new Error('Get rate snapshot failed!');
+		}
 
-		return rates[ticker];
+		const data = await result.json();
+
+		return data.rates[ticker];
 	}
 
 	async function showRateDetails(ticker: string) {
