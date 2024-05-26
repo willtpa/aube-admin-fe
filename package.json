@@ -52,6 +52,7 @@
 	"dependencies": {
 		"cors": "^2.8.5",
 		"decimal.js": "^10.4.3",
-		"event-source-polyfill": "^1.0.31"
+		"event-source-polyfill": "^1.0.31",
+		"theme-change": "^2.5.0"
 	}
 }

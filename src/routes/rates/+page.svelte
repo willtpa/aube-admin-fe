@@ -118,8 +118,8 @@
 	});
 </script>
 
-<div class="px-5">
-	<h1 class="text-2xl font-bold py-3">Currency Rates (base USD)</h1>
+<div class="px-3">
+	<h1 class="text-xl py-8 px-8 font-thin">Currency Rates (base USD)</h1>
 
 	<div class="grid grid-flow-row-dense gap-4 grid-cols-2 grid-rows-2">
 		{#each Object.entries(currencyRates) as [key]}
