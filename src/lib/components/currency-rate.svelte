@@ -1,55 +1,47 @@
-<script>
-	export let ticker;
-	export let price_up;
-	export let rateBaseQuote;
-	export let id;
-	export let rateProviders;
+<script lang="ts">
+	import { type MedianFxRateV1 } from '$lib/services/currency-rate.d';
+
+	export let currencyRate: MedianFxRateV1;
+	export let isPriceUp: boolean = false;
+	export let isCrypto = false;
+	export let timeAgo: string;
 </script>
 
-<div class="py-1">
-	<div class="flex border rounded p-2">
-		<div class="flex px-1">
-			<div class="text-sm flex justify-between w-48">
-				<div class="flex items-center">
-					<div class="px-1">
-						<img class="w-8 h-8" src="./{ticker}.svg" alt="" />
-					</div>
-				</div>
-				<div
-					class="{price_up === 'true'
-						? 'bg-green-500'
-						: 'bg-red-500'} text-black px-2 rounded bg-opacity-50 flex items-center"
-				>
-					<span>{rateBaseQuote}</span>
-				</div>
-			</div>
-			<div>
-				<span
-					class="{price_up === 'true'
-						? 'text-green-600'
-						: 'text-red-600'} material-symbols-outlined"
-				>
-					{price_up === 'true' ? 'arrow_upward' : 'arrow_downward'}
-				</span>
-			</div>
-			<button
-				class="flex items-center text-secondary"
-				on:click={() => {
-					navigator.clipboard.writeText(rateBaseQuote);
-					alert(`Copied ${ticker} rate: ${rateBaseQuote} (id:${id})`);
-				}}
-			>
-				<span class="material-symbols-outlined"> content_copy </span>
-			</button>
+<div>
+	<div class="flex px-2 py-2">
+		<div class="w-10 flex py-1 justify-center">
+			{#if isCrypto}
+				<img class="w-4 h-4" src="./{currencyRate.quote}.svg" alt={currencyRate.quote} />
+			{:else}
+				<span class="text-xs">{currencyRate.quote}</span>
+			{/if}
 		</div>
-
-		<div class="px-5 flex items-center w-48">
-			{#each Object.entries(rateProviders) as [key]}
-				<img class="w-8 h-8" src="./{key}.svg" alt="" />
+		<div
+			class="{isPriceUp === true
+				? 'bg-green-500'
+				: 'bg-red-500'} w-32 flex justify-center rounded bg-opacity-50"
+		>
+			<span class="text-black text-xs py-1">{currencyRate.rate_base_quote}</span>
+		</div>
+		<span
+			class="{isPriceUp === true ? 'text-green-600' : 'text-red-600'} material-symbols-outlined"
+		>
+			{isPriceUp === true ? 'arrow_upward' : 'arrow_downward'}
+		</span>
+		<button
+			class="flex items-center text-secondary"
+			on:click={() => {
+				navigator.clipboard.writeText(currencyRate.rate_base_quote.toString());
+			}}
+		>
+			<span class="material-symbols-outlined"> content_copy </span>
+		</button>
+		<span class="text-xs py-1 justify-center w-10">({currencyRate.rates_count})</span>
+		<span class="text-xs py-1 justify-center w-20">{timeAgo}</span>
+		<div class="flex py-1 justify-center w-20">
+			{#each Object.entries(currencyRate.providers_contrib) as [key]}
+				<img class="w-4 h-4" src="./{key}.svg" alt={key} />
 			{/each}
-		</div>
-		<div class="flex">
-			<slot></slot>
 		</div>
 	</div>
 </div>

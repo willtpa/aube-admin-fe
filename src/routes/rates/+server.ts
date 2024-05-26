@@ -1,12 +1,12 @@
 import { PUBLIC_ADMINAPI_HOST } from '$env/static/public';
-import { CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET } from '$env/static/private';
+import { PUBLIC_CF_ACCESS_CLIENT_ID, PUBLIC_CF_ACCESS_CLIENT_SECRET } from '$env/static/public';
 import { json } from '@sveltejs/kit';
 
 export async function GET() {
 	const restfulCurrencyRatesURL = `${PUBLIC_ADMINAPI_HOST}/v1/admin/api/rates`;
 	const headers = {
-		'CF-Access-Client-Id': `${CF_ACCESS_CLIENT_ID}`,
-		'CF-Access-Client-Secret': `${CF_ACCESS_CLIENT_SECRET}`,
+		'CF-Access-Client-Id': `${PUBLIC_CF_ACCESS_CLIENT_ID}`,
+		'CF-Access-Client-Secret': `${PUBLIC_CF_ACCESS_CLIENT_SECRET}`,
 	};
 	const result = await fetch(`${restfulCurrencyRatesURL}`, { headers });
 	if (!result.ok) {

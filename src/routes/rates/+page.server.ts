@@ -1,30 +1,16 @@
 import type { PageServerLoad } from './$types';
-import { PUBLIC_ADMINAPI_HOST } from '$env/static/public';
-import { CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET } from '$env/static/private';
+import { handleRequestError } from '$utils/http';
+import { getRates } from '$services/currency-rate';
+import { type CurrencyCodeToMedianFxRateV1Map } from '$lib/services/currency-rate.d';
 
 export const load: PageServerLoad = async () => {
-	const response = await initRatesSnapshot();
+	try {
+		const currencyRates: CurrencyCodeToMedianFxRateV1Map = await getRates();
 
-	return {
-		supportedCurrency: response.supportedCurrency,
-	};
-};
-
-const initRatesSnapshot = async () => {
-	const restfulCurrencyRatesURL = `${PUBLIC_ADMINAPI_HOST}/v1/admin/api/rates`;
-	const headers = {
-		'CF-Access-Client-Id': `${CF_ACCESS_CLIENT_ID}`,
-		'CF-Access-Client-Secret': `${CF_ACCESS_CLIENT_SECRET}`,
-	};
-
-	const response = await fetch(restfulCurrencyRatesURL, { headers });
-	if (!response.ok) {
-		throw new Error(`HTTP error! status: ${response.status}`);
+		return {
+			currencyRates,
+		};
+	} catch (err) {
+		handleRequestError(err);
 	}
-
-	const supportedCurrency = await response.json();
-
-	return {
-		supportedCurrency,
-	};
 };
