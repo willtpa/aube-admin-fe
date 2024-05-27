@@ -2,10 +2,10 @@ import { handleRequestError } from '$utils/http';
 import { getAccountDetail } from '$services/ledger';
 import type { PageServerLoad } from './$types';
 
-type DatetimeParams = {
+interface DatetimeParams {
 	stringValue: string;
 	isoValue: string;
-};
+}
 
 function parseDatetime(dateStr: string | null): DatetimeParams {
 	const date = new Date(dateStr || '');

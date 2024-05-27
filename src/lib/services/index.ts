@@ -2,10 +2,10 @@ import type { ServiceProviders } from '$lib/providers';
 import { AuthService } from './auth';
 import { CurrencyRateService } from './currency-rate';
 
-export type Services = {
+export interface Services {
 	authService: AuthService;
 	currencyRateService: CurrencyRateService;
-};
+}
 
 export const initServices = (serviceProviders: ServiceProviders): Services => {
 	return {

@@ -4,10 +4,10 @@ import { NatsEventer } from './nats-eventer';
 export type CurrencyRateProvider = EventerProvider; // in the future, this could be more types
 // export type ServiceProvider = CurrencyRateProvider | AuthProvider; // service specific provider
 
-export type ServiceProviders = {
+export interface ServiceProviders {
 	authProvider: AuthProvider;
 	currencyRateProvider: CurrencyRateProvider;
-};
+}
 
 export interface EventerProvider {
 	subscribe(subject: string, onMessage: (...args: unknown[]) => void): void;

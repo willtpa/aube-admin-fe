@@ -1,18 +1,18 @@
 import { Requestor } from '../utils/http';
 
-type TransactionPayload = {
+interface TransactionPayload {
 	id: string;
 	amount: string;
 	fromAccountID: string;
 	toAccountID: string;
 	createdAt: string;
-};
+}
 
-type AccountDetailPayload = {
+interface AccountDetailPayload {
 	id: string;
 	balances: Record<string, string>;
 	transactions: TransactionPayload[];
-};
+}
 
 const requestor = new Requestor('http://localhost:8085/api');
 

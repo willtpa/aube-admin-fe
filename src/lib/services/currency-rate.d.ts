@@ -1,6 +1,6 @@
 import { Decimal } from 'decimal.js';
 
-export type MedianFxRateV1 = {
+export interface MedianFxRateV1 {
 	id: string;
 	version: number;
 	providers_contrib: Record<string, Decimal>;
@@ -13,6 +13,6 @@ export type MedianFxRateV1 = {
 	rate_base_quote: Decimal;
 	rate_base_usd: Decimal;
 	rate_usd_quote: Decimal;
-};
+}
 
 export type CurrencyCodeToMedianFxRateV1Map = Record<string, MedianFxRateV1>;

@@ -3,18 +3,18 @@ import { error, type NumericRange } from '@sveltejs/kit';
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
 type QueryParams = Record<string, string | number | boolean | null | undefined>;
 
-type RequestConfigGet = {
+interface RequestConfigGet {
 	query?: QueryParams;
 	headers?: Record<string, string>;
 	rawURL?: boolean;
-};
+}
 
-type RequestConfig = {
+interface RequestConfig {
 	query?: QueryParams;
 	body?: Record<string, unknown>;
 	headers?: Record<string, string>;
 	rawURL?: boolean;
-};
+}
 
 export class HTTPError extends Error {
 	constructor(
