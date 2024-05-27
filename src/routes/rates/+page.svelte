@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
-    import CurrencyRateComponent from '$components/currency-rate.svelte';
+    // import CurrencyRateComponent from '$components/currency-rate.svelte';
     import {
         type CurrencyCodeToMedianFxRateV1Map,
         type MedianFxRateV1,
@@ -121,8 +121,8 @@
 <div class="px-3">
     <h1 class="text-xl py-8 px-8 font-thin">Currency Rates (base USD)</h1>
 
-    <div class="grid grid-flow-row-dense gap-4 grid-cols-2 grid-rows-2">
-        {#each Object.entries(currencyRates) as [key]}
+    <!-- <div class="grid grid-flow-row-dense gap-4 grid-cols-2 grid-rows-2"> -->
+    <!-- {#each Object.entries(currencyRates) as [key]}
             {#if currencyRates[key]}
                 <CurrencyRateComponent
                     currencyRate={currencyRates[key] as MedianFxRateV1}
@@ -131,6 +131,99 @@
                     timeAgo={allTimeAgos[key] as string}
                 ></CurrencyRateComponent>
             {/if}
-        {/each}
+        {/each} -->
+    <!-- </div> -->
+
+    <div class="overflow-x-auto flex justify-center">
+        <table class="table w-4/5">
+            <!-- head -->
+            <thead>
+                <tr>
+                    <th>
+                        <div class="flex justify-start">Currency/Ticker</div>
+                    </th>
+                    <th>
+                        <div class="flex justify-start">Quote</div>
+                    </th>
+                    <th>
+                        <div class="flex justify-start">Quote Freshness</div>
+                    </th>
+                    <th>
+                        <div class="flex justify-start">Quote Providers</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- row 1 -->
+                {#each Object.entries(currencyRates) as [outerKey] (outerKey)}
+                    {#if currencyRates[outerKey]}
+                        <tr>
+                            <td>
+                                {#if isCrypto(outerKey)}
+                                    <img
+                                        class="w-6 h-6"
+                                        src="./{currencyRates[outerKey]!.quote}.svg"
+                                        alt={currencyRates[outerKey]!.quote}
+                                    />
+                                {:else}
+                                    <span class="text-m">{currencyRates[outerKey]!.quote}</span>
+                                {/if}
+                            </td>
+                            <td>
+                                <div class="flex justify-between w-40">
+                                    <div class="flex justify-between w-32">
+                                        <span
+                                            class="{allIsPriceUps[outerKey] === true
+                                                ? 'text-success'
+                                                : 'text-error'} text-m"
+                                            >{currencyRates[outerKey]!.rate_base_quote}</span
+                                        >
+                                        <button
+                                            class="flex items-center text-secondary"
+                                            on:click={async (): Promise<void> => {
+                                                await navigator.clipboard.writeText(currencyRates[outerKey]!.rate_base_quote.toString());
+                                            }}
+                                        >
+                                            <span class="material-symbols-outlined">
+                                                content_copy
+                                            </span>
+                                        </button>
+                                    </div>
+
+                                    <span
+                                        class="{allIsPriceUps[outerKey] === true
+                                            ? 'text-success'
+                                            : 'text-error'} material-symbols-outlined py-1"
+                                    >
+                                        {allIsPriceUps[outerKey] === true
+                                            ? 'arrow_upward'
+                                            : 'arrow_downward'}
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flex justify-between w-48">
+                                    <span class="text-sm py-1 justify-center w-40"
+                                        >{allTimeAgos[outerKey]} - {currencyRates[outerKey]!.rates_count}
+                                        rate(s)</span
+                                    >
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flex">
+                                    {#each Object.entries(currencyRates[outerKey]!.providers_contrib) as [innerKey]}
+                                        <img
+                                            class="w-6 h-6"
+                                            src="./{innerKey}.svg"
+                                            alt={innerKey}
+                                        />
+                                    {/each}
+                                </div>
+                            </td>
+                        </tr>
+                    {/if}
+                {/each}
+            </tbody>
+        </table>
     </div>
 </div>
