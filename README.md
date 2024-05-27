@@ -7,6 +7,10 @@ This is the backoffice, an internal facing tool to enable our teams to manage th
 ```bash
 npm i
 ```
+Duplicate the `.env.example` to create your own `.env` file in the root of the project, then:
+```bash
+npm run build
+```
 
 ### Run
 
