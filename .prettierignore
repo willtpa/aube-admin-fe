@@ -6,6 +6,9 @@ tsconfig.json
 svelte.config.js
 vite.config.ts
 playwright.config.ts
+tailwind.config.js
+postcss.config.js
+playwright.config.ts
 README.md
 yarn.lock
 node_modules/*

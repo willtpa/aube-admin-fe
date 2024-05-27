@@ -13,6 +13,11 @@ module.exports = {
       'error',
       '@typescript-eslint/no-explicit-any'
     ],
+    'indent': ['error', 4], // Enforce 4-space indentation
+    // 'prettier/prettier': ['error', {
+    //   'tabWidth': 4,
+    //   'useTabs': false
+    // }],
     "@typescript-eslint/explicit-function-return-type": ["error"],
     "@typescript-eslint/explicit-module-boundary-types": ["error"],
     "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
@@ -58,7 +63,14 @@ module.exports = {
       parserOptions: {
         parser: '@typescript-eslint/parser',
         project: './tsconfig.eslint.json'  // Use the new tsconfig for ESLint
-      }
+      },
+      // rules: {
+      //   'indent': ['error', 4], // Enforce 4-space indentation for .svelte files
+      //   'prettier/prettier': ['error', {
+      //     'tabWidth': 4,
+      //     'useTabs': false
+      //   }]
+      // }
     }
   ]
 };
