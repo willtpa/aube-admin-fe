@@ -2,7 +2,7 @@
 	import 'tailwindcss/tailwind.css';
 </script>
 
-<div class="navbar bg-base-100">
+<!-- <div class="navbar bg-base-100">
 	<div class="flex-1">
 		<a class="btn btn-neutral text-xl" href="/">Home</a>
 		<ul class="menu menu-horizontal px-1">
@@ -17,6 +17,6 @@
 			</li>
 		</ul>
 	</div>
-</div>
+</div> -->
 
 <slot />

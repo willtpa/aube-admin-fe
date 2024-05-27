@@ -26,6 +26,7 @@
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@types/cors": "^2.8.17",
 		"@types/eslint": "8.56.0",
+		"@types/event-source-polyfill": "^1.0.5",
 		"@typescript-eslint/eslint-plugin": "^6.0.0",
 		"@typescript-eslint/parser": "^6.0.0",
 		"autoprefixer": "^10.4.19",
@@ -50,6 +51,8 @@
 	"type": "module",
 	"dependencies": {
 		"cors": "^2.8.5",
-		"nats": "^2.25.0"
+		"decimal.js": "^10.4.3",
+		"event-source-polyfill": "^1.0.31",
+		"theme-change": "^2.5.0"
 	}
 }

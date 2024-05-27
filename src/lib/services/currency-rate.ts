@@ -1,24 +1,16 @@
-import type { CurrencyRateProvider, ServiceProviders } from '$lib/providers';
-import type { Currency } from '$lib/utils/enum';
-import { BaseService } from './base';
+import { PUBLIC_ADMINAPI_HOST } from '$env/static/public';
+import { CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET } from '$env/static/private';
+import { Requestor } from '$utils/http';
+import { type CurrencyCodeToMedianFxRateV1Map } from '$lib/services/currency-rate.d';
 
-type CurrencyRateFilters = {
-	targetCurrency: Currency;
-	// baseCurrency: Currency;
-	// add more filters here
-};
+const requestor = new Requestor(PUBLIC_ADMINAPI_HOST);
 
-export class CurrencyRateService extends BaseService {
-	private _currencyRateProvider: CurrencyRateProvider;
-	constructor(serviceProviders: ServiceProviders) {
-		super(serviceProviders);
-		this._currencyRateProvider = this.serviceProviders.currencyRateProvider;
-	}
+export async function getRates(): Promise<CurrencyCodeToMedianFxRateV1Map> {
+	// set headers for cloudflare access
+	const headers = {
+		'CF-Access-Client-Id': CF_ACCESS_CLIENT_ID,
+		'CF-Access-Client-Secret': CF_ACCESS_CLIENT_SECRET,
+	};
 
-	getRateStream(filters: CurrencyRateFilters, callback: (...args: unknown[]) => void) {
-		// This is a placeholder for a real implementation
-		console.log('CurrencyRateService.getRateStream called');
-		const subject = filters.targetCurrency || `*`;
-		this._currencyRateProvider.subscribe(subject, callback);
-	}
+	return requestor.get<CurrencyCodeToMedianFxRateV1Map>('/v1/admin/api/rates', { headers });
 }

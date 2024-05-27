@@ -1,17 +1,13 @@
 name = "aubesee-admin"
-type = "javascript"
 account_id = "your-cloudflare-account-id"
 workers_dev = true
 compatibility_date = "2024-01-01"
 
-[env.local]
-name = "aubesee-admin-local"
-vars = { API_BASEURL = "", API_KEY = "" }
+[env.development]
+vars = { PUBLIC_ADMINAPI_HOST="http://localhost:8085" }
 
 [env.staging]
-name = "aubesee-admin-staging"
-vars = { API_BASEURL = "", API_KEY = "" }
+vars = { PUBLIC_ADMINAPI_HOST="https://aubesee-admin-stg.triple-a.rocks" }
 
 [env.production]
-name = "aubesee-admin-production"
-vars = { API_BASEURL = "", API_KEY = "" }
+vars = { PUBLIC_ADMINAPI_HOST="https://aubesee-admin.triple-a.rocks" }
