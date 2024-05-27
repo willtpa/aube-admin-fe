@@ -50,10 +50,10 @@
         return Object.keys(currencyGrp).length > 0 ? currencyGrp : {};
     }
 
-	let sse: EventSource | undefined = undefined;
+    let sse: EventSource | undefined = undefined;
 
-	async function subscribeToCurrencyRates(): Promise<void> {
-		sse = new EventSource('rates/sse');
+    async function subscribeToCurrencyRates(): Promise<void> {
+        sse = new EventSource('rates/sse');
 
         sse.onerror = (error): void => {
             console.error('error occurred:', error);
@@ -104,7 +104,7 @@
         }
     }
 
-	let intervalId: NodeJS.Timeout | undefined = undefined;
+    let intervalId: NodeJS.Timeout | undefined = undefined;
 
     onMount(async () => {
         await subscribeToCurrencyRates();
