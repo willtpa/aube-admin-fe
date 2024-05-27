@@ -41,7 +41,7 @@
 			.filter((quote) => currRate.quote === quote)
 			.map((quote) => {
 				const currRateDec = new Decimal(currRate.rate_base_quote);
-				const prevRateDec = new Decimal(currencyGrp[quote].rate_base_quote);
+				const prevRateDec = new Decimal((currencyGrp[quote] as MedianFxRateV1).rate_base_quote);
 				allIsPriceUps[quote] = currRateDec.gt(prevRateDec);
 
 				currencyGrp[quote] = { ...(currencyGrp[quote] || {}), ...currRate };
@@ -103,7 +103,7 @@
 		}
 	}
 
-	let intervalId: number | undefined = undefined;
+	let intervalId: NodeJS.Timeout | undefined = undefined;
 
 	onMount(() => {
 		subscribeToCurrencyRates();
@@ -124,10 +124,10 @@
 		{#each Object.entries(currencyRates) as [key]}
 			{#if currencyRates[key]}
 				<CurrencyRateComponent
-					currencyRate={currencyRates[key]}
-					isPriceUp={allIsPriceUps[key]}
-					isCrypto={isCrypto(currencyRates[key].quote)}
-					timeAgo={allTimeAgos[key]}
+					currencyRate={currencyRates[key] as MedianFxRateV1}
+					isPriceUp={allIsPriceUps[key] as boolean}
+					isCrypto={isCrypto((currencyRates[key] as MedianFxRateV1).quote)}
+					timeAgo={allTimeAgos[key] as string}
 				></CurrencyRateComponent>
 			{/if}
 		{/each}
