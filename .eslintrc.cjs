@@ -1,5 +1,8 @@
 /** @type { import("eslint").Linter.Config } */
 module.exports = {
+  globals: {
+    NodeJS: true,
+  },
   root: true,
   extends: [
     'eslint:recommended',

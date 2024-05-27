@@ -106,7 +106,7 @@
         }
     }
 
-    let intervalId: number | undefined = undefined;
+    let intervalId: NodeJS.Timeout | undefined = undefined;
 
     onMount(async () => {
         await subscribeToCurrencyRates();

@@ -27,7 +27,7 @@
                 name="networkCurrencyId"
                 class="select select-bordered"
                 bind:value={inputCurrencyId}
-                on:change={(): string => inputCurrencyId}
+                on:change={(): string | null => inputCurrencyId}
             >
                 <option disabled>Select currency</option>
                 {#each Object.keys(data.detail.balances) as currency}

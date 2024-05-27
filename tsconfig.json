@@ -30,7 +30,7 @@
 		"strictPropertyInitialization": true,
 		"useUnknownInCatchVariables": true,
 	},
-	"include": ["src/**/*", ".", "src/env.d.ts", "/global.d.ts"], 
+	"include": ["src/**/*", ".", "src/env.d.ts"], 
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
 	// except $lib which is handled by https://kit.svelte.dev/docs/configuration#files
 	//
