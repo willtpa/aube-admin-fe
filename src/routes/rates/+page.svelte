@@ -20,7 +20,7 @@
     }
 
     // re-order currency rates by crypto first and non crypto after
-    let currencyRates: CurrencyCodeToMedianFxRateV1Map = Object.fromEntries(
+    let currencyRates = Object.fromEntries(
         Object.entries(data.currencyRates).sort(([aKey], [bKey]) => {
             if (isCrypto(aKey) && !isCrypto(bKey)) {
                 return -1;
@@ -66,7 +66,7 @@
         };
 
         sse.onmessage = (rate): void => {
-            const currencyRate: MedianFxRateV1 = JSON.parse(rate.data) as MedianFxRateV1;
+            const currencyRate = JSON.parse(rate.data) as MedianFxRateV1;
             if (Object.keys(currencyRate).length > 0) {
                 currencyRates = {
                     ...currencyRates,
