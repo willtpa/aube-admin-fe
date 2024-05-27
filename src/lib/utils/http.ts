@@ -1,4 +1,4 @@
-import { error, type NumericRange } from '@sveltejs/kit';
+import { error, isHttpError, type NumericRange } from '@sveltejs/kit';
 
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
 type QueryParams = Record<string, string | number | boolean | null | undefined>;
@@ -16,10 +16,14 @@ interface RequestConfig {
 	rawURL?: boolean;
 }
 
+const StatusInternalServerError = 500;
+const ErrorLowerBound = 400;
+const ErrorUpperBound = 599;
+
 export class HTTPError extends Error {
 	constructor(
-		public status: NumericRange<400, 599>,
-		public message: string,
+		public status: NumericRange<typeof ErrorLowerBound, typeof ErrorUpperBound>,
+		public override message: string,
 	) {
 		super(message);
 	}
@@ -28,17 +32,17 @@ export class HTTPError extends Error {
 export function querystring(params: QueryParams): string {
 	return Object.entries(params)
 		.filter(([, v]) => Boolean(v))
-		.map(([k, v]) => `${k}=${encodeURIComponent(v || '')}`)
+		.map(([k, v]) => `${k}=${encodeURIComponent(v ?? '')}`)
 		.join('&');
 }
 
 export function handleRequestError(err: unknown): never {
-	if (err instanceof HTTPError) {
-		error(err.status, err.message);
+	if (isHttpError(err)) {
+		error(err.status, err.body);
 	} else if (err instanceof Error) {
-		error(500, err.message);
+		error(StatusInternalServerError);
 	}
-	error(500, `${err}`);
+	error(StatusInternalServerError);
 }
 
 export class Requestor {
@@ -51,7 +55,7 @@ export class Requestor {
 		const result = await fetch(reqURL, {
 			...config,
 			method,
-			body: config?.body ? JSON.stringify(config.body) : undefined,
+			body: config?.body ? JSON.stringify(config.body) : null,
 			headers: {
 				'Content-Type': 'application/json',
 				...config?.headers,
@@ -61,7 +65,7 @@ export class Requestor {
 			throw new Error(`HTTP error: ${result.status}`);
 		}
 
-		return result.json();
+		return result.json() as Promise<T>;
 	}
 
 	async get<T>(url: string, config?: RequestConfigGet): Promise<T> {
