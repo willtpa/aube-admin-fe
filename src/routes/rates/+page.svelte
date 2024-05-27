@@ -6,8 +6,6 @@
         type MedianFxRateV1,
     } from '$lib/services/currency-rate.d';
     import type { PageData } from './$types';
-    import { initFxRatesSubscription } from '$lib/providers/sse';
-    import type { EventSourcePolyfill } from 'event-source-polyfill';
     import Decimal from 'decimal.js';
 
     export let data: PageData;
@@ -52,10 +50,10 @@
         return Object.keys(currencyGrp).length > 0 ? currencyGrp : {};
     }
 
-    let sse: EventSourcePolyfill | undefined = undefined;
+    let sse: EventSource | undefined = undefined;
 
     async function subscribeToCurrencyRates(): Promise<void> {
-        sse = initFxRatesSubscription();
+        sse = new EventSource('rates/sse');
 
         sse.onerror = (error): void => {
             console.error('error occurred:', error);
