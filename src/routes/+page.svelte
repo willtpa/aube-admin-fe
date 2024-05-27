@@ -1,4 +1,4 @@
-<main>
+<main class="pt-24 h-lvh flex flex-start flex-col items-center justify-start">
 	<h1 class="mt-8">Welcome to Triple-A Backoffice</h1>
 	<ul>
 		<li class="card card-compact w-96 bg-base-100 shadow-xl">
@@ -12,14 +12,3 @@
 		</li>
 	</ul>
 </main>
-
-<style lang="scss">
-	main {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: flex-start;
-		padding-top: 72px;
-		height: 100vh;
-	}
-</style>
