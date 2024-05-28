@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
+    import { fade } from 'svelte/transition';
     // import CurrencyRateComponent from '$components/currency-rate.svelte';
     import {
         type CurrencyCodeToMedianFxRateV1Map,
@@ -104,6 +105,24 @@
         }
     }
 
+    function isInvalid(currRate: MedianFxRateV1): boolean {
+        const maxRateLifespan = 60000; // 1 min (in milliseconds) // just example modify as needed
+        const rateCreatedAtDate = new Date(currRate.created_at);
+        const now = new Date();
+        const diff = now.getTime() - rateCreatedAtDate.getTime();
+
+        return diff > maxRateLifespan;
+    }
+
+    let showToast = false;
+    async function copyToClipboard(text: string): Promise<void> {
+        await navigator.clipboard.writeText(text);
+        showToast = true;
+
+        await new Promise((r) => setTimeout(r, 1_000));
+        showToast = false;
+    }
+
     let intervalId: NodeJS.Timeout | undefined = undefined;
 
     onMount(async () => {
@@ -121,10 +140,17 @@
 <main class="mx-auto max-w-[1050px] mt-8">
     <h1>Currency Rates (base USD)</h1>
     <div class="overflow-x-auto not-prose">
+        {#if showToast}
+            <div class="toast toast-center toast-top" transition:fade>
+                <div class="alert alert-neutral-content">Copied rates to clipboard</div>
+            </div>
+        {/if}
+
         <table class="table">
             <thead>
                 <tr>
                     <th></th>
+                    <th class="text-center capitalize"> Status </th>
                     <th class="text-right capitalize"> Quote </th>
                     <th class="text-center capitalize"> Currency </th>
                     <th class="text-center capitalize"> Last updated </th>
@@ -135,13 +161,31 @@
                 {#each Object.entries(currencyRates) as [outerKey] (outerKey)}
                     {#if currencyRates[outerKey]}
                         <tr class="hover">
+                            <!-- Copy rates -->
                             <td>
                                 <button
                                     class="flex items-center text-secondary"
-                                    on:click={async (): Promise<void> => { await navigator.clipboard.writeText(currencyRates[outerKey]!.rate_base_quote.toString());}}
+                                    on:click={async (): Promise<void> => { await copyToClipboard(currencyRates[outerKey]!.rate_base_quote.toString()) }}
                                 >
                                     <span class="material-symbols-outlined"> content_copy </span>
                                 </button>
+                            </td>
+                            <!-- Status -->
+                            <td class="text-center">
+                                <!-- <div
+                                    class="tooltip tooltip-error tooltip-right"
+                                    data-tip="invalid rate"
+                                >
+                                    <span
+                                        class="material-symbols-outlined text-error"
+                                        hidden={isInvalid(currencyRates[outerKey]!)}
+                                    >
+                                        warning
+                                    </span>
+                                </div> -->
+                                {#if isInvalid(currencyRates[outerKey]!)}
+                                    <small class="badge badge-error gap-2">Invalid</small>
+                                {/if}
                             </td>
                             <!-- Rate -->
                             <td
