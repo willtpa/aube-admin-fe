@@ -38,15 +38,15 @@
         currRate: MedianFxRateV1,
     ): CurrencyCodeToMedianFxRateV1Map {
         Object.keys(currencyGrp)
-            .filter((quote) => currRate.quote === quote)
-            .map((quote) => {
+            .filter((base) => currRate.base === base)
+            .map((base) => {
                 const currRateDec = new Decimal(currRate.rate_base_quote);
                 const prevRateDec = new Decimal(
-                    (currencyGrp[quote] as MedianFxRateV1).rate_base_quote,
+                    (currencyGrp[base] as MedianFxRateV1).rate_base_quote,
                 );
-                allIsPriceUps[quote] = currRateDec.gt(prevRateDec);
+                allIsPriceUps[base] = currRateDec.gt(prevRateDec);
 
-                currencyGrp[quote] = { ...(currencyGrp[quote] ?? {}), ...currRate };
+                currencyGrp[base] = { ...(currencyGrp[base] ?? {}), ...currRate };
             });
         return Object.keys(currencyGrp).length > 0 ? currencyGrp : {};
     }
@@ -80,8 +80,8 @@
     // return a map of quote to timeAgo
     function updateTimeAgo(): void {
         allTimeAgos = Object.fromEntries(
-            Object.entries(currencyRates).map(([quote, rate]) => {
-                return [quote, getTimeAgo(new Date(rate.created_at))];
+            Object.entries(currencyRates).map(([base, rate]) => {
+                return [base, getTimeAgo(new Date(rate.created_at))];
             }),
         );
     }
@@ -105,13 +105,13 @@
         }
     }
 
-    function isInvalid(currRate: MedianFxRateV1): boolean {
+    function isValid(currRate: MedianFxRateV1): boolean {
         const maxRateLifespan = 3600000; // 1h (in milliseconds) // just example modify as needed
         const rateCreatedAtDate = new Date(currRate.created_at);
         const now = new Date();
         const diff = now.getTime() - rateCreatedAtDate.getTime();
 
-        return diff > maxRateLifespan;
+        return diff < maxRateLifespan;
     }
 
     let showToast = false;
@@ -158,14 +158,14 @@
                 </tr>
             </thead>
             <tbody>
-                {#each Object.entries(currencyRates) as [outerKey, outerValue] (outerKey)}
+                {#each Object.entries(currencyRates) as [base, rates] (base)}
                     <!-- {#if currencyRates[outerKey]} -->
                     <tr class="hover">
                         <!-- Copy rates -->
                         <td>
                             <button
                                 class="flex items-center text-secondary"
-                                on:click={async (): Promise<void> => { await copyToClipboard(outerValue.rate_base_quote.toString()) }}
+                                on:click={async (): Promise<void> => { await copyToClipboard(rates.rate_base_quote.toString()) }}
                             >
                                 <span class="material-symbols-outlined"> content_copy </span>
                             </button>
@@ -183,7 +183,7 @@
                                         warning
                                     </span>
                                 </div> -->
-                            {#if isInvalid(outerValue)}
+                            {#if isValid(rates)}
                                 <div
                                     class="tooltip tooltip-error tooltip-right"
                                     data-tip="invalid rate"
@@ -195,48 +195,46 @@
                         <!-- Rate -->
                         <td
                             class="flex align-center justify-end
-                                {allIsPriceUps[outerKey] === true ? 'text-success' : 'text-error'}"
+                                {allIsPriceUps[base] === true ? 'text-success' : 'text-error'}"
                         >
-                            {outerValue.rate_base_quote}
+                            {rates.rate_base_quote}
                             <span class="material-symbols-outlined">
-                                {allIsPriceUps[outerKey] === true
-                                    ? 'arrow_upward'
-                                    : 'arrow_downward'}
+                                {allIsPriceUps[base] === true ? 'arrow_upward' : 'arrow_downward'}
                             </span>
                         </td>
 
                         <!-- currency -->
                         <td class="text-center">
-                            {#if isCrypto(outerKey)}
+                            {#if isCrypto(base)}
                                 <img
                                     class="w-6 h-6 mx-auto"
-                                    src="./{outerValue.quote}.svg"
-                                    alt={outerValue.quote}
+                                    src="./{rates.base}.svg"
+                                    alt={rates.base}
                                 />
                             {:else}
-                                <span class="text-m">{outerValue.quote}</span>
+                                <span class="text-m">{rates.base}</span>
                             {/if}
                         </td>
 
                         <!-- Last updated -->
                         <td class="w-48 text-center">
-                            {allTimeAgos[outerKey]}
+                            {allTimeAgos[base]}
                         </td>
 
                         <!-- providers -->
                         <td class="flex justify-evenly">
                             <ul class="list-none flex">
-                                {#each Object.entries(outerValue.providers_contrib) as [innerKey]}
+                                {#each Object.entries(rates.providers_contrib) as [provider]}
                                     <li>
                                         <img
                                             class="w-6 h-6"
-                                            src="./{innerKey}.svg"
-                                            alt={innerKey}
+                                            src="./{provider}.svg"
+                                            alt={provider}
                                         />
                                     </li>
                                 {/each}
                             </ul>
-                            {outerValue.rates_count} rate(s)
+                            {rates.rates_count} rate(s)
                         </td>
                     </tr>
                     <!-- {/if} -->
