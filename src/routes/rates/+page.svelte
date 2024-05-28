@@ -139,7 +139,7 @@
 </script>
 
 <main class="mx-auto max-w-[1050px] mt-8">
-    <h1>Currency Rates (quote USD)</h1>
+    <h1>Currency Rates</h1>
     <div class="overflow-x-auto not-prose">
         {#if showToast}
             <div class="toast toast-center toast-top" transition:fade>
@@ -176,7 +176,7 @@
                             class="flex align-center justify-end
                                 {allIsPriceUps[base] === true ? 'text-success' : 'text-error'}"
                         >
-                            {rates.rate_base_quote}
+                            ${rates.rate_base_quote}
                             <span class="material-symbols-outlined">
                                 {allIsPriceUps[base] === true ? 'arrow_upward' : 'arrow_downward'}
                             </span>

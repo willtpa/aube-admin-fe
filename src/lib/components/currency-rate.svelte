@@ -18,7 +18,7 @@
         </div>
         <div class="w-32 flex justify-center py-1">
             <span class="{isPriceUp === true ? 'text-success' : 'text-error'} text-m"
-                >US$ {currencyRate.rate_base_quote}</span
+                >{currencyRate.rate_base_quote}</span
             >
         </div>
         <span
