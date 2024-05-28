@@ -105,14 +105,15 @@
         }
     }
 
-    function isValid(currRate: MedianFxRateV1): boolean {
-        const maxRateLifespan = 3600000; // 1h (in milliseconds) // just example modify as needed
-        const rateCreatedAtDate = new Date(currRate.created_at);
-        const now = new Date();
-        const diff = now.getTime() - rateCreatedAtDate.getTime();
+    // leave it for now. If no use in future, will remove
+    // function isValid(currRate: MedianFxRateV1): boolean {
+    //     const maxRateLifespan = 3600000; // 1h (in milliseconds) // just example modify as needed
+    //     const rateCreatedAtDate = new Date(currRate.created_at);
+    //     const now = new Date();
+    //     const diff = now.getTime() - rateCreatedAtDate.getTime();
 
-        return diff < maxRateLifespan;
-    }
+    //     return diff > maxRateLifespan;
+    // }
 
     let showToast = false;
     async function copyToClipboard(text: string): Promise<void> {
@@ -150,7 +151,6 @@
             <thead>
                 <tr>
                     <th></th>
-                    <th class="text-center capitalize"> Status </th>
                     <th class="text-right capitalize"> Quote </th>
                     <th class="text-center capitalize"> Base currency </th>
                     <th class="text-center capitalize"> Last updated </th>
@@ -170,28 +170,7 @@
                                 <span class="material-symbols-outlined"> content_copy </span>
                             </button>
                         </td>
-                        <!-- Status -->
-                        <td class="text-center">
-                            <!-- <div
-                                    class="tooltip tooltip-error tooltip-right"
-                                    data-tip="invalid rate"
-                                >
-                                    <span
-                                        class="material-symbols-outlined text-error"
-                                        hidden={isInvalid(currencyRates[outerKey]!)}
-                                    >
-                                        warning
-                                    </span>
-                                </div> -->
-                            {#if isValid(rates)}
-                                <div
-                                    class="tooltip tooltip-error tooltip-right"
-                                    data-tip="invalid rate"
-                                >
-                                    <small class="badge badge-error gap-2">Invalid</small>
-                                </div>
-                            {/if}
-                        </td>
+
                         <!-- Rate -->
                         <td
                             class="flex align-center justify-end
