@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
-    import CurrencyRateComponent from '$components/currency-rate.svelte';
+    import { fade } from 'svelte/transition';
+    // import CurrencyRateComponent from '$components/currency-rate.svelte';
     import {
         type CurrencyCodeToMedianFxRateV1Map,
         type MedianFxRateV1,
@@ -37,15 +38,15 @@
         currRate: MedianFxRateV1,
     ): CurrencyCodeToMedianFxRateV1Map {
         Object.keys(currencyGrp)
-            .filter((quote) => currRate.quote === quote)
-            .map((quote) => {
+            .filter((base) => currRate.base === base)
+            .map((base) => {
                 const currRateDec = new Decimal(currRate.rate_base_quote);
                 const prevRateDec = new Decimal(
-                    (currencyGrp[quote] as MedianFxRateV1).rate_base_quote,
+                    (currencyGrp[base] as MedianFxRateV1).rate_base_quote,
                 );
-                allIsPriceUps[quote] = currRateDec.gt(prevRateDec);
+                allIsPriceUps[base] = currRateDec.gt(prevRateDec);
 
-                currencyGrp[quote] = { ...(currencyGrp[quote] ?? {}), ...currRate };
+                currencyGrp[base] = { ...(currencyGrp[base] ?? {}), ...currRate };
             });
         return Object.keys(currencyGrp).length > 0 ? currencyGrp : {};
     }
@@ -79,8 +80,8 @@
     // return a map of quote to timeAgo
     function updateTimeAgo(): void {
         allTimeAgos = Object.fromEntries(
-            Object.entries(currencyRates).map(([quote, rate]) => {
-                return [quote, getTimeAgo(new Date(rate.created_at))];
+            Object.entries(currencyRates).map(([base, rate]) => {
+                return [base, getTimeAgo(new Date(rate.created_at))];
             }),
         );
     }
@@ -104,6 +105,25 @@
         }
     }
 
+    // leave it for now. If no use in future, will remove
+    // function isValid(currRate: MedianFxRateV1): boolean {
+    //     const maxRateLifespan = 3600000; // 1h (in milliseconds) // just example modify as needed
+    //     const rateCreatedAtDate = new Date(currRate.created_at);
+    //     const now = new Date();
+    //     const diff = now.getTime() - rateCreatedAtDate.getTime();
+
+    //     return diff > maxRateLifespan;
+    // }
+
+    let showToast = false;
+    async function copyToClipboard(text: string): Promise<void> {
+        await navigator.clipboard.writeText(text);
+        showToast = true;
+
+        await new Promise((r) => setTimeout(r, 1_000));
+        showToast = false;
+    }
+
     let intervalId: NodeJS.Timeout | undefined = undefined;
 
     onMount(async () => {
@@ -118,19 +138,87 @@
     });
 </script>
 
-<div class="px-3">
-    <h1 class="text-xl py-8 px-8 font-thin">Currency Rates (base USD)</h1>
+<main class="mx-auto max-w-[1050px] mt-8">
+    <h1>Currency Rates (quote USD)</h1>
+    <div class="overflow-x-auto not-prose">
+        {#if showToast}
+            <div class="toast toast-center toast-top" transition:fade>
+                <div class="alert alert-neutral-content">Copied rates to clipboard</div>
+            </div>
+        {/if}
 
-    <div class="grid grid-flow-row-dense gap-4 grid-cols-2 grid-rows-2">
-        {#each Object.entries(currencyRates) as [key]}
-            {#if currencyRates[key]}
-                <CurrencyRateComponent
-                    currencyRate={currencyRates[key] as MedianFxRateV1}
-                    isPriceUp={allIsPriceUps[key] as boolean}
-                    isCrypto={isCrypto((currencyRates[key] as MedianFxRateV1).quote)}
-                    timeAgo={allTimeAgos[key] as string}
-                ></CurrencyRateComponent>
-            {/if}
-        {/each}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th class="text-right capitalize"> Quote </th>
+                    <th class="text-center capitalize"> Base currency </th>
+                    <th class="text-center capitalize"> Last updated </th>
+                    <th class="text-center capitalize"> Providers </th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each Object.entries(currencyRates) as [base, rates] (base)}
+                    <!-- {#if currencyRates[outerKey]} -->
+                    <tr class="hover">
+                        <!-- Copy rates -->
+                        <td>
+                            <button
+                                class="flex items-center text-secondary"
+                                on:click={async (): Promise<void> => { await copyToClipboard(rates.rate_base_quote.toString()) }}
+                            >
+                                <span class="material-symbols-outlined"> content_copy </span>
+                            </button>
+                        </td>
+
+                        <!-- Rate -->
+                        <td
+                            class="flex align-center justify-end
+                                {allIsPriceUps[base] === true ? 'text-success' : 'text-error'}"
+                        >
+                            {rates.rate_base_quote}
+                            <span class="material-symbols-outlined">
+                                {allIsPriceUps[base] === true ? 'arrow_upward' : 'arrow_downward'}
+                            </span>
+                        </td>
+
+                        <!-- currency -->
+                        <td class="text-center">
+                            {#if isCrypto(base)}
+                                <img
+                                    class="w-6 h-6 mx-auto"
+                                    src="./{rates.base}.svg"
+                                    alt={rates.base}
+                                />
+                            {:else}
+                                <span class="text-m">{rates.base}</span>
+                            {/if}
+                        </td>
+
+                        <!-- Last updated -->
+                        <td class="w-48 text-center">
+                            {allTimeAgos[base]}
+                        </td>
+
+                        <!-- providers -->
+                        <td class="flex justify-evenly">
+                            <ul class="list-none flex">
+                                {#each Object.entries(rates.providers_contrib) as [provider]}
+                                    <li>
+                                        <img
+                                            class="w-6 h-6"
+                                            src="./{provider}.svg"
+                                            alt={provider}
+                                        />
+                                    </li>
+                                {/each}
+                            </ul>
+                            {rates.rates_count} rate(s)
+                        </td>
+                    </tr>
+                    <!-- {/if} -->
+                {/each}
+            </tbody>
+        </table>
     </div>
-</div>
+</main>
