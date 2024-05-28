@@ -158,21 +158,21 @@
                 </tr>
             </thead>
             <tbody>
-                {#each Object.entries(currencyRates) as [outerKey] (outerKey)}
-                    {#if currencyRates[outerKey]}
-                        <tr class="hover">
-                            <!-- Copy rates -->
-                            <td>
-                                <button
-                                    class="flex items-center text-secondary"
-                                    on:click={async (): Promise<void> => { await copyToClipboard(currencyRates[outerKey]!.rate_base_quote.toString()) }}
-                                >
-                                    <span class="material-symbols-outlined"> content_copy </span>
-                                </button>
-                            </td>
-                            <!-- Status -->
-                            <td class="text-center">
-                                <!-- <div
+                {#each Object.entries(currencyRates) as [outerKey, outerValue] (outerKey)}
+                    <!-- {#if currencyRates[outerKey]} -->
+                    <tr class="hover">
+                        <!-- Copy rates -->
+                        <td>
+                            <button
+                                class="flex items-center text-secondary"
+                                on:click={async (): Promise<void> => { await copyToClipboard(outerValue.rate_base_quote.toString()) }}
+                            >
+                                <span class="material-symbols-outlined"> content_copy </span>
+                            </button>
+                        </td>
+                        <!-- Status -->
+                        <td class="text-center">
+                            <!-- <div
                                     class="tooltip tooltip-error tooltip-right"
                                     data-tip="invalid rate"
                                 >
@@ -183,58 +183,63 @@
                                         warning
                                     </span>
                                 </div> -->
-                                {#if isInvalid(currencyRates[outerKey]!)}
+                            {#if isInvalid(outerValue)}
+                                <div
+                                    class="tooltip tooltip-error tooltip-right"
+                                    data-tip="invalid rate"
+                                >
                                     <small class="badge badge-error gap-2">Invalid</small>
-                                {/if}
-                            </td>
-                            <!-- Rate -->
-                            <td
-                                class="flex align-center justify-end
+                                </div>
+                            {/if}
+                        </td>
+                        <!-- Rate -->
+                        <td
+                            class="flex align-center justify-end
                                 {allIsPriceUps[outerKey] === true ? 'text-success' : 'text-error'}"
-                            >
-                                {currencyRates[outerKey]!.rate_base_quote}
-                                <span class="material-symbols-outlined">
-                                    {allIsPriceUps[outerKey] === true
-                                        ? 'arrow_upward'
-                                        : 'arrow_downward'}
-                                </span>
-                            </td>
+                        >
+                            {outerValue.rate_base_quote}
+                            <span class="material-symbols-outlined">
+                                {allIsPriceUps[outerKey] === true
+                                    ? 'arrow_upward'
+                                    : 'arrow_downward'}
+                            </span>
+                        </td>
 
-                            <!-- currency -->
-                            <td class="text-center">
-                                {#if isCrypto(outerKey)}
-                                    <img
-                                        class="w-6 h-6 mx-auto"
-                                        src="./{currencyRates[outerKey]!.quote}.svg"
-                                        alt={currencyRates[outerKey]!.quote}
-                                    />
-                                {:else}
-                                    <span class="text-m">{currencyRates[outerKey]!.quote}</span>
-                                {/if}
-                            </td>
+                        <!-- currency -->
+                        <td class="text-center">
+                            {#if isCrypto(outerKey)}
+                                <img
+                                    class="w-6 h-6 mx-auto"
+                                    src="./{outerValue.quote}.svg"
+                                    alt={outerValue.quote}
+                                />
+                            {:else}
+                                <span class="text-m">{outerValue.quote}</span>
+                            {/if}
+                        </td>
 
-                            <!-- Last updated -->
-                            <td class="w-48 text-center">
-                                {allTimeAgos[outerKey]}
-                            </td>
+                        <!-- Last updated -->
+                        <td class="w-48 text-center">
+                            {allTimeAgos[outerKey]}
+                        </td>
 
-                            <!-- providers -->
-                            <td class="flex justify-evenly">
-                                <ul class="list-none flex">
-                                    {#each Object.entries(currencyRates[outerKey]!.providers_contrib) as [innerKey]}
-                                        <li>
-                                            <img
-                                                class="w-6 h-6"
-                                                src="./{innerKey}.svg"
-                                                alt={innerKey}
-                                            />
-                                        </li>
-                                    {/each}
-                                </ul>
-                                {currencyRates[outerKey]!.rates_count} rate(s)
-                            </td>
-                        </tr>
-                    {/if}
+                        <!-- providers -->
+                        <td class="flex justify-evenly">
+                            <ul class="list-none flex">
+                                {#each Object.entries(outerValue.providers_contrib) as [innerKey]}
+                                    <li>
+                                        <img
+                                            class="w-6 h-6"
+                                            src="./{innerKey}.svg"
+                                            alt={innerKey}
+                                        />
+                                    </li>
+                                {/each}
+                            </ul>
+                            {outerValue.rates_count} rate(s)
+                        </td>
+                    </tr>
+                    <!-- {/if} -->
                 {/each}
             </tbody>
         </table>
