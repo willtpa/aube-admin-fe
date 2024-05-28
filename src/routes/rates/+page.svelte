@@ -106,7 +106,7 @@
     }
 
     function isInvalid(currRate: MedianFxRateV1): boolean {
-        const maxRateLifespan = 60000; // 1 min (in milliseconds) // just example modify as needed
+        const maxRateLifespan = 3600000; // 1h (in milliseconds) // just example modify as needed
         const rateCreatedAtDate = new Date(currRate.created_at);
         const now = new Date();
         const diff = now.getTime() - rateCreatedAtDate.getTime();
