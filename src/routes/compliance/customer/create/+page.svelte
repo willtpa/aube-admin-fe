@@ -2,10 +2,6 @@
     import AddressInputs from '../../addressInputs.svelte';
 
     let customerTypeFieldsToShow = 'corporate';
-
-    function toggleFields(event: Event): void {
-        customerTypeFieldsToShow = (event.target as HTMLSelectElement).value;
-    }
 </script>
 
 <div class="mx-auto max-w-4xl mt-5">
@@ -17,7 +13,7 @@
                     >Type</label
                 >
                 <select
-                    on:change={toggleFields}
+                    bind:value={customerTypeFieldsToShow}
                     id="customer_type"
                     name="customer_type"
                     required
