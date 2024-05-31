@@ -287,7 +287,7 @@
     {/each}
 
     <!-- currency rates table -->
-    <div class="overflow-x-auto not-prose mt-8">
+    <div class="overflow-x not-prose mt-8">
         {#if showToast}
             <div class="toast toast-center toast-top" transition:fade>
                 <div class="alert alert-neutral-content">Copied rates to clipboard</div>
