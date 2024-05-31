@@ -16,7 +16,7 @@ module.exports = {
       'error',
       '@typescript-eslint/no-explicit-any'
     ],
-    'indent': ['error', 4], // Enforce 4-space indentation
+    'indent': ['error', 4, { "SwitchCase": 1 }], // Enforce 4-space indentation
     // 'prettier/prettier': ['error', {
     //   'tabWidth': 4,
     //   'useTabs': false
