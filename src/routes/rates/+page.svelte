@@ -9,15 +9,16 @@
     import type { PageData } from './$types';
     import Decimal from 'decimal.js';
     import { browser } from '$app/environment';
+    import { isCrypto } from '$lib/utils/common';
 
     export let data: PageData;
 
-    function isCrypto(symbol: string): boolean {
-        return (
-            ['BTC', 'ETH', 'MATIC', 'SOL', 'MATIC', 'TRX', 'XLM', 'USDT', 'USDC'].indexOf(symbol) !=
-            -1
-        );
-    }
+    // function isCrypto(symbol: string): boolean {
+    //     return (
+    //         ['BTC', 'ETH', 'MATIC', 'SOL', 'MATIC', 'TRX', 'XLM', 'USDT', 'USDC'].indexOf(symbol) !=
+    //         -1
+    //     );
+    // }
 
     // re-order currency rates by crypto first and non crypto after
     let currencyRates = Object.fromEntries(
@@ -226,7 +227,7 @@
             <div class="stats shadow px-1">
                 <div class="stat w-72">
                     <div class="stat-figure text-secondary">
-                        <div class="indicator">
+                        <div class="indicator" id="fav-{base}">
                             <span class="indicator-item">
                                 {#if !isValid(currencyRates[base]!)}
                                     <span class="material-symbols-outlined text-error">
@@ -311,14 +312,14 @@
                         <!-- favorite -->
                         <td class="text-center">
                             <button on:click={():void => setFavCurrency(base)}>
-                                <span class="material-icons text-primary">
+                                <span class="material-icons text-primary add-favcurrency">
                                     {favCurrencies.includes(base) ? 'star' : 'star_outline'}
                                 </span>
                             </button>
                         </td>
 
                         <!-- currency -->
-                        <td class="text-center">
+                        <td class="text-center currency">
                             {#if isCrypto(base)}
                                 <img
                                     class="w-6 h-6 mx-auto"

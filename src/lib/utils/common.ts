@@ -11,3 +11,11 @@ export async function readFile(filePath: string): Promise<Record<string, unknown
 export function isEnumType<T extends object>(value: unknown, obj: T): value is T[keyof T] {
     return Object.values(obj).includes(value);
 }
+
+export function isCrypto(symbol: string): boolean {
+    const notFound = -1;
+    return (
+        ['BTC', 'ETH', 'MATIC', 'SOL', 'MATIC', 'TRX', 'XLM', 'USDT', 'USDC'].indexOf(symbol) !=
+        notFound
+    );
+}
