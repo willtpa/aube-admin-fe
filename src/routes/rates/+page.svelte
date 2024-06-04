@@ -224,7 +224,7 @@
     <!-- pin favorite currencies -->
     {#each favCurrencies as base}
         {#if currencyRates[base] !== undefined}
-            <div class="stats shadow px-1">
+            <div class="stats shadow px-1 fav-currency">
                 <div class="stat w-72">
                     <div class="stat-figure text-secondary">
                         <div class="indicator" id="fav-{base}">
@@ -310,9 +310,13 @@
                 {#each Object.entries(currencyRates).filter( ([base, _]) => filterByType(base), ) as [base, rates] (base)}
                     <tr class="hover" in:fade>
                         <!-- favorite -->
-                        <td class="text-center">
-                            <button on:click={():void => setFavCurrency(base)}>
-                                <span class="material-icons text-primary add-favcurrency">
+                        <td class="text-center fav-btn">
+                            <button
+                                on:click={():void => setFavCurrency(base)}
+                                data-testid="add-fav-{base}"
+                                id="add-fav-{base}"
+                            >
+                                <span class="material-icons text-primary">
                                     {favCurrencies.includes(base) ? 'star' : 'star_outline'}
                                 </span>
                             </button>
@@ -325,16 +329,20 @@
                                     class="w-6 h-6 mx-auto"
                                     src="./{rates.base}.svg"
                                     alt={rates.base}
+                                    data-testid="currency-{base}"
                                 />
                             {:else}
-                                <span class="text-m">{rates.base}</span>
+                                <span class="text-m" data-testid="currency-{base}"
+                                    >{rates.base}</span
+                                >
                             {/if}
                         </td>
 
                         <!-- rate - usd per unit -->
                         <td
-                            class="text-right whitespace-nowrap
+                            class="text-right whitespace-nowrap rate-usd-per-unit
                                 {allIsPriceUps[base] === true ? 'text-success' : 'text-error'}"
+                            data-testid="rate-{base}-to-usd"
                         >
                             {rates.rate_base_quote}
                             <span class="material-symbols-outlined">
@@ -342,6 +350,8 @@
                             </span>
                             <button
                                 class="text-secondary"
+                                data-testid="copy-rate-{base}-to-usd"
+                                id="copy-rate-{base}-to-usd"
                                 on:click={async (): Promise<void> => { await copyToClipboard(rates.rate_base_quote.toString()) }}
                             >
                                 <span class="material-symbols-outlined"> content_copy </span>
@@ -350,8 +360,9 @@
 
                         <!-- rate - unit per usd -->
                         <td
-                            class="text-right whitespace-nowrap
+                            class="text-right whitespace-nowrap rate-unit-per-usd
                                 {allIsPriceUps[base] === true ? 'text-success' : 'text-error'}"
+                            data-testid="rate-usd-to-{base}"
                         >
                             {rates.rate_usd_quote}
                             <span class="material-symbols-outlined">
@@ -359,6 +370,8 @@
                             </span>
                             <button
                                 class="text-secondary"
+                                data-testid="copy-rate-usd-to-{base}"
+                                id="copy-rate-usd-to-{base}"
                                 on:click={async (): Promise<void> => { await copyToClipboard(rates.rate_usd_quote.toString()) }}
                             >
                                 <span class="material-symbols-outlined"> content_copy </span>
@@ -366,8 +379,8 @@
                         </td>
 
                         <!-- Last updated -->
-                        <td class="text-center">
-                            <span>{allTimeAgos[base]}</span>
+                        <td class="text-center rate-last-updated">
+                            <span data-testid="rate-last-updated-{base}">{allTimeAgos[base]}</span>
                             {#if !isValid(rates)}
                                 <div
                                     class="tooltip tooltip-right tooltip-error"
@@ -382,10 +395,10 @@
                         </td>
 
                         <!-- providers -->
-                        <td class="flex justify-evenly">
+                        <td class="flex justify-evenly rate-providers">
                             <ul class="list-none flex">
                                 {#each Object.entries(rates.providers_contrib) as [provider]}
-                                    <li>
+                                    <li data-testid="rate-providers-{provider}">
                                         <img
                                             class="w-6 h-6"
                                             src="./{provider}.svg"

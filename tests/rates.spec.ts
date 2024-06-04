@@ -1,5 +1,12 @@
 import { isCrypto } from '$utils/common';
-import { test, expect, type Browser, chromium, type Page } from '@playwright/test';
+import {
+    test,
+    expect,
+    type Browser,
+    chromium,
+    type Page,
+    type ElementHandle,
+} from '@playwright/test';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.testing' });
@@ -16,6 +23,7 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
     await browser.close();
 });
+
 test.describe('Currency rates table', () => {
     test('it should render currency rate information in the table', async () => {
         const tbodyElement = await newPage.$('.table tbody');
@@ -26,9 +34,59 @@ test.describe('Currency rates table', () => {
             (tbody) => tbody.childElementCount > 0,
         );
         expect(tbodyNotEmpty).toBeTruthy();
+    });
 
-        const currencies = await newPage.$$('.table tbody tr td.currency');
-        expect(currencies.length).toBeGreaterThan(0);
+    test('it should render currency rate information with the correct fields', async () => {
+        const tableContent = await newPage.$('.table tbody tr');
+        expect(tableContent).not.toBeNull();
+
+        const expectedClasses = [
+            'fav-btn',
+            'currency',
+            'rate-usd-per-unit',
+            'rate-unit-per-usd',
+            'rate-last-updated',
+            'rate-providers',
+        ];
+        const contentClasses = await (tableContent as ElementHandle).$$eval('td', (tds) =>
+            tds.map((td) =>
+                td
+                    .getAttribute('class')
+                    ?.split(' ')
+                    .reduce((cArr: string[], c) => {
+                        if (c.length > 0) {
+                            cArr.push(c.trim());
+                        }
+                        return cArr;
+                    }, []),
+            ),
+        );
+        const flattenedClasses = contentClasses.flat();
+        expect(flattenedClasses).toEqual(expect.arrayContaining(expectedClasses));
+    });
+
+    test('it should render required currency rate information in the table', async () => {
+        const numberRegex = /^[0-9]+(\.[0-9]+)?$/;
+
+        // since BTC is the default currency we MUST have, we check using BTC
+        const hasCurrencySymbol = await newPage.getByTestId('currency-BTC').isVisible();
+        expect(hasCurrencySymbol).toBeTruthy();
+
+        const rateUsdPerUnitEl = await newPage.getByTestId('rate-BTC-to-usd').textContent();
+        expect(rateUsdPerUnitEl).not.toBeNull();
+        expect(rateUsdPerUnitEl?.split(' ')[0]).toMatch(numberRegex);
+
+        const rateUnitPerUsdEl = await newPage.getByTestId('rate-usd-to-BTC').textContent();
+        expect(rateUnitPerUsdEl).not.toBeNull();
+        expect(rateUnitPerUsdEl?.split(' ')[0]).toMatch(numberRegex);
+
+        const rateLastUpdatedEl = await newPage.getByTestId('rate-last-updated-BTC').textContent();
+        expect(rateLastUpdatedEl).not.toBeNull();
+
+        const rateProvidersEl = await newPage.$$(
+            '.table tbody tr:first-child [data-testid^="rate-providers-"]',
+        );
+        expect(rateProvidersEl.length).toBeGreaterThanOrEqual(1);
     });
 });
 
@@ -99,30 +157,42 @@ test.describe('Currency type buttons', async () => {
 });
 
 test.describe('Currency favorites', () => {
-    const delayInMilliseconds = 100;
+    const delayInMs = 100;
 
     test('it should render/unrender favorite currency when the star icon is clicked', async () => {
         await newPage.goto('/rates');
 
         // click the star icon to add the favorite currency
-        await newPage
-            .getByRole('row', { name: 'star_outline ETH' })
-            .getByRole('button')
-            .first()
-            .click();
+        await newPage.getByTestId('add-fav-ETH').click();
         // Wait for the favorite currency to be rendered
-        await new Promise((resolve) => setTimeout(resolve, delayInMilliseconds));
-        const favFound = await newPage.$eval(
-            '.indicator#fav-ETH',
-            (fav) => fav.childElementCount > 0,
-        );
-        expect(favFound).toBeTruthy();
+        await new Promise((r) => setTimeout(r, delayInMs));
+        expect(
+            await newPage.$eval('.fav-currency #fav-ETH', (fav) => fav.childElementCount > 0),
+        ).toBeTruthy();
 
         // click the star icon again to remove the favorite currency
-        await newPage.getByRole('row', { name: 'star ETH' }).getByRole('button').first().click();
+        await newPage.getByTestId('add-fav-ETH').click();
         // Wait for the favorite currency to be unrendered
-        await new Promise((resolve) => setTimeout(resolve, delayInMilliseconds));
-        const isFavFound = (await newPage.$('.indicator#fav-ETH')) ?? false;
-        expect(isFavFound).toBeFalsy();
+        await new Promise((r) => setTimeout(r, delayInMs));
+        expect(await newPage.$('.fav-currency #fav-ETH')).toBeNull();
+    });
+});
+
+test.describe('Currency rates copy buttons (USD per unit & unit per USD) on table', () => {
+    test('it should copy the currency rate to the clipboard when the copy button is clicked', async () => {
+        const numberRegex = /^[0-9]+(\.[0-9]+)?$/;
+
+        expect(await newPage.$('#copy-rate-ETH-to-usd')).not.toBeNull();
+        expect(await newPage.$('#copy-rate-usd-to-ETH')).not.toBeNull();
+
+        // Click the copy button for the currency rate (USD per unit)
+        await newPage.getByTestId('copy-rate-ETH-to-usd').click();
+        expect(await newPage.evaluate(() => navigator.clipboard.readText())).not.toBeNull();
+        expect(await newPage.evaluate(() => navigator.clipboard.readText())).toMatch(numberRegex);
+
+        // Click the copy button for the currency rate (USD per unit)
+        await newPage.getByTestId('copy-rate-usd-to-ETH').click();
+        expect(await newPage.evaluate(() => navigator.clipboard.readText())).not.toBeNull();
+        expect(await newPage.evaluate(() => navigator.clipboard.readText())).toMatch(numberRegex);
     });
 });
