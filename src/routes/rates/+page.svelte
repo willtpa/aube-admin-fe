@@ -13,13 +13,6 @@
 
     export let data: PageData;
 
-    // function isCrypto(symbol: string): boolean {
-    //     return (
-    //         ['BTC', 'ETH', 'MATIC', 'SOL', 'MATIC', 'TRX', 'XLM', 'USDT', 'USDC'].indexOf(symbol) !=
-    //         -1
-    //     );
-    // }
-
     // re-order currency rates by crypto first and non crypto after
     let currencyRates = Object.fromEntries(
         Object.entries(data.currencyRates).sort(([aKey], [bKey]) => {
