@@ -175,7 +175,7 @@
     onMount(async () => {
         await subscribeToCurrencyRates();
         updateTimeAgo();
-        intervalId = setInterval(updateTimeAgo, 2000);
+        intervalId = setInterval(updateTimeAgo, 1000);
         loadFavCurrencies();
     });
 
