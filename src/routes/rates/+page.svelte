@@ -3,7 +3,6 @@
     import { fade } from 'svelte/transition';
     import {
         type CurrencyCodeToMedianFxRateV1Map,
-        type CurrencyTypeFilter,
         type MedianFxRateV1,
     } from '$lib/services/currency-rate.d';
     import type { PageData } from './$types';
@@ -127,7 +126,7 @@
         showToast = false;
     }
 
-    let currencyTypeFilter: CurrencyTypeFilter = 'all';
+    let currencyTypeFilter = data.currencyType;
 
     function filterByType(base: string): boolean {
         switch (currencyTypeFilter) {
@@ -186,45 +185,51 @@
 </script>
 
 <main class="mx-auto max-w-[1050px] mt-8">
-    <h1>Currency Rates (quote USD)</h1>
+    <div class="flex justify-between">
+        <h1>Currency Rates (quote USD)</h1>
 
-    <!-- currency type filter -->
-    <form class="join block py-8 px-5">
-        <input
-            class="join-item btn rounded-l-full w-20"
-            type="radio"
-            name="currency-type"
-            aria-label="All"
-            checked
-            on:change={():void => {
-                currencyTypeFilter = 'all';
-            }}
-        />
-        <input
-            class="join-item btn w-20"
-            type="radio"
-            name="currency-type"
-            aria-label="Crypto"
-            on:change={():void => {
-                currencyTypeFilter = 'crypto';
-            }}
-        />
-        <input
-            class="join-item btn rounded-r-full w-20"
-            type="radio"
-            name="currency-type"
-            aria-label="Fiat"
-            on:change={():void => {
-                currencyTypeFilter = 'fiat';
-            }}
-        />
-    </form>
+        <div>
+            <!-- currency type filter -->
+            <form class="join block px-5">
+                <input
+                    class="join-item btn rounded-l-full w-20"
+                    type="radio"
+                    name="currency-type"
+                    aria-label="All"
+                    checked={currencyTypeFilter === 'all' ? true : false}
+                    on:change={():void => {
+                        currencyTypeFilter = 'all';
+                    }}
+                />
+                <input
+                    class="join-item btn w-20"
+                    type="radio"
+                    name="currency-type"
+                    aria-label="Crypto"
+                    checked={currencyTypeFilter === 'crypto' ? true : false}
+                    on:change={():void => {
+                        currencyTypeFilter = 'crypto';
+                    }}
+                />
+                <input
+                    class="join-item btn rounded-r-full w-20"
+                    type="radio"
+                    name="currency-type"
+                    aria-label="Fiat"
+                    checked={currencyTypeFilter === 'fiat' ? true : false}
+                    on:change={():void => {
+                        currencyTypeFilter = 'fiat';
+                    }}
+                />
+            </form>
+        </div>
+    </div>
 
     <!-- pin favorite currencies -->
     {#each favCurrencies as base}
         {#if currencyRates[base] !== undefined}
             <div class="stats shadow px-1">
-                <div class="stat w-60">
+                <div class="stat w-72">
                     <div class="stat-figure text-secondary">
                         <div class="indicator">
                             <span class="indicator-item">
@@ -262,7 +267,7 @@
                             : 'text-error'}"
                     >
                         <button
-                            class="text-left inline-block w-32 overflow-hidden truncate"
+                            class="text-left inline-block w-44 overflow-hidden truncate"
                             on:click={async (): Promise<void> => { await copyToClipboard(currencyRates[base]!.rate_base_quote.toString()) }}
                             >{currencyRates[base]!.rate_base_quote}</button
                         >
@@ -276,7 +281,7 @@
                             : 'text-error'}"
                     >
                         <button
-                            class="text-left inline-block w-32 overflow-hidden truncate"
+                            class="text-left inline-block w-44 overflow-hidden truncate"
                             on:click={async (): Promise<void> => { await copyToClipboard(currencyRates[base]!.rate_usd_quote.toString()) }}
                             >{currencyRates[base]!.rate_usd_quote}</button
                         >
@@ -299,8 +304,8 @@
                 <tr>
                     <th class="text-center capitalize"> </th>
                     <th class="text-center capitalize"> Base currency </th>
-                    <th class="text-right capitalize"> Usd per unit </th>
-                    <th class="text-right capitalize"> unit per usd </th>
+                    <th class="text-right capitalize"> USD per unit </th>
+                    <th class="text-right capitalize"> unit per USD </th>
                     <th class="text-center capitalize"> Last updated </th>
                     <th class="text-center capitalize"> Providers </th>
                 </tr>
