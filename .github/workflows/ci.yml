@@ -11,6 +11,10 @@ on:
 jobs:
     build-and-test:
         runs-on: ubuntu-latest
+        env:
+            PUBLIC_ADMINAPI_HOST: ${{ vars.PUBLIC_ADMINAPI_HOST }}
+            CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+            CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
 
         steps:
             - name: Checkout code
@@ -25,6 +29,12 @@ jobs:
               run: |
                 npm i -g npm@10.2.4
                 npm ci
+                echo "Building..."
+                echo "PUBLIC_ADMINAPI_HOST: $PUBLIC_ADMINAPI_HOST"
+                echo "CF_ACCESS_CLIENT_ID: $CF_ACCESS_CLIENT_ID"
+                echo "PUBLIC_ADMINAPI_HOST: $PUBLIC_ADMINAPI_HOST" > .env
+                echo "CF_ACCESS_CLIENT_ID: $CF_ACCESS_CLIENT_ID" >> .env
+                echo "CF_ACCESS_CLIENT_SECRET: $CF_ACCESS_CLIENT_SECRET" >> .env
                 npm run build
 
             - name: Run unit tests
