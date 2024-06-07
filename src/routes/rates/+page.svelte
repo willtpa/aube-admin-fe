@@ -9,7 +9,7 @@
     import type { PageData } from './$types';
     import Decimal from 'decimal.js';
     import { browser } from '$app/environment';
-    import { isCrypto } from '$lib/utils/common';
+    import { isCrypto } from '$utils/common';
 
     export let data: PageData;
 

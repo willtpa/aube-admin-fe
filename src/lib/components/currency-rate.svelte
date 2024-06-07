@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type MedianFxRateV1 } from '$lib/services/currency-rate.d';
+    import { type MedianFxRateV1 } from '$services/currency-rate.d';
 
     export let currencyRate: MedianFxRateV1;
     export let isPriceUp = true;
