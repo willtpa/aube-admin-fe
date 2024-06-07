@@ -35,6 +35,7 @@ jobs:
                 echo "PUBLIC_ADMINAPI_HOST: $PUBLIC_ADMINAPI_HOST" > .env
                 echo "CF_ACCESS_CLIENT_ID: $CF_ACCESS_CLIENT_ID" >> .env
                 echo "CF_ACCESS_CLIENT_SECRET: $CF_ACCESS_CLIENT_SECRET" >> .env
+                cat .env
                 npm run build
 
             - name: Run unit tests
