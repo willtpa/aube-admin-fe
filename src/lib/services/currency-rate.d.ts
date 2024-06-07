@@ -15,6 +15,4 @@ export interface MedianFxRateV1 {
     rate_usd_quote: Decimal;
 }
 
-export type CurrencyTypeFilter = 'all' | 'crypto' | 'fiat';
-
 export type CurrencyCodeToMedianFxRateV1Map = Record<string, MedianFxRateV1>;

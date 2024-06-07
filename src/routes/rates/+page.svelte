@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { fade } from 'svelte/transition';
+    import { CurrencyTypeFilter } from '$utils/enum';
     import {
         type CurrencyCodeToMedianFxRateV1Map,
         type MedianFxRateV1,
@@ -130,11 +131,11 @@
 
     function filterByType(base: string): boolean {
         switch (currencyTypeFilter) {
-            case 'crypto':
+            case CurrencyTypeFilter.Crypto:
                 return isCrypto(base);
-            case 'fiat':
+            case CurrencyTypeFilter.Fiat:
                 return !isCrypto(base);
-            case 'all':
+            case CurrencyTypeFilter.All:
                 return true;
         }
         return true;
@@ -196,30 +197,24 @@
                     type="radio"
                     name="currency-type"
                     aria-label="All"
-                    checked={currencyTypeFilter === 'all' ? true : false}
-                    on:change={():void => {
-                        currencyTypeFilter = 'all';
-                    }}
+                    value={CurrencyTypeFilter.All}
+                    bind:group={currencyTypeFilter}
                 />
                 <input
                     class="join-item btn w-20"
                     type="radio"
                     name="currency-type"
                     aria-label="Crypto"
-                    checked={currencyTypeFilter === 'crypto' ? true : false}
-                    on:change={():void => {
-                        currencyTypeFilter = 'crypto';
-                    }}
+                    value={CurrencyTypeFilter.Crypto}
+                    bind:group={currencyTypeFilter}
                 />
                 <input
                     class="join-item btn rounded-r-full w-20"
                     type="radio"
                     name="currency-type"
                     aria-label="Fiat"
-                    checked={currencyTypeFilter === 'fiat' ? true : false}
-                    on:change={():void => {
-                        currencyTypeFilter = 'fiat';
-                    }}
+                    value={CurrencyTypeFilter.Fiat}
+                    bind:group={currencyTypeFilter}
                 />
             </form>
         </div>

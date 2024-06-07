@@ -7,3 +7,7 @@ export async function readFile(filePath: string): Promise<Record<string, unknown
         return null;
     }
 }
+
+export function isEnumType<T extends object>(value: unknown, obj: T): value is T[keyof T] {
+    return Object.values(obj).includes(value);
+}

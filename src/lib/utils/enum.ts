@@ -150,3 +150,9 @@ export enum Currency {
     ZAR = 'ZAR',
     ZMW = 'ZMW',
 }
+
+export enum CurrencyTypeFilter {
+    All = 'all',
+    Crypto = 'crypto',
+    Fiat = 'fiat',
+}
