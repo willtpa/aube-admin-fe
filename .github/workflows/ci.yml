@@ -41,6 +41,12 @@ jobs:
                 echo "USER_EMAIL=$USER_EMAIL" >> .env
                 echo "USER_PW=$USER_PW" >> .env
 
+            - name: Upload .env file as artifact    
+              uses: actions/upload-artifact@v2
+              with:
+                name: env-file
+                path: .env
+
             - name: Install dependencies & build
               run: |
                 npm i -g npm@10.2.4
