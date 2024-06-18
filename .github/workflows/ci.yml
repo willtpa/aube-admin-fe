@@ -30,12 +30,14 @@ jobs:
               with:
                 aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
                 aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                aws-region: ap-southeast-1
+                aws-region: ${{ secrets.AWS_REGION }}
 
             - name: Retrieve Secret from AWS Secrets Manager
               run: |
                 SECRETS_JSON=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_NAME }} --query SecretString --output json)
                 echo "secrets..... $SECRETS_JSON"
+                echo $SECRETS_JSON | jq -r '.USER_EMAIL' > .env
+                echo $SECRETS_JSON | jq -r '.USER_PW' >> .env
 
             - name: Install dependencies & build
               run: |
@@ -44,7 +46,7 @@ jobs:
                 echo "Building..."
                 echo "PUBLIC_ADMINAPI_HOST: $PUBLIC_ADMINAPI_HOST"
                 echo "CF_ACCESS_CLIENT_ID: $CF_ACCESS_CLIENT_ID"
-                echo "PUBLIC_ADMINAPI_HOST: $PUBLIC_ADMINAPI_HOST" > .env
+                echo "PUBLIC_ADMINAPI_HOST: $PUBLIC_ADMINAPI_HOST" >> .env
                 echo "CF_ACCESS_CLIENT_ID: $CF_ACCESS_CLIENT_ID" >> .env
                 echo "CF_ACCESS_CLIENT_SECRET: $CF_ACCESS_CLIENT_SECRET" >> .env
                 cat .env
