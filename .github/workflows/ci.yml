@@ -34,7 +34,7 @@ jobs:
 
             - name: Retrieve Secret from AWS Secrets Manager
               run: |
-                SECRETS_JSON=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_NAME }} --query SecretString --output json)
+                SECRETS_JSON=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_NAME }} --query SecretString --output text)
                 echo "$SECRETS_JSON"
                 echo "$SECRETS_JSON" | jq -r '.USER_EMAIL'
                 echo "$SECRETS_JSON" | jq -r '.USER_EMAIL' > .env
