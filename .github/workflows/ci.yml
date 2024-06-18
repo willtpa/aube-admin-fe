@@ -36,12 +36,10 @@ jobs:
               run: |
                 SECRETS_JSON=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_NAME }} --query SecretString --output json)
                 echo "secrets..... $SECRETS_JSON"
-                echo "USER_EMAIL=$(node -e "console.log(JSON.parse(process.env.SECRETS_JSON).USER_EMAIL)")" >> .env
-                echo "USER_PW=$(node -e "console.log(JSON.parse(process.env.SECRETS_JSON).USER_PW)")" >> .env
-                # USER_EMAIL=$(echo "$SECRET_JSON" | jq -r '.USER_EMAIL')
-                # USER_PW=$(echo "$SECRET_JSON" | jq -r '.USER_PW')
-                # echo "USER_EMAIL=$USER_EMAIL" >> .env
-                # echo "USER_PW=$USER_PW" >> .env
+                USER_EMAIL=$(echo $SECRET_JSON | jq -r '.USER_EMAIL')
+                USER_PW=$(echo $SECRET_JSON | jq -r '.USER_PW')
+                echo "USER_EMAIL=$USER_EMAIL" >> .env
+                echo "USER_PW=$USER_PW" >> .env
 
             - name: Install dependencies & build
               run: |
