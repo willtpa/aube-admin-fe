@@ -7,15 +7,17 @@ on:
     pull_request:
         branches:
             - main
+            - staging
 
 jobs:
     build-and-test:
-        environment: staging
+        environment:
+          name: ${{ github.ref_name }}
         runs-on: ubuntu-latest
-        env:
-            PUBLIC_ADMINAPI_HOST: ${{ vars.PUBLIC_ADMINAPI_HOST }}
-            CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-            CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        # env:
+        #     PUBLIC_ADMINAPI_HOST: ${{ vars.PUBLIC_ADMINAPI_HOST }}
+        #     CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+        #     CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
 
         steps:
             - name: Checkout code
@@ -53,16 +55,17 @@ jobs:
 
             - name: Retrieve Secret from AWS Secrets Manager
               run: |
+                echo "name: ${{ github.ref_name }}"
                 echo "is staging? ${{ secrets.STAGING_SECRET }}"
                 SECRETS_JSON=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_NAME }} --query SecretString --output text)
-                echo "$SECRETS_JSON"
-                echo "$SECRETS_JSON" | jq -r '.USER_EMAIL'
-                echo "$SECRETS_JSON" | jq -r '.USER_EMAIL' > .env
-                cat .env
-                USER_EMAIL=$(echo "$SECRETS_JSON" | jq -r '.USER_EMAIL')
-                USER_PW=$(echo "$SECRETS_JSON" | jq -r '.USER_PW')
-                echo "USER_EMAIL=$USER_EMAIL" >> .env
-                echo "USER_PW=$USER_PW" >> .env
+                # echo "$SECRETS_JSON"
+                # echo "$SECRETS_JSON" | jq -r '.USER_EMAIL'
+                # echo "$SECRETS_JSON" | jq -r '.USER_EMAIL' > .env
+                # cat .env
+                # USER_EMAIL=$(echo "$SECRETS_JSON" | jq -r '.USER_EMAIL')
+                # USER_PW=$(echo "$SECRETS_JSON" | jq -r '.USER_PW')
+                echo "USER_EMAIL=$(echo "$SECRETS_JSON" | jq -r '.USER_EMAIL')" >> .env
+                echo "USER_PW=$(echo "$SECRETS_JSON" | jq -r '.USER_PW')" >> .env
 
             - name: Upload .env file as artifact    
               uses: actions/upload-artifact@v2
@@ -75,11 +78,11 @@ jobs:
                 npm i -g npm@10.2.4
                 npm ci
                 echo "Building..."
-                echo "PUBLIC_ADMINAPI_HOST: $PUBLIC_ADMINAPI_HOST"
-                echo "CF_ACCESS_CLIENT_ID: $CF_ACCESS_CLIENT_ID"
-                echo "PUBLIC_ADMINAPI_HOST: $PUBLIC_ADMINAPI_HOST" >> .env
-                echo "CF_ACCESS_CLIENT_ID: $CF_ACCESS_CLIENT_ID" >> .env
-                echo "CF_ACCESS_CLIENT_SECRET: $CF_ACCESS_CLIENT_SECRET" >> .env
+                # echo "PUBLIC_ADMINAPI_HOST: $PUBLIC_ADMINAPI_HOST"
+                # echo "CF_ACCESS_CLIENT_ID: $CF_ACCESS_CLIENT_ID"
+                echo "PUBLIC_ADMINAPI_HOST: ${{ vars.PUBLIC_ADMINAPI_HOST }}" >> .env
+                echo "CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}" >> .env
+                echo "CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" >> .env
                 cat .env
                 npm run build
 
