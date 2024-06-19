@@ -14,10 +14,6 @@ jobs:
         environment:
           name: ${{ github.ref_name }}
         runs-on: ubuntu-latest
-        # env:
-        #     PUBLIC_ADMINAPI_HOST: ${{ vars.PUBLIC_ADMINAPI_HOST }}
-        #     CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-        #     CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
 
         steps:
             - name: Checkout code
@@ -28,67 +24,43 @@ jobs:
               with:
                   node-version: '21.5.0'
             
-            - name: Cloudflare Wrangler
-              uses: cloudflare/wrangler-action@v3
-              with:
-                apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-                accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-                wranglerVersion: "3.57.2"
-                command: |
-                  whoami
-                  pages deployment list --project-name aube-admin-fe
-
-              
-            # - name: get urls
-            #   run: |
-            #     wrangler whoami
-            #     wrangler pages deployment list --project-name aube-admin-fe
-            #     wrangler pages deployment tail --project-name aube-admin-fe
-
-            
-            - name: Configure AWS Credentials
-              uses: aws-actions/configure-aws-credentials@v1
-              with:
-                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                aws-region: ${{ secrets.AWS_REGION }}
-
-            - name: Retrieve Secret from AWS Secrets Manager
-              run: |
-                ls -la
-                echo "name: ${{ github.ref_name }}"
-                echo "is staging? ${{ secrets.STAGING_SECRET }}"
-                echo "NOT staging... ${{ secrets.NOT_STAGING_SECRET }}"
-                SECRETS_JSON=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_NAME }} --query SecretString --output text)
-                # echo "$SECRETS_JSON"
-                # echo "$SECRETS_JSON" | jq -r '.USER_EMAIL'
-                # echo "$SECRETS_JSON" | jq -r '.USER_EMAIL' > .env
-                # cat .env
-                # USER_EMAIL=$(echo "$SECRETS_JSON" | jq -r '.USER_EMAIL')
-                # USER_PW=$(echo "$SECRETS_JSON" | jq -r '.USER_PW')
-                echo "USER_EMAIL=$(echo "$SECRETS_JSON" | jq -r '.USER_EMAIL')" >> .env
-                echo "USER_PW=$(echo "$SECRETS_JSON" | jq -r '.USER_PW')" >> .env
-            
-            # - name: Upload .env file as artifact    
-            #   uses: actions/upload-artifact@v2
+            # - name: Cloudflare Wrangler
+            #   uses: cloudflare/wrangler-action@v3
             #   with:
-            #     name: env-file
-            #     path: .env
+            #     apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+            #     accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+            #     wranglerVersion: "3.57.2"
+            #     command: |
+            #       whoami
+            #       pages deployment list --project-name aube-admin-fe
+
+            # - name: Configure AWS Credentials
+            #   uses: aws-actions/configure-aws-credentials@v1
+            #   with:
+            #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            #     aws-region: ${{ secrets.AWS_REGION }}
+
+            # - name: Retrieve Secret from AWS Secrets Manager
+            #   run: |
+            #     SECRETS_JSON=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_NAME }} --query SecretString --output text)
+            #     echo "USER_EMAIL=$(echo "$SECRETS_JSON" | jq -r '.USER_EMAIL')" > .env
+            #     echo "USER_PW=$(echo "$SECRETS_JSON" | jq -r '.USER_PW')" >> .env
 
             - name: Install dependencies & build
               run: |
+                echo "Install npm..."
                 npm i -g npm@10.2.4
+                echo "Install dependencies..."
                 npm ci
-                echo "Building..."
-                # echo "PUBLIC_ADMINAPI_HOST: $PUBLIC_ADMINAPI_HOST"
-                # echo "CF_ACCESS_CLIENT_ID: $CF_ACCESS_CLIENT_ID"
-                echo "PUBLIC_ADMINAPI_HOST: ${{ vars.PUBLIC_ADMINAPI_HOST }}" >> .env
+
+                echo "PUBLIC_ADMINAPI_HOST: ${{ vars.PUBLIC_ADMINAPI_HOST }}" > .env
                 echo "CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}" >> .env
                 echo "CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" >> .env
-                cat .env
+                
+                echo "Build project..."
                 npm run build
-                echo "executing ls -la..."
-                ls -la
+                echo "Build finshed..."
 
             - name: Upload svelte-kit artifacts    
               uses: actions/upload-artifact@v2
@@ -96,11 +68,9 @@ jobs:
                 name: sveltekit-artifacts
                 path: .svelte-kit
 
-            # - name: Run unit tests
-            #   run: npm run test:unit
+            - name: Run unit tests
+              run: npm run test:unit
 
-            
-            
             # - name: Run e2e tests
             #   run: npm run test:e2e
     deployment:
@@ -108,37 +78,23 @@ jobs:
         environment:
           name: ${{ github.ref_name }}
         runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/staging'
+        if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main'
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
-            
-            - name: checks1
-              run: |
-                echo "Checking1..."
-                ls -la
-                # npm ci
-                # npm run build
+            # - name: Checkout code
+            #   uses: actions/checkout@v2
 
             - name: Download svelte-kit artifacts
               uses: actions/download-artifact@v2
               with:
                 name: sveltekit-artifacts
                 path: .svelte-kit
-    
-            - name: checks2
-              run: |
-                echo "Checking2..."
-                ls -la
-                # npm ci
-                # npm run build
 
-            - name: deploy to CF
+            - name: Deploy to Cloudflare pages
               uses: cloudflare/wrangler-action@v3
               with:
                 apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
                 accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                 wranglerVersion: "3.57.2"
                 command: |
-                  pages deploy ./.svelte-kit/cloudflare --project-name aube-admin-fe
+                  pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT_NAME }}
 
