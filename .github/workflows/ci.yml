@@ -30,9 +30,12 @@ jobs:
               with:
                 apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
                 accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                wranglerVersion: "3.57.2"
                 command: |
                   whoami
                   pages deployment list --project-name aube-admin-fe
+                  pages deployment tail --project-name aube-admin-fe
+                  pages deployment tail --project-name aube-admin-fe --format json
               
             # - name: get urls
             #   run: |
