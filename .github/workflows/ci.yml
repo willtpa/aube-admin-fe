@@ -27,7 +27,7 @@ jobs:
               uses: actions/setup-node@v2
               with:
                   node-version: '21.5.0'
-                  
+
             - name: Upload .env file as artifact    
               uses: actions/upload-artifact@v2
               with:
@@ -90,6 +90,10 @@ jobs:
 
             - name: Run unit tests
               run: npm run test:unit
+
+            - name: deploy to CF
+              run: |
+                pages deploy ./ --project-name rate-fetcher-exercise
             
             # - name: Run e2e tests
             #   run: npm run test:e2e
