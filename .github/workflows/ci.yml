@@ -25,17 +25,20 @@ jobs:
               with:
                   node-version: '21.5.0'
 
-            - name: Build & Deploy Worker
+            - name: Cloudflare Wrangler
               uses: cloudflare/wrangler-action@v3
               with:
                 apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
                 accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                command: |
+                  whoami
+                  pages deployment list --project-name aube-admin-fe
               
-            - name: get urls
-              run: |
-                wrangler whoami
-                wrangler pages deployment list --project-name aube-admin-fe
-                wrangler pages deployment tail --project-name aube-admin-fe
+            # - name: get urls
+            #   run: |
+            #     wrangler whoami
+            #     wrangler pages deployment list --project-name aube-admin-fe
+            #     wrangler pages deployment tail --project-name aube-admin-fe
 
             
             - name: Configure AWS Credentials
