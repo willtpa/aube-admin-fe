@@ -95,6 +95,7 @@ jobs:
             # - name: Run e2e tests
             #   run: npm run test:e2e
     deployment:
+        needs: build-and-test
         environment:
           name: ${{ github.ref_name }}
         runs-on: ubuntu-latest
@@ -107,5 +108,5 @@ jobs:
                 accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                 wranglerVersion: "3.57.2"
                 command: |
-                  pages deploy ./ --project-name rate-fetcher-exercise
+                  pages deploy ./ --project-name aube-admin-fe
 
