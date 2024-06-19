@@ -92,8 +92,13 @@ jobs:
               run: npm run test:unit
 
             - name: deploy to CF
-              run: |
-                pages deploy ./ --project-name rate-fetcher-exercise
+              uses: cloudflare/wrangler-action@v3
+              with:
+                apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                wranglerVersion: "3.57.2"
+                command: |
+                  pages deploy ./ --project-name rate-fetcher-exercise
             
             # - name: Run e2e tests
             #   run: npm run test:e2e
