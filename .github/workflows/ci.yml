@@ -110,6 +110,8 @@ jobs:
               run: |
                 echo "Checking..."
                 ls -la
+                npm ci
+                npm run build
 
             - name: deploy to CF
               uses: cloudflare/wrangler-action@v3
@@ -118,5 +120,5 @@ jobs:
                 accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                 wranglerVersion: "3.57.2"
                 command: |
-                  pages deploy ./.svelte-kit/output/server --project-name aube-admin-fe
+                  pages deploy ./.svelte-kit/cloudflare --project-name aube-admin-fe
 
