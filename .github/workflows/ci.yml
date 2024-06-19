@@ -27,16 +27,7 @@ jobs:
               uses: actions/setup-node@v2
               with:
                   node-version: '21.5.0'
-
-            - name: Upload .env file as artifact    
-              uses: actions/upload-artifact@v2
-              with:
-                name: env-file
-                path: .env
             
-            
-                
-
             - name: Cloudflare Wrangler
               uses: cloudflare/wrangler-action@v3
               with:
@@ -77,6 +68,12 @@ jobs:
                 # USER_PW=$(echo "$SECRETS_JSON" | jq -r '.USER_PW')
                 echo "USER_EMAIL=$(echo "$SECRETS_JSON" | jq -r '.USER_EMAIL')" >> .env
                 echo "USER_PW=$(echo "$SECRETS_JSON" | jq -r '.USER_PW')" >> .env
+            
+            # - name: Upload .env file as artifact    
+            #   uses: actions/upload-artifact@v2
+            #   with:
+            #     name: env-file
+            #     path: .env
 
             - name: Install dependencies & build
               run: |
