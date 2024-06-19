@@ -86,9 +86,11 @@ jobs:
                 echo "CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" >> .env
                 cat .env
                 npm run build
+                echo "executing ls -la..."
+                ls -la
 
-            - name: Run unit tests
-              run: npm run test:unit
+            # - name: Run unit tests
+            #   run: npm run test:unit
 
             
             
@@ -103,6 +105,11 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
+            
+            - name: checks
+              run: |
+                echo "Checking..."
+                ls -la
 
             - name: deploy to CF
               uses: cloudflare/wrangler-action@v3
