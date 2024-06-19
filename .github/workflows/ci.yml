@@ -63,6 +63,7 @@ jobs:
               run: |
                 echo "name: ${{ github.ref_name }}"
                 echo "is staging? ${{ secrets.STAGING_SECRET }}"
+                echo "NOT staging... ${{ secrets.NOT_STAGING_SECRET }}"
                 SECRETS_JSON=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_NAME }} --query SecretString --output text)
                 # echo "$SECRETS_JSON"
                 # echo "$SECRETS_JSON" | jq -r '.USER_EMAIL'
@@ -72,8 +73,6 @@ jobs:
                 # USER_PW=$(echo "$SECRETS_JSON" | jq -r '.USER_PW')
                 echo "USER_EMAIL=$(echo "$SECRETS_JSON" | jq -r '.USER_EMAIL')" >> .env
                 echo "USER_PW=$(echo "$SECRETS_JSON" | jq -r '.USER_PW')" >> .env
-
-            
 
             - name: Install dependencies & build
               run: |
@@ -91,6 +90,16 @@ jobs:
             - name: Run unit tests
               run: npm run test:unit
 
+            
+            
+            # - name: Run e2e tests
+            #   run: npm run test:e2e
+    deployment:
+        environment:
+          name: ${{ github.ref_name }}
+        runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/staging'
+        steps:
             - name: deploy to CF
               uses: cloudflare/wrangler-action@v3
               with:
@@ -99,7 +108,4 @@ jobs:
                 wranglerVersion: "3.57.2"
                 command: |
                   pages deploy ./ --project-name rate-fetcher-exercise
-            
-            # - name: Run e2e tests
-            #   run: npm run test:e2e
 
