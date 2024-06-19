@@ -34,11 +34,7 @@ jobs:
                 name: env-file
                 path: .env
             
-            - name: Upload .env file as artifact    
-              uses: actions/upload-artifact@v2
-              with:
-                name: sveltekit-artifacts
-                path: .svelte-kit
+            
                 
 
             - name: Cloudflare Wrangler
@@ -68,6 +64,7 @@ jobs:
 
             - name: Retrieve Secret from AWS Secrets Manager
               run: |
+                ls -la
                 echo "name: ${{ github.ref_name }}"
                 echo "is staging? ${{ secrets.STAGING_SECRET }}"
                 echo "NOT staging... ${{ secrets.NOT_STAGING_SECRET }}"
@@ -96,6 +93,12 @@ jobs:
                 echo "executing ls -la..."
                 ls -la
 
+            - name: Upload svelte-kit artifacts    
+              uses: actions/upload-artifact@v2
+              with:
+                name: sveltekit-artifacts
+                path: .svelte-kit
+
             # - name: Run unit tests
             #   run: npm run test:unit
 
@@ -112,16 +115,23 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
+            
+            - name: checks1
+              run: |
+                echo "Checking1..."
+                ls -la
+                # npm ci
+                # npm run build
 
-            - name: Download production artifacts
+            - name: Download svelte-kit artifacts
               uses: actions/download-artifact@v2
               with:
                 name: sveltekit-artifacts
                 path: .svelte-kit
     
-            - name: checks
+            - name: checks2
               run: |
-                echo "Checking..."
+                echo "Checking2..."
                 ls -la
                 # npm ci
                 # npm run build
