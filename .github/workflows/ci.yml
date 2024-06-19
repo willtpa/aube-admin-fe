@@ -10,6 +10,7 @@ on:
 
 jobs:
     build-and-test:
+        environment: staging
         runs-on: ubuntu-latest
         env:
             PUBLIC_ADMINAPI_HOST: ${{ vars.PUBLIC_ADMINAPI_HOST }}
