@@ -33,6 +33,13 @@ jobs:
               with:
                 name: env-file
                 path: .env
+            
+            - name: Upload .env file as artifact    
+              uses: actions/upload-artifact@v2
+              with:
+                name: sveltekit-artifacts
+                path: .svelte-kit
+                
 
             - name: Cloudflare Wrangler
               uses: cloudflare/wrangler-action@v3
@@ -105,13 +112,19 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
-            
+
+            - name: Download production artifacts
+              uses: actions/download-artifact@v2
+              with:
+                name: sveltekit-artifacts
+                path: .svelte-kit
+    
             - name: checks
               run: |
                 echo "Checking..."
                 ls -la
-                npm ci
-                npm run build
+                # npm ci
+                # npm run build
 
             - name: deploy to CF
               uses: cloudflare/wrangler-action@v3
