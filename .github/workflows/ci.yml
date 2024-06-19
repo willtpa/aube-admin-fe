@@ -34,8 +34,7 @@ jobs:
                 command: |
                   whoami
                   pages deployment list --project-name aube-admin-fe
-                  pages deployment tail --project-name aube-admin-fe
-                  pages deployment tail --project-name aube-admin-fe --format json
+
               
             # - name: get urls
             #   run: |
@@ -53,6 +52,7 @@ jobs:
 
             - name: Retrieve Secret from AWS Secrets Manager
               run: |
+                echo "is staging? ${{ secrets.STAGING_SECRET }}"
                 SECRETS_JSON=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_NAME }} --query SecretString --output text)
                 echo "$SECRETS_JSON"
                 echo "$SECRETS_JSON" | jq -r '.USER_EMAIL'
