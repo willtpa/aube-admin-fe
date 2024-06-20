@@ -16,7 +16,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Checkout code
+            - name: Checkout Code
               uses: actions/checkout@v4
 
             - name: Setup Node.js
@@ -47,7 +47,7 @@ jobs:
             #     echo "USER_EMAIL=$(echo "$SECRETS_JSON" | jq -r '.USER_EMAIL')" > .env
             #     echo "USER_PW=$(echo "$SECRETS_JSON" | jq -r '.USER_PW')" >> .env
 
-            - name: Install dependencies & build
+            - name: Install Dependencies & Build
               run: |
                 echo "Install npm..."
                 npm i -g npm@10.2.4
@@ -62,13 +62,13 @@ jobs:
                 npm run build
                 echo "Build finshed..."
 
-            - name: Upload svelte-kit artifacts    
+            - name: Upload svelte-kit Artifacts    
               uses: actions/upload-artifact@v4
               with:
                 name: sveltekit-artifacts
                 path: .svelte-kit
 
-            - name: Run unit tests
+            - name: Run Unit Tests
               run: npm run test:unit
 
             # - name: Run e2e tests
@@ -83,13 +83,21 @@ jobs:
             # - name: Checkout code
             #   uses: actions/checkout@v2
 
-            - name: Download svelte-kit artifacts
+            - name: Download svelte-kit Artifacts
               uses: actions/download-artifact@v4
               with:
                 name: sveltekit-artifacts
                 path: .svelte-kit
 
-            - name: Deploy to Cloudflare pages
+            - name: Create Date Version Tag
+              id: create_tag
+              if: github.ref == 'refs/heads/main'
+              run: |
+                echo "Create date versioning tag..."
+                TAG="v$(date +'%Y%m%d%H%M%S')"
+                git tag $TAG
+
+            - name: Deploy to Cloudflare Pages
               uses: cloudflare/wrangler-action@v3
               with:
                 apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
