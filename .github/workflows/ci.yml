@@ -8,6 +8,7 @@ on:
         branches:
             - main
             - staging
+    workflow_dispatch:
 
 jobs:
     build-and-test:
@@ -78,7 +79,7 @@ jobs:
         environment:
           name: ${{ github.ref_name }}
         runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main'
+        if: (github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main') && github.event_name == 'workflow_dispatch'
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
@@ -96,6 +97,7 @@ jobs:
                 echo "Create date versioning tag..."
                 TAG="v$(date +'%Y%m%d%H%M%S')"
                 git tag $TAG
+                git push origin $TAG
 
             - name: Deploy to Cloudflare Pages
               uses: cloudflare/wrangler-action@v3
