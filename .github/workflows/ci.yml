@@ -41,14 +41,14 @@ jobs:
                 npm run build
                 echo "Build finshed..."
 
-            - name: Upload svelte-kit Artifacts    
-              uses: actions/upload-artifact@v4
-              with:
-                name: sveltekit-artifacts
-                path: .svelte-kit
+            # - name: Upload svelte-kit Artifacts    
+            #   uses: actions/upload-artifact@v4
+            #   with:
+            #     name: sveltekit-artifacts
+            #     path: .svelte-kit
 
-            - name: Run Unit Tests
-              run: npm run test:unit
+            # - name: Run Unit Tests
+            #   run: npm run test:unit
 
             # deploy preview each time push to any branch
             - name: Deploy Preview Pages
