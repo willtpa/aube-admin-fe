@@ -68,6 +68,7 @@ jobs:
                 echo "print out .env file..."
                 echo "PUBLIC_CF_PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')" >> .env
                 cat .env
+                npx playwright install
                 npx playwright test
 
     deployment:
