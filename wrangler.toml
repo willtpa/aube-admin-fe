@@ -1,13 +1,10 @@
-name = "aubesee-admin"
-account_id = "your-cloudflare-account-id"
-workers_dev = true
+name = "aubesee-admin-fe"
+pages_build_output_dir = ".svelte-kit/cloudflare"
 compatibility_date = "2024-01-01"
 
-[env.development]
-vars = { PUBLIC_ADMINAPI_HOST="http://localhost:8085" }
 
-[env.staging]
-vars = { PUBLIC_ADMINAPI_HOST="https://aubesee-admin-stg.triple-a.rocks" }
 
-[env.production]
-vars = { PUBLIC_ADMINAPI_HOST="https://aubesee-admin.triple-a.rocks" }
+[env.production.vars]
+PUBLIC_ADMINAPI_HOST = "https://adminapi-stg.triple-a.rocks"
+CF_ACCESS_CLIENT_ID = "3edfc56d4fcf749bb26f4460b64942e0.access"
+CF_ACCESS_CLIENT_SECRET = "f149af90c347dbd22e4fa71c63eb9ae7aad06dc7237dfc9b0b91caa459f6a2ac"
