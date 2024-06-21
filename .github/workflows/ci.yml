@@ -8,6 +8,8 @@ on:
         branches:
             - main
             - staging
+        # types: [opened, closed]
+        
     workflow_dispatch:
 
 jobs:
@@ -24,29 +26,6 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: '21.5.0'
-            
-            # - name: Cloudflare Wrangler
-            #   uses: cloudflare/wrangler-action@v3
-            #   with:
-            #     apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-            #     accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-            #     wranglerVersion: "3.57.2"
-            #     command: |
-            #       whoami
-            #       pages deployment list --project-name aube-admin-fe
-
-            # - name: Configure AWS Credentials
-            #   uses: aws-actions/configure-aws-credentials@v1
-            #   with:
-            #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            #     aws-region: ${{ secrets.AWS_REGION }}
-
-            # - name: Retrieve Secret from AWS Secrets Manager
-            #   run: |
-            #     SECRETS_JSON=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_NAME }} --query SecretString --output text)
-            #     echo "USER_EMAIL=$(echo "$SECRETS_JSON" | jq -r '.USER_EMAIL')" > .env
-            #     echo "USER_PW=$(echo "$SECRETS_JSON" | jq -r '.USER_PW')" >> .env
 
             - name: Install Dependencies & Build
               run: |
@@ -72,6 +51,21 @@ jobs:
             - name: Run Unit Tests
               run: npm run test:unit
 
+            - name: Deploy Preview Pages
+              uses: cloudflare/wrangler-action@v3
+              with:
+                apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                wranglerVersion: "3.57.2"
+                command: |
+                  CF_PREVIEW_URL=$(pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PREVIEW_PROJECT_NAME }} | grep -o 'https://.*.pages.dev')
+                  echo "CF_PREVIEW_URL=$CF_PREVIEW_URL" >> .env
+            - name: Set Output
+              run: |
+                echo "print out .env file..."
+                cat .env
+
+
             # - name: Run e2e tests
             #   run: npm run test:e2e
     deployment:
@@ -82,7 +76,7 @@ jobs:
         if: (github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main')
         steps:
             - name: Checkout code
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Download svelte-kit Artifacts
               uses: actions/download-artifact@v4
