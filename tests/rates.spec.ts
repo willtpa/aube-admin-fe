@@ -8,7 +8,7 @@ import {
     type ElementHandle,
 } from '@playwright/test';
 import dotenv from 'dotenv';
-import { PUBLIC_CF_PROJECT_PREVIEW } from '$env/static/public';
+import { PUBLIC_CF_PREVIEW_URL } from '$env/static/public';
 
 dotenv.config({ path: '.env.testing' });
 
@@ -18,7 +18,7 @@ let newPage: Page;
 test.beforeAll(async () => {
     browser = await chromium.launch();
     newPage = await browser.newPage();
-    await newPage.goto(`${PUBLIC_CF_PROJECT_PREVIEW}/rates`);
+    await newPage.goto(`${PUBLIC_CF_PREVIEW_URL}/rates`);
 });
 
 test.afterAll(async () => {

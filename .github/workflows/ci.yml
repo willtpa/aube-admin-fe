@@ -59,7 +59,7 @@ jobs:
                 accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                 wranglerVersion: "3.57.2"
                 command: |
-                  pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PREVIEW_PROJECT_NAME }}
+                  pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.PUBLIC_CF_PROJECT_PREVIEW }}
 
             - name: Run e2e tests
               env:
@@ -94,5 +94,5 @@ jobs:
                 accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                 wranglerVersion: "3.57.2"
                 command: |
-                  pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT_NAME }}
+                  pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.PUBLIC_CF_PROJECT }}
 
