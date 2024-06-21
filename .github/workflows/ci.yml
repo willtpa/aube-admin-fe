@@ -60,6 +60,9 @@ jobs:
                 wranglerVersion: "3.57.2"
                 command: |
                   pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.PUBLIC_CF_PROJECT_PREVIEW }}
+            
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
 
             - name: Run e2e tests
               env:
@@ -68,7 +71,6 @@ jobs:
                 echo "print out .env file..."
                 echo "PUBLIC_CF_PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')" >> .env
                 cat .env
-                npx playwright install
                 npx playwright test
 
     deployment:
