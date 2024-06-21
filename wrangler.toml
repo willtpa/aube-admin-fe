@@ -1,8 +1,12 @@
-name = "aubesee-admin-fe"
+name = "aube-admin-prev"
 pages_build_output_dir = ".svelte-kit/cloudflare"
 compatibility_date = "2024-01-01"
 
 
+[env.preview.vars]
+PUBLIC_ADMINAPI_HOST = "https://adminapi-stg.triple-a.rocks"
+CF_ACCESS_CLIENT_ID = "3edfc56d4fcf749bb26f4460b64942e0.access"
+CF_ACCESS_CLIENT_SECRET = "f149af90c347dbd22e4fa71c63eb9ae7aad06dc7237dfc9b0b91caa459f6a2ac"
 
 [env.production.vars]
 PUBLIC_ADMINAPI_HOST = "https://adminapi-stg.triple-a.rocks"
