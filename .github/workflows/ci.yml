@@ -52,17 +52,18 @@ jobs:
               run: npm run test:unit
 
             - name: Deploy Preview Pages
+              id: deploy_preview
               uses: cloudflare/wrangler-action@v3
               with:
                 apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
                 accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                 wranglerVersion: "3.57.2"
                 command: |
-                  pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PREVIEW_PROJECT_NAME }} | grep -o 'https://.*.pages.dev' > preview_url
+                  pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PREVIEW_PROJECT_NAME }}
             - name: Set Output
               run: |
                 echo "print out .env file..."
-                echo "CF_PREVIEW_URL=$(cat preview_url)" >> .env
+                echo "CF_PREVIEW_URL=$(${{ steps.deploy_preview.command-output }} | grep -o 'https://.*.pages.dev')" >> .env
                 cat .env
 
 
