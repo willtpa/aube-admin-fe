@@ -8,6 +8,8 @@ on:
         branches:
             - main
             - staging
+        # types: [opened, closed]
+        
     workflow_dispatch:
 
 jobs:
@@ -82,7 +84,7 @@ jobs:
         if: (github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main')
         steps:
             - name: Checkout code
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Download svelte-kit Artifacts
               uses: actions/download-artifact@v4
@@ -90,14 +92,33 @@ jobs:
                 name: sveltekit-artifacts
                 path: .svelte-kit
 
-            - name: Create Date Version Tag
-              id: create_tag
+            # - name: Create Date Version Tag
+            #   id: create_tag
+            #   if: github.ref == 'refs/heads/main'
+            #   run: |
+            #     echo "Create date versioning tag..."
+            #     TAG="v$(date +'%Y%m%d%H%M%S')"
+            #     git tag $TAG
+            #     git push origin $TAG
+
+            - name: Create tag
               if: github.ref == 'refs/heads/main'
-              run: |
-                echo "Create date versioning tag..."
-                TAG="v$(date +'%Y%m%d%H%M%S')"
-                git tag $TAG
-                git push origin $TAG
+              uses: actions/github-script@v7
+              with:
+                script: |
+                  // Generate version number in YYYYMMDD format
+                  const today = new Date();
+                  const year = today.getFullYear();
+                  const month = String(today.getMonth() + 1).padStart(2, '0'); // January is 0
+                  const day = String(today.getDate()).padStart(2, '0');
+                  const version = `v${year}${month}${day}`;
+
+                  github.rest.git.createRef({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: `refs/tags/${version}`,
+                    sha: context.sha
+                  })
 
             - name: Deploy to Cloudflare Pages
               uses: cloudflare/wrangler-action@v3
