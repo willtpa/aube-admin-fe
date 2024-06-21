@@ -1,5 +1,12 @@
 import { isCrypto } from '$utils/common';
-import { test, expect, type Browser, type Page, type ElementHandle } from '@playwright/test';
+import {
+    test,
+    expect,
+    type Browser,
+    type Page,
+    type ElementHandle,
+    chromium,
+} from '@playwright/test';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.testing' });
@@ -8,14 +15,14 @@ let browser: Browser;
 let newPage: Page;
 
 test.beforeAll(async () => {
-    // browser = await chromium.launch();
+    browser = await chromium.launch();
     newPage = await browser.newPage();
     const previewUrl = process.env['DEPLOY_PREVIEW_OUTPUT'];
     await newPage.goto(`${previewUrl}/rates`);
 });
 
 test.afterAll(async () => {
-    // await browser.close();
+    await browser.close();
 });
 
 test.describe('Currency rates table', () => {
