@@ -68,7 +68,7 @@ jobs:
                 echo "print out .env file..."
                 echo "CF_PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')" >> .env
                 cat .env
-                # npm run test:integration
+                npm run test:integration
 
     deployment:
         needs: build-and-test
