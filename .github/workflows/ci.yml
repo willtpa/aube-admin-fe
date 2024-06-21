@@ -68,9 +68,12 @@ jobs:
               env:
                 DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
               run: |
-                echo "print out .env file..."
-                echo "PUBLIC_CF_PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')" >> .env
-                cat .env
+                # echo "print out .env file..."
+                # echo "PUBLIC_CF_PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')" >> .env
+                # echo "PUBLIC_CF_PREVIEW_URL: https://375542d2.aubesee-admin.pages.dev" >> .env
+                # cat .env
+                PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
+                echo $PREVIEW_URL
                 npx playwright test
 
     deployment:

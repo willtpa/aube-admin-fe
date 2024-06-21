@@ -17,7 +17,7 @@ let newPage: Page;
 test.beforeAll(async () => {
     browser = await chromium.launch();
     newPage = await browser.newPage();
-    const previewUrl = process.env['DEPLOY_PREVIEW_OUTPUT'];
+    const previewUrl = process.env['PREVIEW_URL'];
     await newPage.goto(`${previewUrl}/rates`);
 });
 
