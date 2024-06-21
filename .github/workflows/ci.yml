@@ -8,7 +8,6 @@ on:
         branches:
             - main
             - staging
-        # types: [opened, closed]
         
     workflow_dispatch:
 
@@ -51,6 +50,7 @@ jobs:
             - name: Run Unit Tests
               run: npm run test:unit
 
+            # deploy preview each time push to any branch
             - name: Deploy Preview Pages
               id: deploy_preview
               uses: cloudflare/wrangler-action@v3
@@ -60,20 +60,16 @@ jobs:
                 wranglerVersion: "3.57.2"
                 command: |
                   pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PREVIEW_PROJECT_NAME }}
-            - name: Set Output
+
+            - name: Run e2e tests
               env:
-                CMD_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
+                DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
               run: |
                 echo "print out .env file..."
-                echo $CMD_OUTPUT
-                echo $CMD_OUTPUT | grep -o 'https://.*.pages.dev'
-                echo "CF_PREVIEW_URL=$(echo $CMD_OUTPUT | grep -o 'https://.*.pages.dev')" >> .env
-                ls -la
+                echo "CF_PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')" >> .env
                 cat .env
+                # npm run test:integration
 
-
-            # - name: Run e2e tests
-            #   run: npm run test:e2e
     deployment:
         needs: build-and-test
         environment:
@@ -90,16 +86,8 @@ jobs:
                 name: sveltekit-artifacts
                 path: .svelte-kit
 
-            - name: Create Date Version Tag
-              id: create_tag
-              if: github.ref == 'refs/heads/main'
-              run: |
-                echo "Create date versioning tag..."
-                TAG="v$(date +'%Y%m%d%H%M%S')"
-                git tag $TAG
-                git push origin $TAG
-
-            - name: Deploy to Cloudflare Pages
+            - name: Deploy Staging/Production Pages
+              id: deploy_staging_production
               uses: cloudflare/wrangler-action@v3
               with:
                 apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

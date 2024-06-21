@@ -2,6 +2,8 @@
 
 declare module '$env/static/public' {
     export const PUBLIC_ADMINAPI_HOST: string;
+    export const PUBLIC_CF_PROJECT_PREVIEW: string;
+    export const PUBLIC_CF_PROJECT: string;
     // Add more environment variables as needed
 }
 
