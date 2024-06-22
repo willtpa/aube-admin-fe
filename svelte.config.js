@@ -15,7 +15,6 @@ const config = {
 		adapter: adapter({
 			routes: {
 				include: ['/*'],
-				// exclude: ['<all>']
 			},
 		}),
 		alias: {

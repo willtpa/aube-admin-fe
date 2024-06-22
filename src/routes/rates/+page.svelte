@@ -49,7 +49,7 @@
     let sse: EventSource | undefined = undefined;
 
     async function subscribeToCurrencyRates(): Promise<void> {
-        sse = new EventSource('rates/sse/');
+        sse = new EventSource('rates/sse');
 
         sse.onerror = (error): void => {
             console.error('error occurred:', error);
@@ -235,12 +235,13 @@
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         class="inline-block w-8 h-8 stroke-current"
-                                        ><image
+                                    >
+                                        <image
                                             href="/{currencyRates[base]!.base}.svg"
                                             width="24"
                                             height="24"
-                                        /></svg
-                                    >
+                                        />
+                                    </svg>
                                 </div>
                             {:else}
                                 <span class="text-xl">{currencyRates[base]!.base}</span>
@@ -258,8 +259,9 @@
                         <button
                             class="text-left inline-block w-44 overflow-hidden truncate"
                             on:click={async (): Promise<void> => { await copyToClipboard(currencyRates[base]!.rate_base_quote.toString()) }}
-                            >{currencyRates[base]!.rate_base_quote}</button
                         >
+                            {currencyRates[base]!.rate_base_quote}
+                        </button>
                     </div>
                     <div class="stat-title">
                         USD/{currencyRates[base]!.base}
@@ -272,8 +274,9 @@
                         <button
                             class="text-left inline-block w-44 overflow-hidden truncate"
                             on:click={async (): Promise<void> => { await copyToClipboard(currencyRates[base]!.rate_usd_quote.toString()) }}
-                            >{currencyRates[base]!.rate_usd_quote}</button
                         >
+                            {currencyRates[base]!.rate_usd_quote}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -291,12 +294,12 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th class="text-center capitalize"> </th>
-                    <th class="text-center capitalize"> Base currency </th>
-                    <th class="text-right capitalize"> USD per unit </th>
-                    <th class="text-right capitalize"> unit per USD </th>
-                    <th class="text-center capitalize"> Last updated </th>
-                    <th class="text-center capitalize"> Providers </th>
+                    <th class="text-center capitalize"></th>
+                    <th class="text-center capitalize">Base currency</th>
+                    <th class="text-right capitalize">USD per unit</th>
+                    <th class="text-right capitalize">unit per USD</th>
+                    <th class="text-center capitalize">Last updated</th>
+                    <th class="text-center capitalize">Providers</th>
                 </tr>
             </thead>
             <tbody>
@@ -325,9 +328,9 @@
                                     data-testid="currency-{base}"
                                 />
                             {:else}
-                                <span class="text-m" data-testid="currency-{base}"
-                                    >{rates.base}</span
-                                >
+                                <span class="text-m" data-testid="currency-{base}">
+                                    {rates.base}
+                                </span>
                             {/if}
                         </td>
 
@@ -347,7 +350,7 @@
                                 id="copy-rate-{base}-to-usd"
                                 on:click={async (): Promise<void> => { await copyToClipboard(rates.rate_base_quote.toString()) }}
                             >
-                                <span class="material-symbols-outlined"> content_copy </span>
+                                <span class="material-symbols-outlined">content_copy</span>
                             </button>
                         </td>
 
@@ -367,7 +370,7 @@
                                 id="copy-rate-usd-to-{base}"
                                 on:click={async (): Promise<void> => { await copyToClipboard(rates.rate_usd_quote.toString()) }}
                             >
-                                <span class="material-symbols-outlined"> content_copy </span>
+                                <span class="material-symbols-outlined">content_copy</span>
                             </button>
                         </td>
 

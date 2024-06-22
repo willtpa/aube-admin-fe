@@ -156,3 +156,14 @@ export enum CurrencyTypeFilter {
     Crypto = 'crypto',
     Fiat = 'fiat',
 }
+
+export enum CryptoCurrency {
+    BTC = 'BTC',
+    ETH = 'ETH',
+    MATIC = 'MATIC',
+    SOL = 'SOL',
+    TRX = 'TRX',
+    XLM = 'XLM',
+    USDT = 'USDT',
+    USDC = 'USDC',
+}

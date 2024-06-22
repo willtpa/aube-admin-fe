@@ -3,13 +3,13 @@ import {
     test,
     expect,
     type Browser,
+    chromium,
     type Page,
     type ElementHandle,
-    chromium,
 } from '@playwright/test';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '.env' });
+dotenv.config({ path: '.env.testing' });
 
 let browser: Browser;
 let newPage: Page;
@@ -17,11 +17,7 @@ let newPage: Page;
 test.beforeAll(async () => {
     browser = await chromium.launch();
     newPage = await browser.newPage();
-    const previewUrl = process.env['PREVIEW_URL'];
-
-    console.log('Preview URL:', previewUrl);
-
-    await newPage.goto(`${previewUrl}/rates`);
+    await newPage.goto('/rates');
 });
 
 test.afterAll(async () => {
@@ -53,17 +49,7 @@ test.describe('Currency rates table', () => {
             'rate-providers',
         ];
         const contentClasses = await (tableContent as ElementHandle).$$eval('td', (tds) =>
-            tds.map((td) =>
-                td
-                    .getAttribute('class')
-                    ?.split(' ')
-                    .reduce((cArr: string[], c) => {
-                        if (c.length > 0) {
-                            cArr.push(c.trim());
-                        }
-                        return cArr;
-                    }, []),
-            ),
+            tds.map((td) => Object.values(td.classList)),
         );
         const flattenedClasses = contentClasses.flat();
         expect(flattenedClasses).toEqual(expect.arrayContaining(expectedClasses));
