@@ -52,6 +52,8 @@ export class Requestor {
         const query = config?.query ? `?${querystring(config.query)}` : '';
         const reqURL = url.includes('://') ? `${url}${query}` : `${this.baseURL}${url}${query}`;
 
+        console.log('requestor...... reqURL: ', reqURL);
+
         const result = await fetch(reqURL, {
             ...config,
             method,
@@ -61,7 +63,13 @@ export class Requestor {
                 ...config?.headers,
             },
         });
+
+        console.log('requestor...... result.body: ', JSON.stringify(result.body));
+        const data = await (result.json() as Promise<T>);
+        console.log('requestor...... data: ', JSON.stringify(data));
+
         if (!result.ok) {
+            console.log('requestor...... NOT result.ok: ', JSON.stringify(result));
             throw new Error(`HTTP error: ${result.status}`);
         }
 
