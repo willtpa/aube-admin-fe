@@ -9,7 +9,7 @@ import {
 } from '@playwright/test';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '.env.testing' });
+dotenv.config({ path: '.env' });
 
 let browser: Browser;
 let newPage: Page;
