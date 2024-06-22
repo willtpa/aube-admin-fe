@@ -179,4 +179,232 @@
     });
 </script>
 
-{JSON.stringify(currencyRates)}
+<main class="mx-auto max-w-[1050px] mt-8">
+    <div class="flex justify-between">
+        <h1>Currency Rates (quote USD)</h1>
+
+        <div>
+            <!-- currency type filter -->
+            <form class="join block px-5">
+                <input
+                    class="join-item btn rounded-l-full w-20"
+                    type="radio"
+                    name="currency-type"
+                    aria-label="All"
+                    value={CurrencyTypeFilter.All}
+                    bind:group={currencyTypeFilter}
+                />
+                <input
+                    class="join-item btn w-20"
+                    type="radio"
+                    name="currency-type"
+                    aria-label="Crypto"
+                    value={CurrencyTypeFilter.Crypto}
+                    bind:group={currencyTypeFilter}
+                />
+                <input
+                    class="join-item btn rounded-r-full w-20"
+                    type="radio"
+                    name="currency-type"
+                    aria-label="Fiat"
+                    value={CurrencyTypeFilter.Fiat}
+                    bind:group={currencyTypeFilter}
+                />
+            </form>
+        </div>
+    </div>
+
+    <!-- pin favorite currencies -->
+    {#each favCurrencies as base}
+        {#if currencyRates[base] !== undefined}
+            <div class="stats shadow px-1 fav-currency">
+                <div class="stat w-72">
+                    <div class="stat-figure text-secondary">
+                        <div class="indicator" id="fav-{base}">
+                            <span class="indicator-item">
+                                {#if !isValid(currencyRates[base]!)}
+                                    <span class="material-symbols-outlined text-error">
+                                        warning
+                                    </span>
+                                {/if}
+                            </span>
+
+                            {#if isCrypto(base)}
+                                <div class="stat-figure text-primary">
+                                    <svg
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        class="inline-block w-8 h-8 stroke-current"
+                                        ><image
+                                            href="/{currencyRates[base]!.base}.svg"
+                                            width="24"
+                                            height="24"
+                                        /></svg
+                                    >
+                                </div>
+                            {:else}
+                                <span class="text-xl">{currencyRates[base]!.base}</span>
+                            {/if}
+                        </div>
+                    </div>
+                    <div class="stat-title">
+                        {currencyRates[base]!.base}/USD
+                    </div>
+                    <div
+                        class="stat-desc {allIsPriceUps[base] === true
+                            ? 'text-success'
+                            : 'text-error'}"
+                    >
+                        <button
+                            class="text-left inline-block w-44 overflow-hidden truncate"
+                            on:click={async (): Promise<void> => { await copyToClipboard(currencyRates[base]!.rate_base_quote.toString()) }}
+                            >{currencyRates[base]!.rate_base_quote}</button
+                        >
+                    </div>
+                    <div class="stat-title">
+                        USD/{currencyRates[base]!.base}
+                    </div>
+                    <div
+                        class="stat-desc {allIsPriceUps[base] === true
+                            ? 'text-success'
+                            : 'text-error'}"
+                    >
+                        <button
+                            class="text-left inline-block w-44 overflow-hidden truncate"
+                            on:click={async (): Promise<void> => { await copyToClipboard(currencyRates[base]!.rate_usd_quote.toString()) }}
+                            >{currencyRates[base]!.rate_usd_quote}</button
+                        >
+                    </div>
+                </div>
+            </div>
+        {/if}
+    {/each}
+
+    <!-- currency rates table -->
+    <div class="overflow-x not-prose mt-8">
+        {#if showToast}
+            <div class="toast toast-center toast-top" transition:fade>
+                <div class="alert alert-neutral-content">Copied rates to clipboard</div>
+            </div>
+        {/if}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="text-center capitalize"> </th>
+                    <th class="text-center capitalize"> Base currency </th>
+                    <th class="text-right capitalize"> USD per unit </th>
+                    <th class="text-right capitalize"> unit per USD </th>
+                    <th class="text-center capitalize"> Last updated </th>
+                    <th class="text-center capitalize"> Providers </th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each Object.entries(currencyRates).filter( ([base, _]) => filterByType(base), ) as [base, rates] (base)}
+                    <tr class="hover" in:fade>
+                        <!-- favorite -->
+                        <td class="text-center fav-btn">
+                            <button
+                                on:click={():void => setFavCurrency(base)}
+                                data-testid="add-fav-{base}"
+                                id="add-fav-{base}"
+                            >
+                                <span class="material-icons text-primary">
+                                    {favCurrencies.includes(base) ? 'star' : 'star_outline'}
+                                </span>
+                            </button>
+                        </td>
+
+                        <!-- currency -->
+                        <td class="text-center currency">
+                            {#if isCrypto(base)}
+                                <img
+                                    class="w-6 h-6 mx-auto"
+                                    src="./{rates.base}.svg"
+                                    alt={rates.base}
+                                    data-testid="currency-{base}"
+                                />
+                            {:else}
+                                <span class="text-m" data-testid="currency-{base}"
+                                    >{rates.base}</span
+                                >
+                            {/if}
+                        </td>
+
+                        <!-- rate - usd per unit -->
+                        <td
+                            class="text-right whitespace-nowrap rate-usd-per-unit
+                                {allIsPriceUps[base] === true ? 'text-success' : 'text-error'}"
+                            data-testid="rate-{base}-to-usd"
+                        >
+                            {rates.rate_base_quote}
+                            <span class="material-symbols-outlined">
+                                {allIsPriceUps[base] === true ? 'arrow_upward' : 'arrow_downward'}
+                            </span>
+                            <button
+                                class="text-secondary"
+                                data-testid="copy-rate-{base}-to-usd"
+                                id="copy-rate-{base}-to-usd"
+                                on:click={async (): Promise<void> => { await copyToClipboard(rates.rate_base_quote.toString()) }}
+                            >
+                                <span class="material-symbols-outlined"> content_copy </span>
+                            </button>
+                        </td>
+
+                        <!-- rate - unit per usd -->
+                        <td
+                            class="text-right whitespace-nowrap rate-unit-per-usd
+                                {allIsPriceUps[base] === true ? 'text-success' : 'text-error'}"
+                            data-testid="rate-usd-to-{base}"
+                        >
+                            {rates.rate_usd_quote}
+                            <span class="material-symbols-outlined">
+                                {allIsPriceUps[base] === true ? 'arrow_upward' : 'arrow_downward'}
+                            </span>
+                            <button
+                                class="text-secondary"
+                                data-testid="copy-rate-usd-to-{base}"
+                                id="copy-rate-usd-to-{base}"
+                                on:click={async (): Promise<void> => { await copyToClipboard(rates.rate_usd_quote.toString()) }}
+                            >
+                                <span class="material-symbols-outlined"> content_copy </span>
+                            </button>
+                        </td>
+
+                        <!-- Last updated -->
+                        <td class="text-center rate-last-updated">
+                            <span data-testid="rate-last-updated-{base}">{allTimeAgos[base]}</span>
+                            {#if !isValid(rates)}
+                                <div
+                                    class="tooltip tooltip-right tooltip-error"
+                                    data-tip="rate is older than 1 hour"
+                                >
+                                    <!-- <small class="badge badge-error gap-2 text-base-100">Invalid</small> -->
+                                    <span class="material-symbols-outlined text-error">
+                                        warning
+                                    </span>
+                                </div>
+                            {/if}
+                        </td>
+
+                        <!-- providers -->
+                        <td class="flex justify-evenly rate-providers">
+                            <ul class="list-none flex">
+                                {#each Object.entries(rates.providers_contrib) as [provider]}
+                                    <li data-testid="rate-providers-{provider}">
+                                        <img
+                                            class="w-6 h-6"
+                                            src="./{provider}.svg"
+                                            alt={provider}
+                                        />
+                                    </li>
+                                {/each}
+                            </ul>
+                            {rates.rates_count} rate(s)
+                        </td>
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
+    </div>
+</main>
