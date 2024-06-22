@@ -64,9 +64,9 @@ export class Requestor {
             },
         });
 
-        console.log('requestor...... result.body: ', JSON.stringify(result.body));
-        const data = await (result.json() as Promise<T>);
-        console.log('requestor...... data: ', JSON.stringify(data));
+        // console.log('requestor...... result.body: ', JSON.stringify(result.body));
+        // const data = await (result.json() as Promise<T>);
+        // console.log('requestor...... data: ', JSON.stringify(data));
 
         if (!result.ok) {
             console.log('requestor...... NOT result.ok: ', JSON.stringify(result));
