@@ -8,23 +8,23 @@ import type { CurrencyCodeToMedianFxRateV1Map } from '$services/currency-rate';
 export const load: PageServerLoad = async ({ url }) => {
     try {
         console.log('GET: RequestHandler is called........ ');
-        // const currencyRates = await getRates();
-        const getRatesURL = `https://adminapi-stg.triple-a.rocks/v1/admin/api/rates`;
-        const headers = {
-            'CF-Access-Client-Id': '4438507a04cd88506072a317f51607cd.access',
-            'CF-Access-Client-Secret':
-                'f149af90c347dbd22e4fa71c63eb9ae7aad06dc7237dfc9b0b91caa459f6a2ac',
-        };
-        const currencyRatesResult = await fetch(getRatesURL, { headers });
-        const currencyRates = currencyRatesResult.body;
-        currencyRatesResult
-            .json()
-            .then((data) => {
-                console.log('GET: RequestHandler is called........ data: ', JSON.stringify(data));
-            })
-            .catch((err) => {
-                console.error('GET: RequestHandler is called........ error: ', err);
-            });
+        const currencyRates = await getRates();
+        // const getRatesURL = `https://adminapi-stg.triple-a.rocks/v1/admin/api/rates`;
+        // const headers = {
+        //     'CF-Access-Client-Id': '4438507a04cd88506072a317f51607cd.access',
+        //     'CF-Access-Client-Secret':
+        //         'f149af90c347dbd22e4fa71c63eb9ae7aad06dc7237dfc9b0b91caa459f6a2ac',
+        // };
+        // const currencyRatesResult = await fetch(getRatesURL, { headers });
+        // const currencyRates = currencyRatesResult.body;
+        // currencyRatesResult
+        //     .json()
+        //     .then((data) => {
+        //         console.log('GET: RequestHandler is called........ data: ', JSON.stringify(data));
+        //     })
+        //     .catch((err) => {
+        //         console.error('GET: RequestHandler is called........ error: ', err);
+        //     });
 
         console.log(
             'GET: RequestHandler is called........ currencyRates: ',
