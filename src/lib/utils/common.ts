@@ -1,3 +1,5 @@
+import { CryptoCurrency } from './enum';
+
 export async function readFile(filePath: string): Promise<Record<string, unknown> | null> {
     try {
         const content = await fetch(filePath);
@@ -13,9 +15,5 @@ export function isEnumType<T extends object>(value: unknown, obj: T): value is T
 }
 
 export function isCrypto(symbol: string): boolean {
-    const notFound = -1;
-    return (
-        ['BTC', 'ETH', 'MATIC', 'SOL', 'MATIC', 'TRX', 'XLM', 'USDT', 'USDC'].indexOf(symbol) !=
-        notFound
-    );
+    return isEnumType(symbol, CryptoCurrency);
 }

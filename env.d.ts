@@ -8,7 +8,5 @@ declare module '$env/static/public' {
 declare module '$env/static/private' {
     export const CF_ACCESS_CLIENT_SECRET: string;
     export const CF_ACCESS_CLIENT_ID: string;
-    export const USER_EMAIL: string;
-    export const USER_PW: string;
     // Add more environment variables as needed
 }

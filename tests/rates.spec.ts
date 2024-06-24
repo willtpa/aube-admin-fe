@@ -7,9 +7,6 @@ import {
     type Page,
     type ElementHandle,
 } from '@playwright/test';
-import dotenv from 'dotenv';
-
-dotenv.config({ path: '.env.testing' });
 
 let browser: Browser;
 let newPage: Page;
@@ -49,17 +46,7 @@ test.describe('Currency rates table', () => {
             'rate-providers',
         ];
         const contentClasses = await (tableContent as ElementHandle).$$eval('td', (tds) =>
-            tds.map((td) =>
-                td
-                    .getAttribute('class')
-                    ?.split(' ')
-                    .reduce((cArr: string[], c) => {
-                        if (c.length > 0) {
-                            cArr.push(c.trim());
-                        }
-                        return cArr;
-                    }, []),
-            ),
+            tds.map((td) => Object.values(td.classList)),
         );
         const flattenedClasses = contentClasses.flat();
         expect(flattenedClasses).toEqual(expect.arrayContaining(expectedClasses));

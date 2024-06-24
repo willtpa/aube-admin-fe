@@ -72,7 +72,7 @@
 </fieldset>
 
 <div>
-    <span>Balance </span>
+    <span>Balance</span>
     <span>{data.networkCurrencyId ? data.detail.balances[data.networkCurrencyId] : ''}</span>
 </div>
 
