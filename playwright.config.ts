@@ -6,7 +6,12 @@ const config: PlaywrightTestConfig = {
 		port: 4173
 	},
 	testDir: 'tests',
-	testMatch: /(.+\.)?(test|spec)\.[jt]s/
+	testMatch: /(.+\.)?(test|spec)\.[jt]s/,
+	use: {
+		permissions: ["clipboard-read", "clipboard-write"]
+	},
+	globalSetup: './tests/global-setup',
+	globalTeardown: './tests/global-teardown',
 };
 
 export default config;

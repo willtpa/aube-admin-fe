@@ -1,7 +1,7 @@
 import { PUBLIC_ADMINAPI_HOST } from '$env/static/public';
 import { CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET } from '$env/static/private';
 import { Requestor } from '$utils/http';
-import { type CurrencyCodeToMedianFxRateV1Map } from '$lib/services/currency-rate.d';
+import { type CurrencyCodeToMedianFxRateV1Map } from '$services/currency-rate.d';
 
 const requestor = new Requestor(PUBLIC_ADMINAPI_HOST);
 

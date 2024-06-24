@@ -1,18 +1,18 @@
 import type { PageServerLoad } from './$types';
 import { handleRequestError } from '$utils/http';
 import { getRates } from '$services/currency-rate';
-import type { CurrencyTypeFilter } from '$services/currency-rate.d';
+import { CurrencyTypeFilter } from '$utils/enum';
+import { isEnumType } from '$utils/common';
 
 export const load: PageServerLoad = async ({ url }) => {
     try {
         const currencyRates = await getRates();
         const query = new URLSearchParams(url.search);
-        let currencyType = query.get('currencyType') ?? 'all';
-
-        currencyType = ['all', 'crypto', 'fiat'].includes(currencyType) ? currencyType : 'all';
+        const param = query.get('currencyType');
+        const currencyType = isEnumType(param, CurrencyTypeFilter) ? param : CurrencyTypeFilter.All;
 
         return {
-            currencyType: currencyType as CurrencyTypeFilter,
+            currencyType,
             currencyRates,
         };
     } catch (err) {
