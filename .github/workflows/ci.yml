@@ -76,7 +76,7 @@ jobs:
             - name: Authenticate Playwright
               run: |
                 echo "Get Auth Cookie..." 
-                curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' https://385d001f.aubesee-admin.pages.dev -c .tmp > /dev/null 2>&1
+                curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' $PREVIEW_URL -c .tmp > /dev/null 2>&1
                 echo "CF_Authorization=$(cat .tmp | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
                 pwd
                 ls -la
