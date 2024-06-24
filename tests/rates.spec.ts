@@ -10,25 +10,26 @@ import {
 
 let browser: Browser;
 let newPage: Page;
-const previewURL = 'https://aubesee-admin-stg.triple-a.rocks';
-// const previewURL = '';
+// const previewURL = 'https://aubesee-admin-stg.triple-a.rocks';
+const previewURL = process.env['PREVIEW_URL'] ?? '';
 test.beforeAll(async () => {
     browser = await chromium.launch();
     newPage = await browser.newPage();
     console.log('Preview URL:', previewURL, previewURL.length);
-    const cookiesData = [
-        {
-            name: 'CF_Authorization',
-            value: process.env['CF_Authorization'] ?? '',
-            domain: '.triple-a.rocks',
-            path: '/',
-            httpOnly: true,
-            secure: true,
-            // url: 'https://aubesee-admin-stg.triple-a.rocks',
-        },
-    ];
 
     if (previewURL.length > 0) {
+        const url = new URL(previewURL);
+        const cookiesData = [
+            {
+                name: 'CF_Authorization',
+                value: process.env['CF_Authorization'] ?? '',
+                domain: url.hostname,
+                path: '/',
+                httpOnly: true,
+                secure: true,
+                // url: 'https://aubesee-admin-stg.triple-a.rocks',
+            },
+        ];
         console.log('Adding cookies...', cookiesData);
         await newPage.context().addCookies(cookiesData);
     }

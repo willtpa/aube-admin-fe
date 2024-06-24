@@ -60,6 +60,15 @@ jobs:
                 wranglerVersion: "3.57.2"
                 command: |
                   pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.PUBLIC_CF_PROJECT_PREVIEW }}
+
+            - name: Retrieve Preview URL
+              env:
+                DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
+              run: |
+                echo "Retrieve Preview URL..."
+                PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
+                echo $PREVIEW_URL
+                echo "PREVIEW_URL= $PREVIEW_URL" >> .env
             
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps
@@ -67,23 +76,23 @@ jobs:
             - name: Authenticate Playwright
               run: |
                 echo "Get Auth Cookie..." 
-                curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' https://aubesee-admin-stg.triple-a.rocks -c .tmp > /dev/null 2>&1
+                curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' https://385d001f.aubesee-admin.pages.dev -c .tmp > /dev/null 2>&1
                 echo "CF_Authorization=$(cat .tmp | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
                 pwd
                 ls -la
                 cat .tmp
 
             - name: Run e2e tests
-              env:
-                DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
+              # env:
+              #   DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
               run: |
-                echo "print out .env file..."
-                # echo "PUBLIC_CF_PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')" >> .env
-                # echo "PUBLIC_CF_PREVIEW_URL: https://375542d2.aubesee-admin.pages.dev" >> .env
-                # cat .env
-                PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
-                echo $PREVIEW_URL
-                # echo "PREVIEW_URL= $PREVIEW_URL" >> .env
+                # echo "print out .env file..."
+                # # echo "PUBLIC_CF_PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')" >> .env
+                # # echo "PUBLIC_CF_PREVIEW_URL: https://375542d2.aubesee-admin.pages.dev" >> .env
+                # # cat .env
+                # PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
+                # echo $PREVIEW_URL
+                # # echo "PREVIEW_URL= $PREVIEW_URL" >> .env
                 npx playwright test
 
             - name: Cleanup
