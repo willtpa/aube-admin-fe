@@ -63,6 +63,12 @@ jobs:
             
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps
+            
+            - name: Authenticate Playwright
+              run: |
+                echo "Get Auth Cookie..." 
+                curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' -v https://aubesee-admin-stg.triple-a.rocks -b .cookies
+                echo "CF_Authorization=$(cat cookies.txt | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
 
             - name: Run e2e tests
               env:
@@ -74,8 +80,17 @@ jobs:
                 # cat .env
                 PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
                 echo $PREVIEW_URL
-                echo "PREVIEW_URL= $PREVIEW_URL" >> .env
+                # echo "PREVIEW_URL= $PREVIEW_URL" >> .env
                 npx playwright test
+
+            - name: Cleanup
+              run: |
+                echo "Cleanup..."
+                ls -la 
+                rm -rf .cookies
+                rm -rf .env
+                echo "Cleanup done..."
+                ls -la
 
     deployment:
         needs: build-and-test
