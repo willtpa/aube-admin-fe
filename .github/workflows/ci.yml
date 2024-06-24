@@ -61,7 +61,7 @@ jobs:
                 command: |
                   pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.PUBLIC_CF_PROJECT_PREVIEW }}
 
-            - name: Retrieve Preview URL
+            - name: Retrieve Preview URL & Auth Cookie for Playwright
               env:
                 DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
               run: |
@@ -69,18 +69,16 @@ jobs:
                 PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
                 echo $PREVIEW_URL
                 echo "PREVIEW_URL= $PREVIEW_URL" >> .env
-            
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps chromium
-            
-            - name: Authenticate Playwright
-              run: |
+
                 echo "Get Auth Cookie..." 
                 curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' $PREVIEW_URL -c .tmp > /dev/null 2>&1
                 echo "CF_Authorization=$(cat .tmp | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
                 pwd
                 ls -la
                 # cat .tmp
+            
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps chromium
 
             - name: Run e2e tests
               # env:
