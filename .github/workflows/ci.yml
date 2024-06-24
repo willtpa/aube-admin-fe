@@ -1,0 +1,113 @@
+name: aubesee-admin ci
+
+on:
+    push:
+        branches:
+            - '**'
+    pull_request:
+        branches:
+            - main
+            - staging
+        
+    workflow_dispatch:
+
+jobs:
+    build-and-test:
+        environment:
+          name: ${{ github.ref_name }}
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '21.5.0'
+
+            - name: Install Dependencies & Build
+              run: |
+                echo "Install npm..."
+                npm i -g npm@10.2.4
+                echo "Install dependencies..."
+                npm ci
+
+                echo "PUBLIC_ADMINAPI_HOST: ${{ vars.PUBLIC_ADMINAPI_HOST }}" > .env
+                echo "CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}" >> .env
+                echo "CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" >> .env
+                
+                echo "Build project..."
+                npm run build
+                echo "Build finshed..."
+
+            - name: Upload svelte-kit Artifacts    
+              uses: actions/upload-artifact@v4
+              with:
+                name: sveltekit-artifacts
+                path: .svelte-kit
+
+            - name: Run Unit Tests
+              run: npm run test:unit
+
+            # deploy preview each time push to any branch
+            - name: Deploy Preview Pages
+              id: deploy_preview
+              uses: cloudflare/wrangler-action@v3
+              with:
+                apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                wranglerVersion: "3.57.2"
+                command: |
+                  pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT_PREVIEW }}
+
+            - name: Retrieve Preview URL & Auth Cookie for Playwright
+              env:
+                DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
+              run: |
+                echo "Retrieve Preview URL..."
+                PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
+                echo "PREVIEW_URL= $PREVIEW_URL" >> .env
+
+                echo "Get Auth Cookie..." 
+                curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' $PREVIEW_URL -c .tmp > /dev/null 2>&1
+                echo "CF_Authorization=$(cat .tmp | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
+            
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps chromium
+
+            - name: Run e2e Tests
+              run: |
+                npm run test:integration
+            
+            - name: Cleanup
+              run: |
+                rm -rf .tmp
+                rm -rf .env
+
+    deployment:
+        needs: build-and-test
+        environment:
+          name: ${{ github.ref_name }}
+        runs-on: ubuntu-latest
+        if: (github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main')
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v3
+
+            - name: Download svelte-kit Artifacts
+              uses: actions/download-artifact@v4
+              with:
+                name: sveltekit-artifacts
+                path: .svelte-kit
+
+            - name: Deploy Staging/Production Pages
+              id: deploy_staging_production
+              uses: cloudflare/wrangler-action@v3
+              with:
+                apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                wranglerVersion: "3.57.2"
+                command: |
+                  pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT }}
+
