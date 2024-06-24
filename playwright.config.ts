@@ -9,7 +9,9 @@ const config: PlaywrightTestConfig = {
 	testMatch: /(.+\.)?(test|spec)\.[jt]s/,
 	use: {
 		permissions: ["clipboard-read", "clipboard-write"]
-	}
+	},
+	globalSetup: './tests/global-setup',
+	globalTeardown: './tests/global-teardown',
 };
 
 export default config;

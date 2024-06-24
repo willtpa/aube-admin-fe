@@ -7,17 +7,16 @@ import {
     type Page,
     type ElementHandle,
 } from '@playwright/test';
-import dotenv from 'dotenv';
-
-dotenv.config({ path: '.env.testing' });
 
 let browser: Browser;
 let newPage: Page;
+const previewURL = process.env['PREVIEW_URL'] ?? '';
 
 test.beforeAll(async () => {
     browser = await chromium.launch();
     newPage = await browser.newPage();
-    await newPage.goto('/rates');
+    console.log('Preview URL:', previewURL);
+    await newPage.goto(`${previewURL}/rates`);
 });
 
 test.afterAll(async () => {
@@ -121,25 +120,25 @@ test.describe('Currency type buttons', async () => {
     });
 
     test('it should automatically select "All" when the query parameter is "currencyType=all" or invalid', async () => {
-        await newPage.goto('/rates?currencyType=all');
+        await newPage.goto(`${previewURL}/rates?currencyType=all`);
 
         let allButton = await newPage.getByLabel('All');
         expect(await allButton.isChecked()).toBeTruthy();
 
-        await newPage.goto('/rates?currencyType=invalid');
+        await newPage.goto(`${previewURL}/rates?currencyType=invalid`);
         allButton = await newPage.getByLabel('All');
         expect(await allButton.isChecked()).toBeTruthy();
     });
 
     test('it should automatically select "Crypto" when the query parameter is "currencyType=crypto"', async () => {
-        await newPage.goto('/rates?currencyType=crypto');
+        await newPage.goto(`${previewURL}/rates?currencyType=crypto`);
 
         const cryptoButton = await newPage.getByLabel('Crypto');
         expect(await cryptoButton.isChecked()).toBeTruthy();
     });
 
     test('it should automatically select "Fiat" when the query parameter is "currencyType=fiat"', async () => {
-        await newPage.goto('/rates?currencyType=fiat');
+        await newPage.goto(`${previewURL}/rates?currencyType=fiat`);
 
         const fiatButton = await newPage.getByLabel('Fiat');
         expect(await fiatButton.isChecked()).toBeTruthy();
@@ -150,7 +149,7 @@ test.describe('Currency favorites', () => {
     const delayInMs = 100;
 
     test('it should render/unrender favorite currency when the star icon is clicked', async () => {
-        await newPage.goto('/rates');
+        await newPage.goto(`${previewURL}/rates`);
 
         // click the star icon to add the favorite currency
         await newPage.getByTestId('add-fav-ETH').click();
