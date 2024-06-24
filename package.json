@@ -1,6 +1,6 @@
 {
 	"name": "aubesee-admin",
-	"version": "0.0.1",
+	"version": "20240624.9.54",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
