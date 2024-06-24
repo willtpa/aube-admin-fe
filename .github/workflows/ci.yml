@@ -67,8 +67,9 @@ jobs:
             - name: Authenticate Playwright
               run: |
                 echo "Get Auth Cookie..." 
-                curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' -v https://aubesee-admin-stg.triple-a.rocks -b .cookies
+                curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' https://aubesee-admin-stg.triple-a.rocks -b .cookies
                 echo "CF_Authorization=$(cat cookies.txt | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
+                ls -la
 
             - name: Run e2e tests
               env:
