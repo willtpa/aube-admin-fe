@@ -71,7 +71,7 @@ jobs:
                 echo "PREVIEW_URL= $PREVIEW_URL" >> .env
             
             - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
+              run: npx playwright install --with-deps chromium
             
             - name: Authenticate Playwright
               run: |
@@ -80,7 +80,7 @@ jobs:
                 echo "CF_Authorization=$(cat .tmp | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
                 pwd
                 ls -la
-                cat .tmp
+                # cat .tmp
 
             - name: Run e2e tests
               # env:
