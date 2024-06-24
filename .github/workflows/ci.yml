@@ -67,11 +67,11 @@ jobs:
             - name: Authenticate Playwright
               run: |
                 echo "Get Auth Cookie..." 
-                curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' https://aubesee-admin-stg.triple-a.rocks -b tmp.txt > /dev/null 2>&1
-                echo "CF_Authorization=$(cat tmp.txt | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
+                curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' https://aubesee-admin-stg.triple-a.rocks -c .tmp > /dev/null 2>&1
+                echo "CF_Authorization=$(cat .tmp | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
                 pwd
                 ls -la
-                cat tmp.txt
+                cat .tmp
 
             - name: Run e2e tests
               env:
@@ -90,7 +90,7 @@ jobs:
               run: |
                 echo "Cleanup..."
                 ls -la 
-                rm -rf tmp
+                rm -rf .tmp
                 rm -rf .env
                 echo "Cleanup done..."
                 ls -la
