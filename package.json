@@ -1,6 +1,6 @@
 {
 	"name": "aubesee-admin",
-	"version": "0.0.1",
+	"version": "20240624.9.54",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
@@ -14,7 +14,8 @@
 		"format": "prettier --write .",
 		"test:integration": "playwright test",
 		"test:unit": "vitest --no-watch",
-		"prepare": "husky"
+		"prepare": "husky",
+		"version:update": "npm version $(node -e \"console.log(process.argv[1])\" -- $(date -u +\"%Y%m%d.%H.%M\"))"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^19.3.0",

@@ -9,7 +9,7 @@ on:
             - main
             - staging
         
-    workflow_dispatch:
+    # workflow_dispatch:
 
 jobs:
     build-and-test:
@@ -87,10 +87,10 @@ jobs:
 
     deployment:
         needs: build-and-test
-        environment:
-          name: ${{ github.ref_name }}
-        runs-on: ubuntu-latest
         if: (github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main')
+        environment:
+          name: ${{ github.ref == 'refs/heads/main' && 'production' || github.ref_name }}
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout Code
               uses: actions/checkout@v3
