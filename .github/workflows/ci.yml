@@ -9,12 +9,8 @@ on:
             - main
             - staging
         
-    # workflow_dispatch:
-
 jobs:
     build-and-test:
-        environment:
-          name: ${{ github.ref_name }}
         runs-on: ubuntu-latest
 
         steps:
@@ -61,6 +57,7 @@ jobs:
                 command: |
                   pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT_PREVIEW }}
 
+            # deployed resources are protected by Cloudflare, auth is required
             - name: Retrieve Preview URL & Auth Cookie for Playwright
               env:
                 DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
@@ -76,6 +73,7 @@ jobs:
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps chromium
 
+            # run e2e tests on deployed preview url
             - name: Run e2e Tests
               run: |
                 npm run test:integration
