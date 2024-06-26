@@ -4,6 +4,9 @@ on:
     push:
         branches:
             - '**'
+        tags:
+            - 'v*-staging'
+            - 'v*'
     pull_request:
         branches:
             - main
@@ -86,9 +89,9 @@ jobs:
 
     deployment:
         needs: build-and-test
-        if: (github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main')
+        if: (github.ref == 'refs/tags/v*-staging' || github.ref == 'refs/tags/v*')
         environment:
-          name: ${{ github.ref == 'refs/heads/main' && 'production' || github.ref_name }}
+          name: ${{ github.ref == 'refs/heads/v*-staging' && 'staging' || 'production' }}
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Code
