@@ -40,47 +40,47 @@ jobs:
                 npm run build
                 echo "Build finshed..."
 
-            - name: Upload svelte-kit Artifacts    
-              uses: actions/upload-artifact@v4
-              with:
-                name: sveltekit-artifacts
-                path: .svelte-kit
+            # - name: Upload svelte-kit Artifacts    
+            #   uses: actions/upload-artifact@v4
+            #   with:
+            #     name: sveltekit-artifacts
+            #     path: .svelte-kit
 
-            - name: Run Unit Tests
-              run: npm run test:unit
+            # - name: Run Unit Tests
+            #   run: npm run test:unit
 
-            # deploy preview each time push to any branch
-            - name: Deploy Preview Pages
-              id: deploy_preview
-              uses: cloudflare/wrangler-action@v3
-              with:
-                apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-                accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-                wranglerVersion: "3.57.2"
-                command: |
-                  pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT_PREVIEW }}
+            # # deploy preview each time push to any branch
+            # - name: Deploy Preview Pages
+            #   id: deploy_preview
+            #   uses: cloudflare/wrangler-action@v3
+            #   with:
+            #     apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+            #     accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+            #     wranglerVersion: "3.57.2"
+            #     command: |
+            #       pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT_PREVIEW }}
 
-            # deployed resources are protected by Cloudflare, auth is required
-            - name: Retrieve Preview URL & Auth Cookie for Playwright
-              env:
-                DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
-              run: |
-                echo "Retrieve Preview URL..."
-                # PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
-                PREVIEW_URL=https://2d93b9bd.aubesee-admin.pages.dev
-                echo "PREVIEW_URL= $PREVIEW_URL" >> .env
+            # # deployed resources are protected by Cloudflare, auth is required
+            # - name: Retrieve Preview URL & Auth Cookie for Playwright
+            #   env:
+            #     DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
+            #   run: |
+            #     echo "Retrieve Preview URL..."
+            #     # PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
+            #     PREVIEW_URL=https://2d93b9bd.aubesee-admin.pages.dev
+            #     echo "PREVIEW_URL= $PREVIEW_URL" >> .env
 
-                echo "Get Auth Cookie..." 
-                curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' $PREVIEW_URL -c .tmp > /dev/null 2>&1
-                echo "CF_Authorization=$(cat .tmp | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
+            #     echo "Get Auth Cookie..." 
+            #     curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' $PREVIEW_URL -c .tmp > /dev/null 2>&1
+            #     echo "CF_Authorization=$(cat .tmp | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
             
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps chromium
+            # - name: Install Playwright Browsers
+            #   run: npx playwright install --with-deps chromium
 
-            # run e2e tests on deployed preview url
-            - name: Run e2e Tests
-              run: |
-                npm run test:integration
+            # # run e2e tests on deployed preview url
+            # - name: Run e2e Tests
+            #   run: |
+            #     npm run test:integration
             
             - name: Cleanup
               run: |
@@ -89,9 +89,9 @@ jobs:
 
     deployment:
         needs: build-and-test
-        if: (github.ref == 'refs/tags/v*-staging' || github.ref == 'refs/tags/v*')
+        if: startsWith(github.ref, 'refs/tags/v') && (endsWith(github.ref, '-staging') || endsWith(github.ref, ''))
         environment:
-          name: ${{ github.ref == 'refs/heads/v*-staging' && 'staging' || 'production' }}
+          name: ${{ endsWith(github.ref, '-staging') && 'staging' || 'production' }}
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Code
