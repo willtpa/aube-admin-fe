@@ -91,11 +91,35 @@ jobs:
                 echo "github.ref.endWithStaging: ${{ endsWith(github.ref, '-staging') }}"
                 echo "github.ref.endsWith: ${{ endsWith(github.ref, '') }}"
 
-    deployment:
+    check-environment:
         needs: build-and-test
-        if: startsWith(github.ref, 'refs/tags/v') && ((endsWith(github.ref, '-staging') || endsWith(github.ref, '')))
+        id: check_environment
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check Environment
+              run: |
+                echo "Check Environment..."
+                echo "github.ref: ${{ github.ref }}"
+                echo "github.ref.startWith: ${{ startsWith(github.ref, 'refs/tags/v') }}"
+                echo "github.ref.endWithStaging: ${{ endsWith(github.ref, '-staging') }}"
+                echo "github.ref.endsWith: ${{ endsWith(github.ref, '') }}"
+                echo "Check Environment finshed..."
+                TAG_NAME=${{ github.ref }}
+                if [[ ! "$TAG_NAME" =~ ^refs/tags/v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{4}(-staging)?$ ]]; then
+                  echo "staging"
+                elif [[ ! "$TAG_NAME" =~ ^refs/tags/v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{4}$ ]]; then
+                  echo "production"
+                else
+                  echo "invalid"
+                fi
+
+    deployment:
+        needs: [build-and-test, check-environment]
+        env:
+          DEPLOYMENT_ENV: ${{ needs.check_environment.outputs.command-output }}
+        if: $DEPLOYMENT_ENV == 'staging' || $DEPLOYMENT_ENV == 'production'
         environment:
-          name: ${{ endsWith(github.ref, '-staging') && 'staging' || 'production' }}
+          name: $DEPLOYMENT_ENV
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Code
