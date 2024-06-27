@@ -10,7 +10,6 @@ on:
     pull_request:
         branches:
             - main
-            - staging
         
 jobs:
     build-and-test:
@@ -47,44 +46,42 @@ jobs:
                 name: sveltekit-artifacts
                 path: .svelte-kit
 
-            # - name: Run Unit Tests
-            #   run: npm run test:unit
+            - name: Run Unit Tests
+              run: npm run test:unit
 
-            # # deploy preview each time push to any branch
-            # - name: Deploy Preview Pages
-            #   id: deploy_preview
-            #   uses: cloudflare/wrangler-action@v3
-            #   with:
-            #     apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-            #     accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-            #     wranglerVersion: "3.57.2"
-            #     command: |
-            #       pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT_PREVIEW }}
+            # deploy preview each time push to any branch
+            - name: Deploy Preview Pages
+              id: deploy_preview
+              uses: cloudflare/wrangler-action@v3
+              with:
+                apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                wranglerVersion: "3.57.2"
+                command: |
+                  pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT_PREVIEW }}
 
-            # # deployed resources are protected by Cloudflare, auth is required
-            # - name: Retrieve Preview URL & Auth Cookie for Playwright
-            #   env:
-            #     DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
-            #   run: |
-            #     echo "Retrieve Preview URL..."
-            #     # PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
-            #     PREVIEW_URL=https://2d93b9bd.aubesee-admin.pages.dev
-            #     echo "PREVIEW_URL= $PREVIEW_URL" >> .env
+            # deployed resources are protected by Cloudflare, auth is required
+            - name: Retrieve Preview URL & Auth Cookie for Playwright
+              env:
+                DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
+              run: |
+                echo "Retrieve Preview URL..."
+                PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
+                echo "PREVIEW_URL= $PREVIEW_URL" >> .env
 
-            #     echo "Get Auth Cookie..." 
-            #     curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' $PREVIEW_URL -c .tmp > /dev/null 2>&1
-            #     echo "CF_Authorization=$(cat .tmp | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
+                echo "Get Auth Cookie..." 
+                curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' $PREVIEW_URL -c .tmp > /dev/null 2>&1
+                echo "CF_Authorization=$(cat .tmp | grep 'CF_Authorization' | awk '{print $NF}')" >> .env
             
-            # - name: Install Playwright Browsers
-            #   run: npx playwright install --with-deps chromium
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps chromium
 
-            # # run e2e tests on deployed preview url
-            # - name: Run e2e Tests
-            #   run: |
-            #     npm run test:integration
+            # run e2e tests on deployed preview url
+            - name: Run e2e Tests
+              run: |
+                npm run test:integration
             
             - name: Check for Deployment & Cleanup
-              id: check_environment
               run: |
                 # check for deployment environment
                 TAG_NAME=${{ github.ref }}
@@ -96,17 +93,12 @@ jobs:
                   echo "environment=none" >> "$GITHUB_OUTPUT"
                 fi
 
-                # log GITHUB_OUTPUT
-                echo "GITHUB_OUTPUT value: ${{ steps.check_environment.outputs.GITHUB_OUTPUT }}"
-                echo "deploy_env value: ${{ steps.check_environment.outputs.deploy_env }}"
-                echo "outputs value: ${{ steps.check_environment.outputs }}"
-
                 # cleanup
                 rm -rf .tmp
                 rm -rf .env
 
     deployment:
-        needs: [build-and-test]
+        needs: build-and-test
         if: ${{ needs.build-and-test.outputs.deploy_env == 'staging'  || needs.build-and-test.outputs.deploy_env == 'production'}}
         environment:
           name: ${{ needs.build-and-test.outputs.deploy_env }}
@@ -122,6 +114,7 @@ jobs:
                 path: .svelte-kit
 
             - name: Deploy Staging/Production Pages
+              id: deploy_staging_production
               uses: cloudflare/wrangler-action@v3
               with:
                 apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -129,3 +122,4 @@ jobs:
                 wranglerVersion: "3.57.2"
                 command: |
                   pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT }}
+
