@@ -10,12 +10,12 @@ on:
     pull_request:
         branches:
             - main
-            - staging
         
 jobs:
     build-and-test:
         runs-on: ubuntu-latest
-
+        outputs:
+          deploy_env: ${{ steps.check_environment.outputs.environment }}
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
@@ -66,8 +66,7 @@ jobs:
                 DEPLOY_PREVIEW_OUTPUT: ${{ steps.deploy_preview.outputs.command-output }}
               run: |
                 echo "Retrieve Preview URL..."
-                # PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
-                PREVIEW_URL=https://2d93b9bd.aubesee-admin.pages.dev
+                PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
                 echo "PREVIEW_URL= $PREVIEW_URL" >> .env
 
                 echo "Get Auth Cookie..." 
@@ -82,16 +81,27 @@ jobs:
               run: |
                 npm run test:integration
             
-            - name: Cleanup
+            - name: Check for Deployment & Cleanup
               run: |
+                # check for deployment environment
+                TAG_NAME=${{ github.ref }}
+                if [[ "$TAG_NAME" =~ ^refs/tags/v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{4}(-staging)$ ]]; then
+                  echo "environment=staging" >> "$GITHUB_OUTPUT"
+                elif [[ "$TAG_NAME" =~ ^refs/tags/v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{4}$ ]]; then
+                  echo "environment=production" >> "$GITHUB_OUTPUT"
+                else
+                  echo "environment=none" >> "$GITHUB_OUTPUT"
+                fi
+
+                # cleanup
                 rm -rf .tmp
                 rm -rf .env
 
     deployment:
         needs: build-and-test
-        if: (github.ref == 'refs/tags/v*-staging' || github.ref == 'refs/tags/v*')
+        if: ${{ needs.build-and-test.outputs.deploy_env == 'staging'  || needs.build-and-test.outputs.deploy_env == 'production'}}
         environment:
-          name: ${{ github.ref == 'refs/heads/v*-staging' && 'staging' || 'production' }}
+          name: ${{ needs.build-and-test.outputs.deploy_env }}
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Code
