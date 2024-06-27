@@ -5,7 +5,7 @@ on:
         branches:
             - '**'
         tags:
-            - 'v*-staging'
+            - 'v*-staging'  # this is redudant, but it's here for clarity/readability
             - 'v*'
     pull_request:
         branches:
@@ -82,6 +82,7 @@ jobs:
                 npm run test:integration
             
             - name: Check for Deployment & Cleanup
+              id: check_environment
               run: |
                 # check for deployment environment
                 TAG_NAME=${{ github.ref }}
@@ -122,4 +123,15 @@ jobs:
                 wranglerVersion: "3.57.2"
                 command: |
                   pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT }}
+
+            - name: Generate a Changelog
+              uses: orhun/git-cliff-action@v3
+              id: git-cliff
+              with:
+                args: --latest
+
+            - name: Create Release
+              uses: softprops/action-gh-release@v2
+              with:
+                body: ${{steps.git-cliff.outputs.content}}
 
