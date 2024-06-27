@@ -1,11 +1,11 @@
-# #!/bin/bash
+#!/bin/bash
 
-# while read local_ref local_sha remote_ref remote_sha; do
-#     if [[ "$remote_ref" =~ refs/tags/ ]]; then
-#         TAG_NAME=${remote_ref#refs/tags/}
-#         if [[ ! "$TAG_NAME" =~ ^v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{4}(-staging)?$ ]]; then
-#             echo "Error: Tag name format is incorrect.\nTags must follow the pattern vYYYY.MM.DD.HHmm or vYYYY.MM.DD.HHmm-staging \nUse 'npm run tag:create' or 'npm run tag:create:staging' for convenient"
-#             exit 1
-#         fi
-#     fi
-# done
+while read local_ref local_sha remote_ref remote_sha; do
+    if [[ "$remote_ref" =~ refs/tags/ ]]; then
+        TAG_NAME=${remote_ref#refs/tags/}
+        if [[ ! "$TAG_NAME" =~ ^v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{4}(-staging)?$ ]]; then
+            echo "Error: Tag name format is incorrect.\nTags must follow the pattern vYYYY.MM.DD.HHmm or vYYYY.MM.DD.HHmm-staging \nUse 'npm run tag:create' or 'npm run tag:create:staging' for convenient"
+            exit 1
+        fi
+    fi
+done
