@@ -134,4 +134,6 @@ jobs:
               uses: softprops/action-gh-release@v2
               with:
                 body: ${{steps.git-cliff.outputs.content}}
+              env:
+                GITHUB_TOKEN: ${{ secrets.CREATE_RELEASE_TOKEN }}
 
