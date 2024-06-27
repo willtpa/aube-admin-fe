@@ -96,36 +96,16 @@ jobs:
                   echo "environment=none" >> "$GITHUB_OUTPUT"
                 fi
 
-                # log GITHUB_OUTPUT
-                echo "GITHUB_OUTPUT value: ${{ steps.check_environment.outputs.GITHUB_OUTPUT }}"
-                echo "deploy_env value: ${{ steps.check_environment.outputs.deploy_env }}"
-                echo "outputs value: ${{ steps.check_environment.outputs }}"
-
                 # cleanup
                 rm -rf .tmp
                 rm -rf .env
 
     deployment:
         needs: [build-and-test]
-        if: ${{ needs.build-and-test.outputs.deploy_env == 'staging'  || needs.build-and-test.outputs.deploy_env == 'production'}}
-        environment:
-          name: ${{ needs.build-and-test.outputs.deploy_env }}
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout Code
-              uses: actions/checkout@v4
-
-            - name: Download svelte-kit Artifacts
-              uses: actions/download-artifact@v4
-              with:
-                name: sveltekit-artifacts
-                path: .svelte-kit
-
-            - name: Deploy Staging/Production Pages
-              uses: cloudflare/wrangler-action@v3
-              with:
-                apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-                accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-                wranglerVersion: "3.57.2"
-                command: |
-                  pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT }}
+          - name: log GITHUB_OUTPUT
+            run: |
+              # log GITHUB_OUTPUT
+              echo "deploy_env value: ${{ needs.build-and-test.outputs.deploy_env }}"
+              echo "outputs value: ${{ needs.build-and-test.outputs }}"
