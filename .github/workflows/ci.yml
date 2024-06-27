@@ -96,6 +96,11 @@ jobs:
                   echo "environment=none" >> "$GITHUB_OUTPUT"
                 fi
 
+                # log GITHUB_OUTPUT
+                echo "GITHUB_OUTPUT value: ${{ steps.check_environment.outputs.GITHUB_OUTPUT }}"
+                echo "deploy_env value: ${{ steps.check_environment.outputs.deploy_env }}"
+                echo "outputs value: ${{ steps.check_environment.outputs }}"
+
                 # cleanup
                 rm -rf .tmp
                 rm -rf .env
@@ -124,42 +129,3 @@ jobs:
                 wranglerVersion: "3.57.2"
                 command: |
                   pages deploy ./.svelte-kit/cloudflare --project-name ${{ vars.CF_PROJECT }}
-
-
-
-# jobs:
-#   check-environment:
-#     runs-on: ubuntu-latest
-#     outputs:
-#       environment_status: ${{ steps.check-environment.outputs.environment_status }}
-#     steps:
-#       - name: Check Environment
-#         id: check-environment
-#         run: |
-#           TAG_NAME="${{ github.ref }}"
-#           if [[ ! "$TAG_NAME" =~ ^refs/tags/v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{4}(-staging)?$ ]]; then
-#             echo "staging"
-#             echo "::set-output name=environment_status::staging"
-#           elif [[ ! "$TAG_NAME" =~ ^refs/tags/v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{4}$ ]]; then
-#             echo "production"
-#             echo "::set-output name=environment_status::production"
-#           else
-#             echo "invalid"
-#             echo "::set-output name=environment_status::invalid"
-#           fi
-
-#                   jobs:
-#   deployment:
-#     needs: [build-and-test, check-environment]
-#     runs-on: ubuntu-latest
-#     if: ${{ needs.check-environment.outputs.environment_status == 'staging' || needs.check-environment.outputs.environment_status == 'production' }}
-#     env:
-#       DEPLOYMENT_ENV: ${{ needs.check-environment.outputs.environment_status }}
-#     steps:
-#       - name: Deployment Step
-#         run: |
-#           echo "Deploying to $DEPLOYMENT_ENV environment..."
-#           # Add your deployment commands here
-
-
-
