@@ -67,7 +67,7 @@ jobs:
               run: |
                 echo "Retrieve Preview URL..."
                 # PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
-                PREVIEW_URL=https://2d93b9bd.aubesee-admin.pages.dev
+                PREVIEW_URL=https://aubesee-admin.pages.dev
                 echo "PREVIEW_URL= $PREVIEW_URL" >> .env
 
                 echo "Get Auth Cookie..." 
