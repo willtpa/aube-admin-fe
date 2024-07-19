@@ -10,11 +10,12 @@ import {
 
 let browser: Browser;
 let newPage: Page;
+// const previewURL = 'https://aubesee-admin-stg.triple-a.rocks';
 const previewURL = process.env['PREVIEW_URL'] ?? '';
-
 test.beforeAll(async () => {
     browser = await chromium.launch();
     newPage = await browser.newPage();
+    console.log('Preview URL:', previewURL, previewURL.length);
 
     if (previewURL.length > 0) {
         const url = new URL(previewURL);
@@ -26,8 +27,10 @@ test.beforeAll(async () => {
                 path: '/',
                 httpOnly: true,
                 secure: true,
+                // url: 'https://aubesee-admin-stg.triple-a.rocks',
             },
         ];
+        console.log('Adding cookies...', cookiesData);
         await newPage.context().addCookies(cookiesData);
     }
 
