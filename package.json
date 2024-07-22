@@ -16,8 +16,9 @@
 		"test:unit": "vitest --no-watch",
 		"prepare": "husky",
 		"version:update": "npm version $(node -e \"console.log(process.argv[1])\" -- $(date -u +\"%Y%m%d.%H.%M\"))",
-		"tag:create:staging": "TAG_NAME=v$(date -u +\"%Y.%m.%d.%H%M\")-staging; git tag $TAG_NAME; echo \"created tag: $TAG_NAME\"",
-		"tag:create": "TAG_NAME=v$(date -u +\"%Y.%m.%d.%H%M\"); git tag $TAG_NAME; echo \"created tag: $TAG_NAME\""
+		"tag:create:staging": "./scripts/release-tag.sh staging",
+		"tag:create:sandbox": "./scripts/release-tag.sh sandbox",
+		"tag:create:production": "./scripts/release-tag.sh production"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^19.3.0",
