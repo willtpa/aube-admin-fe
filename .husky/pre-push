@@ -1,25 +1,15 @@
 #!/bin/sh
 
-while read local_ref local_sha remote_ref remote_sha; do
-    echo "local_ref: $local_ref"
-    echo "local_sha: $local_sha"
-    echo "remote_ref: $remote_ref"
-    echo "remote_sha: $remote_sha"
-
-    current_branch=$(git branch --show-current)
-    
-    
-
-    if [[ "$remote_ref" =~ refs/tags/ ]]; then
-        TAG_NAME=${remote_ref#refs/tags/}
-
-        # if [[ "$current_branch" != "main" ]]; then
-        #     echo "Error: You can only push to main branch"
-        #     exit 1
-        # fi
-
-        if [[ ! "$TAG_NAME" =~ ^v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{4}(-(staging|sandbox))?$ ]]; then
-            echo "Error: tag name format is incorrect.\nTags must follow the pattern vYYYY.MM.DD.HHmm, vYYYY.MM.DD.HHmm-staging, or vYYYY.MM.DD.HHmm-sandbox\nUse 'npm run tag:create:production', 'npm run tag:create:staging', or 'npm run tag:create:sandbox' for convenient" 
+while read -r local_ref local_sha remote_ref remote_sha; do
+    if echo "$remote_ref" | grep -q '^refs/tags/'; then
+        TAG_NAME=$(echo "$remote_ref" | sed 's/^refs\/tags\///')
+        if echo "$TAG_NAME" | grep -Eq '^v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{4}(-(staging|sandbox))?$'; then
+            # Tag name is valid
+            :
+        else
+            echo "Error: tag name format is incorrect."
+            echo "Tags must follow the pattern vYYYY.MM.DD.HHmm, vYYYY.MM.DD.HHmm-staging, or vYYYY.MM.DD.HHmm-sandbox"
+            echo "Use 'npm run tag:create:production', 'npm run tag:create:staging', or 'npm run tag:create:sandbox' for convenience"
             exit 1
         fi
     fi
