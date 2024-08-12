@@ -129,6 +129,9 @@ jobs:
               id: git-cliff
               with:
                 args: --latest
+              env:
+                OUTPUT: CHANGES.md
+                GITHUB_REPO: ${{ github.repository }}
 
             - name: Create Release
               uses: softprops/action-gh-release@v2
