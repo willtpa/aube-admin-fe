@@ -21,10 +21,15 @@ case $env in
     echo "Creating a release tag for $env..."
     TAG_NAME=v$(date -u +"%Y.%m.%d.%H%M")-$env; git tag $TAG_NAME; echo created tag: $TAG_NAME
     ;;
-  sandbox|production)
+  sandbox)
     check_tag
     echo "Creating a release tag for $env..."
     TAG_NAME=v$(date -u +"%Y.%m.%d.%H%M")-$env; git tag $TAG_NAME; echo created tag: $TAG_NAME
+    ;;
+  production)
+    check_tag
+    echo "Creating a release tag for $env..."
+    TAG_NAME=v$(date -u +"%Y.%m.%d.%H%M"); git tag $TAG_NAME; echo created tag: $TAG_NAME
     ;;
   *)
     echo "Invalid argument: $env"
@@ -32,7 +37,3 @@ case $env in
     exit 1
     ;;
 esac
-
-
-
-
