@@ -46,7 +46,7 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                 name: sveltekit-artifacts
-                path: $(pwd)/.svelte-kit
+                path: /home/runner/work/aube-admin-fe/aube-admin-fe/.svelte-kit
 
             - name: Run Unit Tests
               run: npm run test:unit
