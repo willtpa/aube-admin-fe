@@ -40,15 +40,16 @@ jobs:
                 npm run build
                 echo "Build finshed..."
                 mkdir sveltekitbuild
-                mv .svelte-kit sveltekitbuild
+                # mv .svelte-kit sveltekitbuild
                 ls -la
+                ls -la .svelte-kit
                 ls -la sveltekitbuild
                 pwd
                 echo "github.workspace: ${{ github.workspace }}"
                 
 
             - name: Upload svelte-kit Artifacts    
-              uses: actions/upload-artifact@v4.4.0
+              uses: actions/upload-artifact@v4
               with:
                 name: sveltekit-artifacts
                 include-hidden-files: true
