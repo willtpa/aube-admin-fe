@@ -39,6 +39,7 @@ jobs:
                 echo "Build project..."
                 npm run build
                 echo "Build finshed..."
+                ls -la
 
             - name: Upload svelte-kit Artifacts    
               uses: actions/upload-artifact@v4
