@@ -46,7 +46,7 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                 name: sveltekit-artifacts
-                path: ./.svelte-kit/
+                path: $(pwd)/.svelte-kit
 
             - name: Run Unit Tests
               run: npm run test:unit
