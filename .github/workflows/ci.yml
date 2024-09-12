@@ -47,11 +47,11 @@ jobs:
                 pwd
                 echo "github.workspace: ${{ github.workspace }}"
 
-                # echo "install prism-cli..."
-                # npm install -g @stoplight/prism-cli
+                echo "install prism-cli..."
+                npm install -g @stoplight/prism-cli
 
                 echo "starting mock server..."
-                npx prism mock src/api-specs/admin/adminapi.yaml &
+                prism mock src/api-specs/admin/adminapi.yaml &
 
                 curl http://127.0.0.1:4010/admin/api/v1/rates
                 
