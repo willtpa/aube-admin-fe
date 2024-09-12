@@ -1,0 +1,418 @@
+openapi: 3.0.0
+info:
+    title: notifin API
+    version: 1.0.0
+    description: api for the needs of the external partners notifications
+    contact:
+        name: contact
+        email: contact@triple-a.io
+        url: 'https://triple-a.io/contact-us/'
+    termsOfService: 'https://triple-a.io/privacy-and-terms-policy/'
+    license:
+        name: apache 2
+        url: 'https://apache.org/licenses/LICENSE-2.0'
+paths:
+    /notifin/api/v1/dfns:
+        post:
+            summary: Dfns notification
+            operationId: dfnsNotification
+            description: receives and handles dfns notifications
+            requestBody:
+                $ref: '#/components/requestBodies/dfnsPayload'
+            responses:
+                '200':
+                    description: ''
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '401':
+                    $ref: '#/components/responses/problem-detail'
+                '403':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+            x-internal: true
+            tags:
+                - blockchain
+                - dfns
+                - notification
+                - webhook
+    /notifin/api/v1/mainsys:
+        post:
+            summary: Main system notification
+            operationId: mainsysNotification
+            description: receives and handles mainsys notifications
+            requestBody:
+                $ref: '#/components/requestBodies/mainsysNotifPayload'
+            responses:
+                '200':
+                    description: ''
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+            x-internal: true
+            tags:
+                - deposit
+                - mainsys
+                - notification
+                - webhook
+            parameters:
+                - schema:
+                      type: string
+                  in: header
+                  name: X-Api-Key
+                  description: API Key
+                  required: true
+    /notifin/api/v1/grab/kyc:
+        post:
+            summary: Grab KYC endpoint
+            tags:
+                - notification
+            responses:
+                '200':
+                    description: OK
+                '201':
+                    description: Created
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '401':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+            operationId: grabKyc
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GrabKycPayload'
+            description: Receives KYC payload from Grab
+            parameters:
+                - schema:
+                      type: string
+                  in: header
+                  name: X-Api-Key
+                  description: API Key
+                  required: true
+        parameters: []
+components:
+    schemas:
+        NotifMainsysPayload:
+            type: object
+            x-internal: true
+            description: payload coming from mainsys
+            required:
+                - operations
+            properties:
+                operations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Operation'
+        Operation:
+            type: object
+            x-internal: true
+            x-go-type: mainsyscallback.Operation
+            required:
+                - staCal
+                - nbrEss
+                - id
+                - callbackType
+                - creationDate
+                - amount
+                - currency
+                - type
+                - movementId
+                - bookingDate
+                - operationDate
+                - status
+                - statusDate
+                - communication
+                - giver
+                - counterparty
+            properties:
+                staCal:
+                    type: string
+                nbrEss:
+                    type: integer
+                id:
+                    type: string
+                callbackType:
+                    $ref: '#/components/schemas/CallbackType'
+                creationDate:
+                    type: string
+                    format: date-time
+                    example: '2023-10-26T13:07:44'
+                amount:
+                    type: number
+                    format: double
+                    example: 0.123
+                    minimum: -1000000000
+                    maximum: 1000000000
+                currency:
+                    $ref: ../money.yaml#/components/schemas/CurrencyCode
+                type:
+                    type: string
+                movementId:
+                    type: string
+                bookingDate:
+                    type: string
+                    format: date
+                operationDate:
+                    type: string
+                    format: date-time
+                valueDate:
+                    type: string
+                    format: date-time
+                    nullable: true
+                label1:
+                    type: string
+                    nullable: true
+                label2:
+                    type: string
+                    nullable: true
+                label3:
+                    type: string
+                    nullable: true
+                label4:
+                    type: string
+                    nullable: true
+                endToEndId:
+                    type: string
+                    nullable: true
+                updatedBalance:
+                    type: string
+                    format: decimal
+                    nullable: true
+                status:
+                    type: string
+                statusDate:
+                    type: string
+                    format: date-time
+                communication:
+                    type: object
+                    properties:
+                        type:
+                            type: string
+                            nullable: true
+                        content:
+                            type: string
+                giver:
+                    type: object
+                    required:
+                        - name
+                        - accountNumber
+                        - clientId
+                        - address1
+                        - country
+                        - BIC
+                    properties:
+                        name:
+                            type: string
+                        accountNumber:
+                            type: string
+                        clientId:
+                            type: string
+                        address1:
+                            type: string
+                        address2:
+                            type: string
+                            nullable: true
+                        country:
+                            type: string
+                            example: FR
+                        BIC:
+                            type: string
+                counterparty:
+                    type: object
+                    required:
+                        - name
+                        - accountNumber
+                        - clientId
+                        - BIC
+                    properties:
+                        name:
+                            type: string
+                        accountNumber:
+                            type: string
+                        clientId:
+                            type: string
+                        address1:
+                            type: string
+                            nullable: true
+                        address2:
+                            type: string
+                            nullable: true
+                        BIC:
+                            type: string
+                additionalInfo:
+                    type: string
+                    nullable: true
+        CallbackType:
+            type: string
+            enum:
+                - IncomingPayment
+                - OutgoingPayment
+            x-internal: true
+            x-go-type: mainsyscallback.CallbackType
+        DfnsPayload:
+            type: object
+            properties:
+                id:
+                    type: string
+                kind:
+                    $ref: '#/components/schemas/DfnsEventType'
+                date:
+                    type: string
+                    format: date-time
+                data:
+                    type: object
+                    additionalProperties: true
+                    nullable: true
+                status:
+                    type: string
+                    nullable: true
+                timestampSent:
+                    type: integer
+                    format: int64
+                    nullable: true
+                deliveryAttempt:
+                    type: integer
+                    format: int32
+                    nullable: true
+                retryOf:
+                    type: string
+                    nullable: true
+            required:
+                - id
+                - kind
+                - date
+        GrabKycPayload:
+            type: object
+            x-examples:
+                Example 1:
+                    id: ''
+                    first_name: ''
+                    middle_name: ''
+                    last_name: ''
+                    address_1: ''
+                    address_2: ''
+                    city: ''
+                    province: ''
+                    country: ''
+                    phone_number: ''
+                    source_of_funds: ''
+                    origin_country_of_funds: ''
+            description: KYC payload from Grab
+            required:
+                - id
+                - full_name
+                - address_line_one
+                - address_line_two
+                - city
+                - state_region
+                - country
+                - phone_number
+                - fund_country_origin
+                - transaction_reference
+            properties:
+                id:
+                    type: string
+                    description: ID that uniquely identifies the KYC entity
+                    maxLength: 100
+                full_name:
+                    type: string
+                    maxLength: 100
+                address_line_one:
+                    type: string
+                    maxLength: 500
+                    minLength: 0
+                address_line_two:
+                    type: string
+                    maxLength: 500
+                city:
+                    type: string
+                    maxLength: 100
+                state_region:
+                    type: string
+                    description: Province/state
+                    maxLength: 100
+                country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                phone_number:
+                    type: string
+                    maxLength: 25
+                fund_country_origin:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                transaction_reference:
+                    type: string
+                    description: Transaction reference of the payment or transaction that this KYC entity is associated with.
+        DfnsEventType:
+            type: string
+            enum:
+                - policy.approval.pending
+                - policy.approval.resolved
+                - wallet.created
+                - wallet.delegated
+                - wallet.exported
+                - wallet.blockchainevent.detected
+                - wallet.signature.failed
+                - wallet.signature.rejected
+                - wallet.signature.requested
+                - wallet.signature.signed
+                - wallet.transaction.broadcasted
+                - wallet.transaction.confirmed
+                - wallet.transaction.failed
+                - wallet.transaction.rejected
+                - wallet.transaction.requested
+                - wallet.transfer.broadcasted
+                - wallet.transfer.confirmed
+                - wallet.transfer.failed
+                - wallet.transfer.rejected
+                - wallet.transfer.requested
+            x-internal: true
+    # x-go-type: dfnscallback.EventType # temporary til we merge the dfns callback
+    requestBodies:
+        mainsysNotifPayload:
+            description: Request payload for main system notification
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/NotifMainsysPayload'
+        dfnsPayload:
+            description: Request payload for dfns notification
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/DfnsPayload'
+    responses:
+        problem-detail:
+            description: |-
+                RFC 9457: Problem Details for HTTP APIs
+                https://www.rfc-editor.org/rfc/rfc9457.html
+            content:
+                application/json:
+                    schema:
+                        $ref: ../common.yaml#/components/schemas/ProblemDetail
+                    examples:
+                        Example 1:
+                            value:
+                                type: 'https://api.triple-a.io/v2/problems/xxx'
+                                title: a title explaining the problem
+                                instance: accounts/123
+                                detail: information to help solve the issue
+x-internal: true
+servers:
+    - url: 'http://localhost:8087'
+      description: local dev server
+tags:
+    - name: blockchain
+      description: blockchain
+    - name: deposit
+      description: deposits
+    - name: dfns
+      description: dfns
+    - name: mainsys
+      description: mainsys
+    - name: notification
+      description: notifications
+    - name: webhook
+      description: webhooks
