@@ -1,0 +1,1754 @@
+openapi: 3.0.0
+tags:
+    - name: internal-transfer
+      description:
+          The `internal-transfer` operations handle the transfer of funds between accounts within the same organization
+          or different with in `Triple-A` system.
+          These operations include requesting quotes for internal transfers, creating new internal transfer quotes,
+          and confirming internal transfer quotes. The endpoints ensure that the provided details are valid, calculate
+          any applicable fees, and facilitate the secure and efficient transfer of funds between internal accounts.
+    - name: payin
+      description:
+          The `payin` operations manage the process of adding funds to an account within the `Triple-A` system.
+          These operations include requesting quotes for pay-in transactions, creating new pay-in quotes,
+          and confirming pay-in quotes. The endpoints ensure that the provided details are valid, calculate
+          any applicable fees, and facilitate the secure and efficient addition of funds to the specified account.
+          Pay-ins can be used for various purposes such as `pre-funding`, `deposits``, or `purchases from merchants of the `Triple-A` system.
+    - name: payout
+      description:
+          The `payout` operations manage the process of transferring funds out of an account within the `Triple-A` system.
+          These operations include requesting quotes for payout transactions, creating new payout quotes,
+          and confirming payout quotes. The endpoints ensure that the provided details are valid, calculate
+          any applicable fees, and facilitate the secure and efficient transfer of funds to the specified destination account.
+          Payouts can be used for various purposes such as `withdrawals`, `payments to vendors`,`salary for individual`, or disbursements to external accounts.
+    - name: transfer
+      description:
+          The `transfer` operations handle the movement of funds between different accounts with out parking in the `Triple-A` system.
+          These operations include requesting quotes for transfers, creating new transfer quotes,
+          and confirming transfer quotes. The endpoints ensure that the provided details are valid, calculate
+          any applicable fees, and facilitate the secure and efficient transfer of funds between the specified accounts.
+          Transfers can be used for various purposes such as remittances, cross border payments, or moving funds between different accounts[External],
+          off-ramp from external wallet, on-ramp to external wallet, etc.
+info:
+    title: customer api
+    version: '2.0'
+    description: 'payins, payouts, transfers and internal transfers by Triple-A'
+    contact:
+        name: contact
+        email: contact@triple-a.io
+        url: 'https://triple-a.io/contact-us/'
+    termsOfService: 'https://triple-a.io/privacy-and-terms-policy/'
+    license:
+        name: apache 2
+        url: 'https://apache.org/licenses/LICENSE-2.0'
+servers:
+    - url: 'http://localhost:8086'
+x-internal: false
+paths:
+    #####################
+    # internal transfer #
+    #####################
+    /v2/internal-transfer/request-for-quotes:
+        post:
+            operationId: post-v2-internal-transfer-request-for-quotes
+            description:
+                This endpoint is used to request for quotes for an internal transfer. The client must provide the necessary details
+                such as the source account, destination account, and the amount to be transferred. Upon successful request,
+                the response will include unique rfq ID, the details of the internal transfer,
+                and any applicable fees. These rfq can then be reviewed to select the best option for creating quote, confirming and executing
+                the internal transfer. The endpoint ensures that the provided details are valid and calculates the fees associated
+                with the transaction.
+            tags:
+                - internal-transfer
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+            requestBody:
+                $ref: '#/components/requestBodies/internal-transfer-request-for-quote-req'
+            responses:
+                '201':
+                    $ref: '#/components/responses/internal-transfer-request-for-quote-resp'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+        get:
+            operationId: get-v2-internal-transfer-request-for-quotes
+            description:
+                This endpoint retrieves a list of request-for-quotes for internal transfer requests. The client can use this endpoint
+                to fetch previously request-for-quotes for internal transfers, including details such as the source and destination
+                accounts, the amount to be transferred, and any applicable fees. This allows clients to review and compare
+                different quotes before selecting the best option for confirming and executing the internal transfer.
+                The endpoint ensures that all provided details are accurate and up-to-date, facilitating informed decision-making
+                for internal fund transfers within the `Triple-A` system.
+            tags:
+                - internal-transfer
+            responses:
+                '200':
+                    $ref: '#/components/responses/internal-transfer-request-for-quote-list-resp'
+    '/v2/internal-transfer/request-for-quotes/{internal-transfer-request-for-quote-id}':
+        parameters:
+            - $ref: ../quotes.yaml#/components/parameters/internal-transfer-request-for-quote-id
+        get:
+            operationId: get-v2-internal-transfer-request-for-quote
+            description:
+                This endpoint retrieves the details of a specific internal transfer request-for-quote. The client must provide
+                the `internal-transfer-request-for-quote-id` as a path parameter. Upon successful request, the response will include
+                detailed information about the requested internal transfer quote, such as the source and destination accounts,
+                the amount to be transferred, and any applicable fees. This allows clients to review the specifics of a particular
+                internal transfer request-for-quote, ensuring that all provided details are accurate and up-to-date for informed
+                decision-making within the `Triple-A` system.
+            tags:
+                - internal-transfer
+            responses:
+                '200':
+                    $ref: '#/components/responses/internal-transfer-request-for-quote-resp'
+    /v2/internal-transfer/quotes:
+        post:
+            operationId: post-v2-internal-transfer-quotes
+            description: This endpoint is used to request a quote for an internal transfer.
+                The client must provide the necessary details such as the source and destination accounts,
+                and the amount to be transferred. Upon successful request, the response will include a quote ID,
+                the details of the transfer, and any applicable fees. This quote can then be used to confirm and
+                execute the transfer.
+            tags:
+                - internal-transfer
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+            requestBody:
+                $ref: '#/components/requestBodies/internal-transfer-quote-req'
+            responses:
+                '201':
+                    $ref: '#/components/responses/internal-transfer-quote-resp'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+        get:
+            operationId: get-v2-internal-transfer-quotes
+            description:
+                This endpoint retrieves a list of internal transfer quotes. The client can use this endpoint to fetch previously
+                created quotes for internal transfers, including details such as the source and destination accounts, the amount
+                to be transferred, the status of each quote, and the validity period (valid until date). This allows clients to review
+                and compare different quotes before selecting the best option for confirming and executing the internal transfer.
+                The endpoint ensures that all provided details are accurate and up-to-date, facilitating informed decision-making
+                for internal fund transfers within the `Triple-A` system.
+            tags:
+                - internal-transfer
+            responses:
+                '200':
+                    $ref: '#/components/responses/internal-transfer-quote-list-resp'
+    '/v2/internal-transfer/quotes/{internal-transfer-quote-id}':
+        parameters:
+            - $ref: ../quotes.yaml#/components/parameters/internal-transfer-quote-id
+        get:
+            operationId: get-v2-internal-transfer-quote
+            description:
+                This endpoint retrieves the details of a specific internal transfer quote. The client must provide
+                the `internal-transfer-quote-id` as a path parameter. Upon successful request, the response will include
+                detailed information about the internal transfer quote, such as the source and destination accounts,
+                the amount to be transferred, the status of the quote, and the validity period (valid until date).
+                This allows clients to review the specifics of a particular internal transfer quote, ensuring that all provided
+                details are accurate and up-to-date for informed decision-making within the `Triple-A` system.
+            tags:
+                - internal-transfer
+            responses:
+                '200':
+                    $ref: '#/components/responses/internal-transfer-quote-resp'
+    '/v2/internal-transfer/quotes/{internal-transfer-quote-id}/confirm':
+        parameters:
+            - $ref: ../quotes.yaml#/components/parameters/internal-transfer-quote-id
+        post:
+            operationId: post-v2-internal-transfer-quotes-confirm
+            description:
+                This endpoint confirms an internal transfer quote. The client must provide the `internal-transfer-quote-id`
+                as a path parameter. Upon successful confirmation, the response will include the details of the confirmed
+                internal transfer, including the source and destination accounts, the status of the quote, and any applicable
+                transaction fees. This confirmation finalizes the quote and prepares it for execution.
+            tags:
+                - internal-transfer
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+            responses:
+                '200':
+                    $ref: '#/components/responses/internal-transfer-quote-resp'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+
+    ############
+    # transfer #
+    ############
+    /v2/transfer/request-for-quotes:
+        post:
+            operationId: post-v2-transfer-request-for-quotes
+            description:
+                This endpoint is used to request for quotes for a transfer. The client must provide the necessary details
+                such as the source and destination accounts, and the amount to be transferred. Upon successful request,
+                the response will include a rfq ID, the details of the transfer, and any applicable fees.
+                These request-for-quote can then be used to create a quote.
+            tags:
+                - transfer
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+            requestBody:
+                $ref: '#/components/requestBodies/transfer-request-for-quote-req'
+            responses:
+                '201':
+                    $ref: '#/components/responses/transfer-request-for-quote-resp'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+        get:
+            operationId: get-v2-transfer-request-for-quotes
+            description:
+                This endpoint retrieves a list of transfer request-for-quotes. The client can use this endpoint to fetch previously
+                requested quotes for transfers, including details such as the source and destination accounts, the amount to be transferred.
+                This allows clients to review and compare different request-for-quotes before selecting the best option for confirming and
+                executing the transfer. The endpoint ensures that all
+                provided details are accurate and up-to-date, facilitating informed decision-making for fund transfers using the `Triple-A` system.
+            tags:
+                - transfer
+            responses:
+                '200':
+                    $ref: '#/components/responses/transfer-request-for-quote-list-resp'
+    '/v2/transfer/request-for-quotes/{transfer-request-for-quote-id}':
+        parameters:
+            - $ref: ../quotes.yaml#/components/parameters/transfer-request-for-quote-id
+        get:
+            operationId: get-v2-transfer-request-for-quote
+            description:
+                This endpoint retrieves the details of a specific transfer request-for-quote. The client must provide
+                the `transfer-request-for-quote-id` as a path parameter. Upon successful request, the response will include
+                detailed information about the requested transfer quote, such as the source and destination accounts,
+                the amount to be transferred. This allows clients to review the specifics of a particular transfer request-for-quote,
+                ensuring that all provided details are accurate and up-to-date for informed decision-making within the `Triple-A` system.
+            tags:
+                - transfer
+            responses:
+                '200':
+                    $ref: '#/components/responses/transfer-request-for-quote-resp'
+    /v2/transfer/quotes:
+        post:
+            operationId: post-v2-transfer-quotes
+            description: generate a new quote from the request for quote or fresh request
+            tags:
+                - transfer
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+            requestBody:
+                $ref: '#/components/requestBodies/transfer-quote-req'
+            responses:
+                '201':
+                    $ref: '#/components/responses/transfer-quote-resp'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+        get:
+            operationId: get-v2-transfer-quotes
+            description:
+                This endpoint retrieves a list of transfer quotes. The client can use this endpoint to fetch previously
+                created quotes for transfers, including details such as the source and destination accounts, the amount
+                to be transferred, the status of each quote, and the validity period (valid until date). This allows clients
+                to review and compare different quotes before selecting the best option for confirming and executing the transfer.
+                The endpoint ensures that all provided details are accurate and up-to-date, facilitating informed decision-making
+                for fund transfers within the `Triple-A` system.
+            tags:
+                - transfer
+            responses:
+                '200':
+                    $ref: '#/components/responses/transfer-quote-list-resp'
+    '/v2/transfer/quotes/{transfer-quote-id}':
+        parameters:
+            - $ref: ../quotes.yaml#/components/parameters/transfer-quote-id
+        get:
+            operationId: get-v2-transfer-quote
+            description:
+                This endpoint retrieves the details of a specific transfer quote. The client must provide
+                the `transfer-quote-id` as a path parameter. Upon successful request, the response will include
+                detailed information about the transfer quote, such as the source and destination accounts,
+                the amount to be transferred, the status of the quote, and the validity period (valid until date).
+                This allows clients to review the specifics of a particular transfer quote, ensuring that all provided
+                details are accurate and up-to-date for informed decision-making within the `Triple-A` system.
+            tags:
+                - transfer
+            responses:
+                '200':
+                    $ref: '#/components/responses/transfer-quote-resp'
+    '/v2/transfer/quotes/{transfer-quote-id}/confirm':
+        parameters:
+            - $ref: ../quotes.yaml#/components/parameters/transfer-quote-id
+        post:
+            operationId: post-v2-transfer-quotes-confirm
+            description: confirm a quote
+            tags:
+                - transfer
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+            responses:
+                '200':
+                    description: Successfully confirmed the quote
+                    # $ref: '#/components/responses/transfer-quote-resp'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/responses/transfer-quote-resp/content/application%2Fjson/schema'
+                            examples:
+                                crypto transfer:
+                                    description: request for quote -- from 0.1 ETH to 0.1 POLYGON_USDC
+                                    value:
+                                        quote_id: 'xfer-quo-01j6pe0975kztejnkzrd0q1hax'
+                                        rfq_id: 'xfer-rfq-01j6pe0975kztejnkzrd0q1hax'
+                                        source:
+                                            account:
+                                                type: crypto
+                                                network_currency_id: ETHEREUM_ETH
+                                            amount: '0.1'
+                                        destination:
+                                            account:
+                                                type: crypto
+                                                network_currency_id: POLYGON_USDC
+                                            amount: '100'
+                                        deposit_account:
+                                            account:
+                                                id: 'lacc-01j6pe0975kztejnkzr1movie'
+                                                label: 'ETHEREUM'
+                                                network_currency_id:
+                                                    ['ETHEREUM_ETH', 'ETHEREUM_USDT', 'MATIC']
+                                                address: '0XMV12454C6683B7E57334C4E856F4C9965ED682BD'
+                                                account_category: ['crypto_account']
+                                                account_locality: ['internal']
+                                                created_at: '2024-06-08T17:28:39.859284+08:00'
+                                        status: 'confirmed'
+                                        valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                        transaction_fees_split:
+                                            paid_by: 'payer_fees'
+                                            payer_fees: '0.01'
+                                            recipient_fees: '0.01'
+                                sell crypto:
+                                    description: request for quote -- from 0.1 ETH to USD[Bank account]
+                                    value:
+                                        quote_id: 'xfer-quo-01j6pe0975kztejnkzrd0q2vax'
+                                        rfq_id: 'xfer-rfq-01j6pe0975kztejnkzrd0q2vax'
+                                        source:
+                                            account:
+                                                type: crypto
+                                                network_currency_id: ETHEREUM_ETH
+                                            amount: '0.1'
+                                        destination:
+                                            account:
+                                                type: bank
+                                                network_currency_id: USD
+                                                country: US
+                                                bank_network: ACH
+                                            amount: '100'
+                                        deposit_account:
+                                            account:
+                                                id: 'lacc-01j6pe0975kztejnkzr1movie'
+                                                label: 'ETHEREUM'
+                                                network_currency_id:
+                                                    ['ETHEREUM_ETH', 'ETHEREUM_USDT', 'MATIC']
+                                                address: '0XMV12454C6683B7E57334C4E856F4C9965ED682BD'
+                                                account_category: ['crypto_account']
+                                                account_locality: ['internal']
+                                                created_at: '2024-06-08T17:28:39.859284+08:00'
+                                        status: 'confirmed'
+                                        valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                        transaction_fees_split:
+                                            paid_by: 'payer_fees'
+                                            payer_fees: '0.01'
+                                            recipient_fees: '0.01'
+                                buy crypto:
+                                    description: request for quote -- from USD[Bank account] to 10K POLYGON_USDC
+                                    value:
+                                        quote_id: 'xfer-quo-01j6pe0975kztejnkzrd0q3vax'
+                                        rfq_id: 'xfer-rfq-01j6pe0975kztejnkzrd0q3vax'
+                                        source:
+                                            account:
+                                                type: bank
+                                                network_currency_id: USD
+                                                country: US
+                                                bank_network: ACH
+                                            amount: '10000'
+                                        destination:
+                                            account:
+                                                type: crypto
+                                                network_currency_id: POLYGON_USDC
+                                            amount: '10000'
+                                        deposit_account:
+                                            account:
+                                                id: 'lacc-01j6pe0975kztejnkzrd0q1hax'
+                                                label: 'USD iban'
+                                                network_currency_id: ['EUR', 'USD', 'SGD']
+                                                iban: 'FR7600008000020100000000000'
+                                                bic: 'PAOTFRP1XXX'
+                                                account_category: ['bank_account']
+                                                account_locality: ['internal']
+                                                owner_entity_id: 'ent-ykrit3642ha2gzdthfagghbnme'
+                                                provider: 'mainsys'
+                                                created_at: ['2024-06-08T17:28:39.859284+08:00']
+                                        status: 'confirmed'
+                                        valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                        transaction_fees_split:
+                                            paid_by: 'payer_fees'
+                                            payer_fees: '0.01'
+                                            recipient_fees: '0.01'
+
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+
+    #########
+    # payin #
+    #########
+    /v2/payin/request-for-quotes:
+        post:
+            operationId: post-v2-payin-request-for-quotes
+            description:
+                This endpoint is used to request for quotes for a pay-in transaction. The client must provide the necessary details
+                such as the source account, destination account, and the amount to be transferred. Upon successful request,
+                the response will include  unique rfq ID, the details of the pay-in transaction,
+                and any applicable fees. These request-for-quote can then be used to create a quote for confirming and executing
+                the pay-in transaction.
+            tags:
+                - payin
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+            requestBody:
+                $ref: '#/components/requestBodies/payin-request-for-quote-req'
+            responses:
+                '201':
+                    $ref: '#/components/responses/payin-request-for-quote-resp'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+        get:
+            operationId: get-v2-payin-request-for-quotes
+            description:
+                This endpoint retrieves a list of pay-in request-for-quotes. The client can use this endpoint to fetch previously
+                request-for-quotes for pay-in transactions, including details such as the source and destination accounts, and the amount
+                to be transferred. This allows clients to review and compare different request-for-quotes before selecting the best option
+                for confirming and executing the pay-in transaction. The endpoint ensures that all provided details are accurate and up-to-date,
+                facilitating informed decision-making for adding funds to accounts within the `Triple-A` system.
+            tags:
+                - payin
+            responses:
+                '200':
+                    $ref: '#/components/responses/payin-request-for-quote-list-resp'
+    '/v2/payin/request-for-quotes/{payin-request-for-quote-id}':
+        parameters:
+            - $ref: ../quotes.yaml#/components/parameters/payin-request-for-quote-id
+        get:
+            operationId: get-v2-payin-request-for-quote
+            description:
+                This endpoint retrieves the details of a specific pay-in request-for-quote. The client must provide
+                the `payin-request-for-quote-id` as a path parameter. Upon successful request, the response will include
+                detailed information about the requested pay-in quote, such as the source and destination accounts,
+                and the amount to be transferred. This allows clients to review the specifics of a particular pay-in
+                request-for-quote, ensuring that all provided details are accurate and up-to-date for informed decision-making
+                within the `Triple-A` system.
+            tags:
+                - payin
+            responses:
+                '200':
+                    $ref: '#/components/responses/payin-request-for-quote-resp'
+    /v2/payin/quotes:
+        post:
+            operationId: post-v2-payin-quotes
+            description:
+                This endpoint is used to create a new pay-in quote. The client must provide the necessary details
+                such as the source account, destination account, and the amount to be transferred. Upon successful request,
+                the response will include a unique quote ID of the pay-in transaction, and any applicable fees.
+                This quote can then be used to confirm and execute the pay-in transaction. The endpoint ensures that the
+                provided details are valid and calculates the fees associated with the transaction.
+            tags:
+                - payin
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+            requestBody:
+                $ref: '#/components/requestBodies/payin-quote-req'
+            responses:
+                '201':
+                    $ref: '#/components/responses/payin-quote-resp'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+        get:
+            operationId: get-v2-payin-quotes
+            description:
+                This endpoint retrieves a list of pay-in quotes. The client can use this endpoint to fetch previously
+                created quotes for pay-in transactions, including details such as the source and destination accounts,
+                the amount to be transferred, the status of each quote, and the validity period (valid until date).
+                This allows clients to review and compare different quotes before selecting the best option for confirming
+                and executing the pay-in transaction. The endpoint ensures that all provided details are accurate and up-to-date,
+                facilitating informed decision-making for adding funds to accounts within the `Triple-A` system.
+            tags:
+                - payin
+            responses:
+                '200':
+                    $ref: '#/components/responses/payin-quote-list-resp'
+    '/v2/payin/quotes/{payin-quote-id}':
+        parameters:
+            - $ref: ../quotes.yaml#/components/parameters/payin-quote-id
+        get:
+            operationId: get-v2-payin-quote
+            description:
+                This endpoint retrieves the details of a specific pay-in quote. The client must provide
+                the `payin-quote-id` as a path parameter. Upon successful request, the response will include
+                detailed information about the pay-in quote, such as the source and destination accounts,
+                the amount to be transferred, the status of the quote, and the validity period (valid until date).
+                This allows clients to review the specifics of a particular pay-in quote, ensuring that all provided
+                details are accurate and up-to-date for informed decision-making within the `Triple-A` system.
+            tags:
+                - payin
+            responses:
+                '200':
+                    $ref: '#/components/responses/payin-quote-resp'
+    '/v2/payin/quotes/{payin-quote-id}/confirm':
+        parameters:
+            - $ref: ../quotes.yaml#/components/parameters/payin-quote-id
+        post:
+            operationId: post-v2-payin-quotes-confirm
+            description:
+                This endpoint confirms a pay-in quote. It finalizes the quote and prepares it for execution.
+                The client must provide the `payin-quote-id` as a path parameter. Upon successful confirmation,
+                the response will include the details of the confirmed quote, including the source and destination
+                accounts, the status of the quote, and any applicable transaction fees. with deposit_account details to send funds for execution of the payin.
+            tags:
+                - payin
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+            responses:
+                '200':
+                    description: Successfully confirmed the quote
+                    # $ref: '#/components/responses/payin-quote-resp'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/responses/payin-quote-resp/content/application%2Fjson/schema'
+                            examples:
+                                confirm top up[crypto]:
+                                    description: request for quote -- from 10K POLYGON_USDC to USDC
+                                    value:
+                                        quote_id: 'payin-quo-01j6pe0975kztejnkzrd0q1hax'
+                                        rfq_id: 'payin-rfq-01j6pe0975kztejnkzrd0q1hax'
+                                        source:
+                                            account:
+                                                type: crypto
+                                                network_currency_id: POLYGON_USDC
+                                            amount: '10000'
+                                        destination:
+                                            account: USDC
+                                        deposit_account:
+                                            account:
+                                                id: 'lacc-01j6pe0975kztejnkzr1resfe'
+                                                label: 'POLYGON'
+                                                network_currency_id:
+                                                    ['POLYGON_USDC', 'POLYGON_PYUSD', 'MATIC']
+                                                address: '0XCC42724C6683B7E57334C4E856F4C9965ED682BD'
+                                                account_category: ['crypto_account']
+                                                account_locality: ['internal']
+                                                created_at: '2024-06-08T17:28:39.859284+08:00'
+                                        status: 'confirmed'
+                                        valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                        transaction_fees_split:
+                                            paid_by: 'payer_fees'
+                                            payer_fees: '0.01'
+                                            recipient_fees: '0.01'
+                                confirm top up[fiat]:
+                                    description: request for quote -- from 10K USD[Bank account in USA] to USDC
+                                    value:
+                                        quote_id: 'payin-quo-01j6pe0975kztejnkzrd0q2vax'
+                                        rfq_id: 'payin-rfq-01j6pe0975kztejnkzrd0q2vax'
+                                        source:
+                                            account: 'xlacc-01j6pe0975kztejnkzrd0q1hax'
+                                            amount: '10000'
+                                        destination:
+                                            account: 'lacc-01j6pe0975kztejnkzrd0q1hax'
+                                            amount: '10000'
+                                        deposit_account:
+                                            account:
+                                                id: 'lacc-01j6pe0975kztejnkzrd0q1hax'
+                                                label: 'euro iban'
+                                                network_currency_id: ['EUR', 'USD', 'SGD']
+                                                iban: 'FR7600008000020100000000000'
+                                                bic: 'PAOTFRP1XXX'
+                                                account_category: ['bank_account']
+                                                account_locality: ['internal']
+                                                owner_entity_id: 'ent-ykrit3642ha2gzdthfagghbnme'
+                                                provider: 'mainsys'
+                                                created_at: ['2024-06-08T17:28:39.859284+08:00']
+                                        status: 'confirmed'
+                                        valid_until: ['2024-06-08T17:28:39.859284+08:00']
+                                        transaction_fees_split:
+                                            paid_by: 'payer_fees'
+                                            payer_fees: '0.01'
+                                            recipient_fees: '0.01'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+
+    ##########
+    # payout #
+    ##########
+    /v2/payout/request-for-quotes:
+        post:
+            operationId: post-v2-payout-request-for-quotes
+            description:
+                This endpoint is used to request for quotes for a payout transaction. The client must provide the necessary details
+                such as the source account, destination account, and the amount to be transferred. Upon successful request,
+                the response will include unique rfq ID, the details of the payout transaction,
+                and any applicable fees. These rfq ID can then be used for creating, confirming and executing
+                the payout transaction. The endpoint ensures that the provided details are valid and calculates the fees associated
+                with the transaction.
+            tags:
+                - payout
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+            requestBody:
+                $ref: '#/components/requestBodies/payout-request-for-quote-req'
+            responses:
+                '201':
+                    $ref: '#/components/responses/payout-request-for-quote-resp'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+        get:
+            operationId: get-v2-payout-request-for-quotes
+            description:
+                This endpoint retrieves a list of payout request-for-quotes. The client can use this endpoint to fetch previously
+                request-for-quotes for payout transactions, including details such as the source and destination accounts, and the amount
+                to be transferred. This allows clients to review and compare different request-for-quotes before selecting the best option
+                for confirming and executing the payout transaction. The endpoint ensures that all provided details are accurate and up-to-date,
+                facilitating informed decision-making for transferring funds out of accounts within the `Triple-A` system.
+            tags:
+                - payout
+            responses:
+                '200':
+                    $ref: '#/components/responses/payout-request-for-quote-list-resp'
+    '/v2/payout/request-for-quotes/{payout-request-for-quote-id}':
+        parameters:
+            - $ref: ../quotes.yaml#/components/parameters/payout-request-for-quote-id
+        get:
+            operationId: get-v2-payout-request-for-quote
+            description:
+                This endpoint retrieves the details of a specific payout request-for-quote. The client must provide
+                the `payout-request-for-quote-id` as a path parameter. Upon successful request, the response will include
+                detailed information about the requested payout quote, such as the source and destination accounts,
+                and the amount to be transferred. This allows clients to review the specifics of a particular payout
+                request-for-quote, ensuring that all provided details are accurate and up-to-date for informed decision-making
+                within the `Triple-A` system.
+            tags:
+                - payout
+            responses:
+                '200':
+                    $ref: '#/components/responses/payout-request-for-quote-resp'
+    /v2/payout/quotes:
+        post:
+            operationId: post-v2-payout-quotes
+            description:
+                This endpoint is used to create a new payout quote. The client must provide the necessary details
+                such as the source account, destination account, and the amount to be transferred. Upon successful request,
+                the response will include a unique quote ID, the details of the payout transaction, and any applicable fees.
+                This quote can then be used to confirm and execute the payout transaction. The endpoint ensures that the
+                provided details are valid and calculates the fees associated with the transaction.
+            tags:
+                - payout
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+            requestBody:
+                $ref: '#/components/requestBodies/payout-quote-req'
+            responses:
+                '201':
+                    $ref: '#/components/responses/payout-quote-resp'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+        get:
+            operationId: get-v2-payout-quotes
+            description:
+                This endpoint retrieves a list of payout quotes. The client can use this endpoint to fetch previously
+                created quotes for payout transactions, including details such as the source and destination accounts,
+                the amount to be transferred, the status of each quote, and the validity period (valid until date).
+                This allows clients to review and compare different quotes before selecting the best option for confirming
+                and executing the payout transaction. The endpoint ensures that all provided details are accurate and up-to-date,
+                facilitating informed decision-making for transferring funds out of accounts from the `Triple-A` system.
+            tags:
+                - payout
+            responses:
+                '200':
+                    $ref: '#/components/responses/payout-quote-list-resp'
+    '/v2/payout/quotes/{payout-quote-id}':
+        parameters:
+            - $ref: ../quotes.yaml#/components/parameters/payout-quote-id
+        get:
+            operationId: get-v2-payout-quote
+            description:
+                This endpoint retrieves the details of a specific payout quote. The client must provide
+                the `payout-quote-id` as a path parameter. Upon successful request, the response will include
+                detailed information about the payout quote, such as the source and destination accounts,
+                the amount to be transferred, the status of the quote, and the validity period (valid until date).
+                This allows clients to review the specifics of a particular payout quote, ensuring that all provided
+                details are accurate and up-to-date for informed decision-making within the `Triple-A` system.
+            tags:
+                - payout
+            responses:
+                '200':
+                    $ref: '#/components/responses/payout-quote-resp'
+    '/v2/payout/quotes/{payout-quote-id}/confirm':
+        parameters:
+            - $ref: ../quotes.yaml#/components/parameters/payout-quote-id
+        post:
+            operationId: post-v2-payout-quotes-confirm
+            description:
+                This endpoint confirms a payout quote. The client must provide the `payout-quote-id`
+                as a path parameter. Upon successful confirmation, the response will include the details of the confirmed
+                payout transaction, including the source and destination accounts, the status of the payout quote, and any applicable
+                transaction fees. This confirmation finalizes the quote and prepares it for execution, ensuring that the
+                provided details are valid and the transaction is ready to be processed.
+            tags:
+                - payout
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+            responses:
+                '200':
+                    description: Successfully confirmed the quote
+                    # $ref: '#/components/responses/payout-quote-resp'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/responses/payout-quote-resp/content/application%2Fjson/schema'
+                            examples:
+                                withdraw:
+                                    description: request for quote -- from 10K USDC to ETH
+                                    value:
+                                        quote_id: 'payout-quo-01j6pe0975kztejnkzrd0q1hax'
+                                        rfq_id: 'payout-rfq-01j6pe0975kztejnkzrd0q1hax'
+                                        source:
+                                            account: USDC
+                                            amount: '10000'
+                                        destination:
+                                            account:
+                                                type: crypto
+                                                network_currency_id: ETHEREUM_ETH
+                                            amount: '3.2'
+
+                                        status: 'confirmed'
+                                        valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                        transaction_fees_split:
+                                            paid_by: 'payer_fees'
+                                            payer_fees: '0.01'
+                                            recipient_fees: '0.01'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '500':
+                    $ref: '#/components/responses/problem-detail'
+
+components:
+    requestBodies:
+        #####################
+        # internal transfer #
+        #####################
+        internal-transfer-request-for-quote-req:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        $ref: ../quotes.yaml#/components/schemas/InternalTransferRequestForQuoteRequest
+                    examples:
+                        eth_amount_to_account:
+                            description: request for quote -- from 0.1 ETH to account lacc-01j6pe0975kztejnkzrd0q1hax
+                            value:
+                                source:
+                                    account: 'ETH'
+                                    amount: '0.1'
+                                destination:
+                                    account: lacc-01j6pe0975kztejnkzrd0q1hax
+                        eth_to_account_currency:
+                            description: request for quote -- from ETH to 0.1 (in account currency code) account lacc-01j6pe0975kztejnkzrd0q1hax
+                            value:
+                                source:
+                                    account: ETH
+                                destination:
+                                    account: lacc-01j6pe0975kztejnkzrd0q1hax
+                                    amount: '0.1'
+                        eth_to_btc:
+                            description: request for quote -- from ETH to 0.1 BTC
+                            value:
+                                source:
+                                    account: ETH
+                                destination:
+                                    account: BTC
+                                    amount: '0.1'
+                        crypto_to_fiat:
+                            description: request for quote -- from ETH to 10k EUR
+                            value:
+                                source:
+                                    account: ETH
+                                destination:
+                                    account: EUR
+                                    amount: '10000'
+            description: |
+                information necessary to request for quotes
+        internal-transfer-quote-req:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        $ref: ../quotes.yaml#/components/schemas/InternalTransferQuoteRequest
+            description: |
+                information necessary to generate a quote from a request for quote
+        ############
+        # transfer #
+        ############
+        transfer-request-for-quote-req:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        $ref: ../quotes.yaml#/components/schemas/TransferRequestForQuoteRequest
+                    examples:
+                        crypto transfer:
+                            description: request for quote -- from 0.1 ETH to 0.1 POLYGON_USDC
+                            value:
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: ETHEREUM_ETH
+                                    amount: '0.1'
+                                destination:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: POLYGON_USDC
+                        sell crypto:
+                            description: request for quote -- from 0.1 ETH to USD[Bank account]
+                            value:
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: ETHEREUM_ETH
+                                    amount: '0.1'
+                                destination:
+                                    account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                        buy crypto:
+                            description: request for quote -- from USD[Bank account] to 10K POLYGON_USDC
+                            value:
+                                source:
+                                    account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                                destination:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: POLYGON_USDC
+                                    amount: '10000'
+                        fiat transfer:
+                            description: request for quote -- from USD[Bank account in USA] to 10K SGD[Bank account in sg]
+                            value:
+                                source:
+                                    account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                                destination:
+                                    account:
+                                        type: bank
+                                        network_currency_id: SGD
+                                        country: SG
+                                        bank_network: SWIFT
+                                    amount: '10000'
+                        pre-registered account:
+                            description: request for quote -- from 0.1 ETH to account xlacc-01j6pe0975kztejnkzrd0q1hax
+                            value:
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: ETHEREUM_ETH
+                                    amount: '0.1'
+                                destination:
+                                    account: xlacc-01j6pe0975kztejnkzrd0q1hax
+
+            description: |
+                information necessary to request for quotes
+        transfer-quote-req:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        $ref: ../quotes.yaml#/components/schemas/TransferQuoteRequest
+            description: |
+                information necessary to generate a quote from a request for quote
+        #########
+        # payin #
+        #########
+        payin-request-for-quote-req:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        $ref: ../quotes.yaml#/components/schemas/PayinRequestForQuoteRequest
+                    examples:
+                        top up[crypto]:
+                            description: request for quote -- from 10K POLYGON_USDC to USDC
+                            value:
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: POLYGON_USDC
+                                    amount: '10000'
+                                destination:
+                                    account: USDC
+                        top up[fiat]:
+                            description: request for quote -- from 10K USD[Bank account in USA] to USDC
+                            value:
+                                source:
+                                    account:
+                                        account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                                    amount: '10000'
+                                destination:
+                                    account: USDC
+                        purchase using crypto:
+                            description: request for quote -- from POLYGON_USDC to 100 EUR
+                            value:
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: POLYGON_USDC
+                                destination:
+                                    account: EUR
+                                    amount: '100'
+                        purchase using fiat:
+                            description: request for quote -- from USD[Bank account in USA] to 100 EUR
+                            value:
+                                source:
+                                    account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                                    amount: '100'
+                                destination:
+                                    account: EUR
+                        deposit to account:
+                            description: request for quote -- from 10K account xlacc-01j6pe0975kztejnkzrd0q1hax to account lacc-01j6pe0975kztejnkzrd0q1hax
+                            value:
+                                source:
+                                    account: xlacc-01j6pe0975kztejnkzrd0q1hax
+                                    amount: '10000'
+                                destination:
+                                    account: lacc-01j6pe0975kztejnkzrd0q1hax
+
+            description: |
+                information necessary to request for quotes
+        payin-quote-req:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        $ref: ../quotes.yaml#/components/schemas/PayinQuoteRequest
+            description: |
+                information necessary to generate a quote from a request for quote
+        ##########
+        # payout #
+        ##########
+        payout-request-for-quote-req:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        $ref: ../quotes.yaml#/components/schemas/PayoutRequestForQuoteRequest
+                    examples:
+                        withdraw[crypto]:
+                            description: request for quote -- from 10K USDC to ETHEREUM_ETH
+                            value:
+                                source:
+                                    account: USDC
+                                    amount: '10000'
+                                destination:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: ETHEREUM_ETH
+            description: |
+                information necessary to request for quotes
+        payout-quote-req:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        $ref: ../quotes.yaml#/components/schemas/PayoutQuoteRequest
+            description: |
+                information necessary to generate a quote from a request for quote
+    responses:
+        problem-detail:
+            description: |-
+                RFC 9457: Problem Details for HTTP APIs
+                https://www.rfc-editor.org/rfc/rfc9457.html
+            content:
+                application/json:
+                    schema:
+                        $ref: ../common.yaml#/components/schemas/ProblemDetail
+        #####################
+        # Internal transfer #
+        #####################
+        internal-transfer-request-for-quote-resp:
+            description: internal transfer request for quote
+            content:
+                application/json:
+                    schema:
+                        $ref: ../quotes.yaml#/components/schemas/InternalTransferRequestForQuote
+                    examples:
+                        eth_amount_to_account:
+                            description: request for quote -- from 0.1 ETH to account lacc-01j6pe0975kztejnkzrd0q1hax
+                            value:
+                                id: int-xfer-rfq-01j6pe0975kztejnkzrd0q1hax
+                                source:
+                                    account: 'ETH'
+                                    amount: '0.1'
+                                destination:
+                                    account: lacc-01j6pe0975kztejnkzrd0q1hax
+                        eth_to_account_currency:
+                            description: request for quote -- from ETH to 0.1 (in account currency code) account lacc-01j6pe0975kztejnkzrd0q1hax
+                            value:
+                                id: int-xfer-rfq-01j6pe0975kztejnkzrd0q2vax
+                                source:
+                                    account: ETH
+                                destination:
+                                    account: lacc-01j6pe0975kztejnkzrd0q1hax
+                                    amount: '0.1'
+                        eth_to_btc:
+                            description: request for quote -- from ETH to 0.1 BTC
+                            value:
+                                id: int-xfer-rfq-01j6pe0975kztejnkzrd0q3vax
+                                source:
+                                    account: ETH
+                                destination:
+                                    account: BTC
+                                    amount: '0.1'
+                        crypto_to_fiat:
+                            description: request for quote -- from ETH to 10k EUR
+                            value:
+                                id: int-xfer-rfq-01j6pe0975kztejnkzrd0q4vax
+                                source:
+                                    account: ETH
+                                destination:
+                                    account: EUR
+                                    amount: '10000'
+        internal-transfer-request-for-quote-list-resp:
+            description: "'a list of request for quotes'"
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            has_more:
+                                type: boolean
+                            data:
+                                type: array
+                                items:
+                                    $ref: ../quotes.yaml#/components/schemas/InternalTransferRequestForQuote
+                    example:
+                        value:
+                            has_more: true
+                            data:
+                                - id: int-xfer-rfq-01j6pe0975kztejnkzrd0q1hax
+                                  source:
+                                      account: 'ETH'
+                                      amount: '0.1'
+                                  destination:
+                                      account: lacc-01j6pe0975kztejnkzrd0q1hax
+                                - id: int-xfer-rfq-01j6pe0975kztejnkzrd0q2vax
+                                  source:
+                                      account: ETH
+                                  destination:
+                                      account: lacc-01j6pe0975kztejnkzrd0q1hax
+                                      amount: '0.1'
+                                - id: int-xfer-rfq-01j6pe0975kztejnkzrd0q3vax
+                                  source:
+                                      account: ETH
+                                  destination:
+                                      account: BTC
+                                      amount: '0.1'
+                                - id: int-xfer-rfq-01j6pe0975kztejnkzrd0q4vax
+                                  source:
+                                      account: ETH
+                                  destination:
+                                      account: EUR
+                                      amount: '10000'
+        internal-transfer-quote-resp:
+            description: internal transfer request for quote
+            content:
+                application/json:
+                    schema:
+                        $ref: ../quotes.yaml#/components/schemas/InternalTransferQuote
+                    example:
+                        quote_id: 'int-xfer-quo-01j6pe0975kztejnkzrd0q1hax'
+                        rfq_id: 'int-xfer-rfq-01j6pe0975kztejnkzrd0q1hax'
+                        source:
+                            account: 'lacc-01j6pe0975kztejnkzrd0q1hax'
+                            amount: '0.1'
+                        destination:
+                            account: 'lacc-01j6pe0975kztejnkzrd0q1hax'
+                            amount: '0.1'
+                        status: 'created'
+                        valid_until: '2024-06-08T17:28:39.859284+08:00'
+                        transaction_fees_split:
+                            paid_by: 'payer_fees'
+                            payer_fees: '0.01'
+                            recipient_fees: '0.01'
+        internal-transfer-quote-list-resp:
+            description: "'a list of request for quotes'"
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            has_more:
+                                type: boolean
+                            data:
+                                type: array
+                                items:
+                                    $ref: ../quotes.yaml#/components/schemas/InternalTransferQuote
+        ############
+        # transfer #
+        ############
+        transfer-request-for-quote-resp:
+            description: request for quote
+            content:
+                application/json:
+                    schema:
+                        $ref: ../quotes.yaml#/components/schemas/TransferRequestForQuote
+                    examples:
+                        crypto transfer:
+                            description: request for quote -- from 0.1 ETH to 0.1 POLYGON_USDC
+                            value:
+                                id: xfer-rfq-01j6pe0975kztejnkzrd0q1hax
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: ETHEREUM_ETH
+                                    amount: '0.1'
+                                destination:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: POLYGON_USDC
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+                        sell crypto:
+                            description: request for quote -- from 0.1 ETH to USD[Bank account]
+                            value:
+                                id: xfer-rfq-01j6pe0975kztejnkzrd0q2vax
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: ETHEREUM_ETH
+                                    amount: '0.1'
+                                destination:
+                                    account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+                        buy crypto:
+                            description: request for quote -- from USD[Bank account] to 10K POLYGON_USDC
+                            value:
+                                id: xfer-rfq-01j6pe0975kztejnkzrd0q3vax
+                                source:
+                                    account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                                destination:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: POLYGON_USDC
+                                    amount: '10000'
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+                        fiat transfer:
+                            description: request for quote -- from USD[Bank account in USA] to 10K SGD[Bank account in sg]
+                            value:
+                                id: xfer-rfq-01j6pe0975kztejnkzrd0q4vax
+                                source:
+                                    account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                                destination:
+                                    account:
+                                        type: bank
+                                        network_currency_id: SGD
+                                        country: SG
+                                        bank_network: SWIFT
+                                    amount: '10000'
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+                        pre-registered account:
+                            description: request for quote -- from 0.1 ETH to account xlacc-01j6pe0975kztejnkzrd0q1hax
+                            value:
+                                id: xfer-rfq-01j6pe0975kztejnkzrd0q5vax
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: ETHEREUM_ETH
+                                    amount: '0.1'
+                                destination:
+                                    account: xlacc-01j6pe0975kztejnkzrd0q1hax
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+
+        transfer-request-for-quote-list-resp:
+            description: "'a list of request for quotes'"
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            has_more:
+                                type: boolean
+                            data:
+                                type: array
+                                items:
+                                    $ref: ../quotes.yaml#/components/schemas/TransferRequestForQuote
+        transfer-quote-resp:
+            description: request for quote
+            content:
+                application/json:
+                    schema:
+                        $ref: ../quotes.yaml#/components/schemas/TransferQuote
+                    examples:
+                        crypto transfer:
+                            description: request for quote -- from 0.1 ETH to 0.1 POLYGON_USDC
+                            value:
+                                quote_id: 'xfer-quo-01j6pe0975kztejnkzrd0q1hax'
+                                rfq_id: 'xfer-rfq-01j6pe0975kztejnkzrd0q1hax'
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: ETHEREUM_ETH
+                                    amount: '0.1'
+                                destination:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: POLYGON_USDC
+                                    amount: '100'
+                                status: 'created'
+                                valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+                        sell crypto:
+                            description: request for quote -- from 0.1 ETH to USD[Bank account]
+                            value:
+                                quote_id: 'xfer-quo-01j6pe0975kztejnkzrd0q2vax'
+                                rfq_id: 'xfer-rfq-01j6pe0975kztejnkzrd0q2vax'
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: ETHEREUM_ETH
+                                    amount: '0.1'
+                                destination:
+                                    account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                                    amount: '100'
+                                status: 'created'
+                                valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+                        buy crypto:
+                            description: request for quote -- from USD[Bank account] to 10K POLYGON_USDC
+                            value:
+                                quote_id: 'xfer-quo-01j6pe0975kztejnkzrd0q3vax'
+                                rfq_id: 'xfer-rfq-01j6pe0975kztejnkzrd0q3vax'
+                                source:
+                                    account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                                    amount: '10000'
+                                destination:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: POLYGON_USDC
+                                    amount: '10000'
+                                status: 'created'
+                                valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+        transfer-quote-list-resp:
+            description: "'a list of request for quotes'"
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            has_more:
+                                type: boolean
+                            data:
+                                type: array
+                                items:
+                                    $ref: ../quotes.yaml#/components/schemas/TransferQuote
+                    example:
+                        value:
+                            has_more: true
+                            data:
+                                - quote_id: 'xfer-quo-01j6pe0975kztejnkzrd0q1hax'
+                                  rfq_id: 'xfer-rfq-01j6pe0975kztejnkzrd0q1hax'
+                                  source:
+                                      account:
+                                          type: crypto
+                                          network_currency_id: ETHEREUM_ETH
+                                      amount: '0.1'
+                                  destination:
+                                      account:
+                                          type: crypto
+                                          network_currency_id: POLYGON_USDC
+                                      amount: '100'
+                                  status: 'created'
+                                  valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                  transaction_fees_split:
+                                      paid_by: 'payer_fees'
+                                      payer_fees: '0.01'
+                                      recipient_fees: '0.01'
+                                - quote_id: 'xfer-quo-01j6pe0975kztejnkzrd0q2vax'
+                                  rfq_id: 'xfer-rfq-01j6pe0975kztejnkzrd0q2vax'
+                                  source:
+                                      account:
+                                          type: crypto
+                                          network_currency_id: ETHEREUM_ETH
+                                      amount: '0.1'
+                                  destination:
+                                      account:
+                                          type: bank
+                                          network_currency_id: USD
+                                          country: US
+                                          bank_network: ACH
+                                      amount: '100'
+                                  deposit_account:
+                                      account:
+                                          id: 'lacc-01j6pe0975kztejnkzr1movie'
+                                          label: 'ETHEREUM'
+                                          network_currency_id:
+                                              ['ETHEREUM_ETH', 'ETHEREUM_USDT', 'MATIC']
+                                          address: '0XMV12454C6683B7E57334C4E856F4C9965ED682BD'
+                                          account_category: ['crypto_account']
+                                          account_locality: ['internal']
+                                          created_at: '2024-06-08T17:28:39.859284+08:00'
+                                  status: 'confirmed'
+                                  valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                  transaction_fees_split:
+                                      paid_by: 'payer_fees'
+                                      payer_fees: '0.01'
+                                      recipient_fees: '0.01'
+                                - quote_id: 'xfer-quo-01j6pe0975kztejnkzrd0q3vax'
+                                  rfq_id: 'xfer-rfq-01j6pe0975kztejnkzrd0q3vax'
+                                  source:
+                                      account:
+                                          type: bank
+                                          network_currency_id: USD
+                                          country: US
+                                          bank_network: ACH
+                                      amount: '10000'
+                                  destination:
+                                      account:
+                                          type: crypto
+                                          network_currency_id: POLYGON_USDC
+                                      amount: '10000'
+                                  status: 'created'
+                                  valid_until: '2024-06-08T17:28:39.859284'
+                                  transaction_fees_split:
+                                      paid_by: 'payer_fees'
+                                      payer_fees: '0.01'
+                                      recipient_fees: '0.01'
+        #########
+        # payin #
+        #########
+        payin-request-for-quote-resp:
+            description: request for quote
+            content:
+                application/json:
+                    schema:
+                        $ref: ../quotes.yaml#/components/schemas/PayinRequestForQuote
+                    examples:
+                        top up[crypto]:
+                            description: request for quote -- from 10K POLYGON_USDC to USDC
+                            value:
+                                id: payin-rfq-01j6pe0975kztejnkzrd0q1hax
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: POLYGON_USDC
+                                    amount: '10000'
+                                destination:
+                                    account: USDC
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+                        top up[fiat]:
+                            description: request for quote -- from 10K USD[Bank account in USA] to USDC
+                            value:
+                                id: payin-rfq-01j6pe0975kztejnkzrd0q2vax
+                                source:
+                                    account:
+                                        account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                                    amount: '10000'
+                                destination:
+                                    account: USDC
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+                        purchase using crypto:
+                            description: request for quote -- from POLYGON_USDC to 100 EUR
+                            value:
+                                id: payin-rfq-01j6pe0975kztejnkzrd0q3vax
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: POLYGON_USDC
+                                destination:
+                                    account: EUR
+                                    amount: '100'
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+                        purchase using fiat:
+                            description: request for quote -- from USD[Bank account in USA] to 100 EUR
+                            value:
+                                id: payin-rfq-01j6pe0975kztejnkzrd0q4vax
+                                source:
+                                    account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                                    amount: '100'
+                                destination:
+                                    account: EUR
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+                        deposit to account:
+                            description: request for quote -- from 10K account xlacc-01j6pe0975kztejnkzrd0q1hax to account lacc-01j6pe0975kztejnkzrd0q1hax
+                            value:
+                                id: payin-rfq-01j6pe0975kztejnkzrd0q5vax
+                                source:
+                                    account: xlacc-01j6pe0975kztejnkzrd0q1hax
+                                    amount: '10000'
+                                destination:
+                                    account: lacc-01j6pe0975kztejnkzrd0q1hax
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+
+        payin-request-for-quote-list-resp:
+            description: "'a list of request for quotes'"
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            has_more:
+                                type: boolean
+                            data:
+                                type: array
+                                items:
+                                    $ref: ../quotes.yaml#/components/schemas/PayinRequestForQuote
+                    example:
+                        value:
+                            has_more: true
+                            data:
+                                - id: payin-rfq-01j6pe0975kztejnkzrd0q1hax
+                                  source:
+                                      account:
+                                          type: crypto
+                                          network_currency_id: POLYGON_USDC
+                                      amount: '10000'
+                                  destination:
+                                      account: USDC
+                                  transaction_fees_split:
+                                      paid_by: 'payer_fees'
+                                      payer_fees: '0.01'
+                                      recipient_fees: '0.01'
+                                - id: payin-rfq-01j6pe0975kztejnkzrd0q2vax
+                                  source:
+                                      account:
+                                          type: bank
+                                          network_currency_id: USD
+                                          country: US
+                                          bank_network: ACH
+                                      amount: '10000'
+                                  destination:
+                                      account: USDC
+                                  transaction_fees_split:
+                                      paid_by: 'payer_fees'
+                                      payer_fees: '0.01'
+                                      recipient_fees: '0.01'
+                                - id: payin-rfq-01j6pe0975kztejnkzrd0q3vax
+                                  source:
+                                      account:
+                                          type: crypto
+                                          network_currency_id: POLYGON_USDC
+                                  destination:
+                                      account: EUR
+                                      amount: '100'
+                                  transaction_fees_split:
+                                      paid_by: 'payer_fees'
+                                      payer_fees: '0.01'
+                                      recipient_fees: '0.01'
+                                - id: payin-rfq-01j6pe0975kztejnkzrd0q4vax
+                                  source:
+                                      account:
+                                          type: bank
+                                          network_currency_id: USD
+                                          country: US
+                                          bank_network: ACH
+                                      amount: '100'
+                                  destination:
+                                      account: EUR
+                                  transaction_fees_split:
+                                      paid_by: 'payer_fees'
+                                      payer_fees: '0.01'
+                                      recipient_fees: '0.01'
+                                - id: payin-rfq-01j6pe0975kztejnkzrd0q5vax
+                                  source:
+                                      account: xlacc-01j6pe0975kztejnkzrd0q1hax
+                                      amount: '10000'
+                                  destination:
+                                      account: lacc-01j6pe0975kztejnkzrd0q1hax
+                                  transaction_fees_split:
+                                      paid_by: 'payer_fees'
+                                      payer_fees: '0.01'
+                                      recipient_fees: '0.01'
+        payin-quote-resp:
+            description: request for quote
+            content:
+                application/json:
+                    schema:
+                        $ref: ../quotes.yaml#/components/schemas/PayinQuote
+                    examples:
+                        top up[crypto]:
+                            description: request for quote -- from 10K POLYGON_USDC to USDC
+                            value:
+                                quote_id: 'payin-quo-01j6pe0975kztejnkzrd0q1hax'
+                                rfq_id: 'payin-rfq-01j6pe0975kztejnkzrd0q1hax'
+                                source:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: POLYGON_USDC
+                                    amount: '10000'
+                                destination:
+                                    account: USDC
+                                    amount: '10000'
+                                status: 'created'
+                                valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+                        top up[fiat]:
+                            description: request for quote -- from 10K USD[Bank account in USA] to USDC
+                            value:
+                                quote_id: 'payin-quo-01j6pe0975kztejnkzrd0q2vax'
+                                rfq_id: 'payin-rfq-01j6pe0975kztejnkzrd0q2vax'
+                                source:
+                                    account:
+                                        type: bank
+                                        network_currency_id: USD
+                                        country: US
+                                        bank_network: ACH
+                                    amount: '10000'
+                                destination:
+                                    account: USDC
+                                    amount: '10000'
+                                status: 'created'
+                                valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+        payin-quote-list-resp:
+            description: "'a list of request for quotes'"
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            has_more:
+                                type: boolean
+                            data:
+                                type: array
+                                items:
+                                    $ref: ../quotes.yaml#/components/schemas/PayinQuote
+                    example:
+                        value:
+                            has_more: true
+                            data:
+                                - quote_id: 'payin-quo-01j6pe0975kztejnkzrd0q1hax'
+                                  rfq_id: 'payin-rfq-01j6pe0975kztejnkzrd0q1hax'
+                                  source:
+                                      account:
+                                          type: crypto
+                                          network_currency_id: POLYGON_USDC
+                                      amount: '10000'
+                                  destination:
+                                      account: USDC
+                                      amount: '10000'
+                                  status: 'created'
+                                  valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                  transaction_fees_split:
+                                      paid_by: 'payer_fees'
+                                      payer_fees: '0.01'
+                                      recipient_fees: '0.01'
+                                - quote_id: 'payin-quo-01j6pe0975kztejnkzrd0q2vax'
+                                  rfq_id: 'payin-rfq-01j6pe0975kztejnkzrd0q2vax'
+                                  source:
+                                      account:
+                                          type: bank
+                                          network_currency_id: USD
+                                          country: US
+                                          bank_network: ACH
+                                      amount: '10000'
+                                  destination:
+                                      account: USDC
+                                      amount: '10000'
+                                  deposit_account:
+                                      account:
+                                          id: 'lacc-01j6pe0975kztejnkzrd0q1hax'
+                                          label: 'USD iban'
+                                          network_currency_id: ['EUR', 'USD', 'SGD']
+                                          iban: 'FR7600008000020100000000000'
+                                          bic: 'PAOTFRP1XXX'
+                                          account_category: ['bank_account']
+                                          account_locality: ['internal']
+                                          owner_entity_id: 'ent-ykrit3642ha2gzdthfagghbnme'
+                                          provider: 'mainsys'
+                                          created_at: ['2024-06-08T17:28:39.859284+08:00']
+                                  status: 'confirmed'
+                                  valid_until: '2024-06-08T17:28:39.859284+08:00'
+                                  transaction_fees_split:
+                                      paid_by: 'payer_fees'
+                                      payer_fees: '0.01'
+                                      recipient_fees: '0.01'
+        #########
+        # payout #
+        #########
+        payout-request-for-quote-resp:
+            description: request for quote
+            content:
+                application/json:
+                    schema:
+                        $ref: ../quotes.yaml#/components/schemas/PayoutRequestForQuote
+                    examples:
+                        withdraw[crypto]:
+                            description: request for quote -- from 10K USDC to ETHEREUM_ETH
+                            value:
+                                id: payout-rfq-01j6pe0975kztejnkzrd0q1hax
+                                source:
+                                    account: USDC
+                                    amount: '10000'
+                                destination:
+                                    account:
+                                        type: crypto
+                                        network_currency_id: ETHEREUM_ETH
+                                transaction_fees_split:
+                                    paid_by: 'payer_fees'
+                                    payer_fees: '0.01'
+                                    recipient_fees: '0.01'
+        payout-request-for-quote-list-resp:
+            description: "'a list of request for quotes'"
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            has_more:
+                                type: boolean
+                            data:
+                                type: array
+                                items:
+                                    $ref: ../quotes.yaml#/components/schemas/PayoutRequestForQuote
+                    example:
+                        value:
+                            has_more: true
+                            data:
+                                - id: payout-rfq-01j6pe0975kztejnkzrd0q1hax
+                                  source:
+                                      account: USDC
+                                      amount: '10000'
+                                  destination:
+                                      account:
+                                          type: crypto
+                                          network_currency_id: ETHEREUM_ETH
+                                  transaction_fees_split:
+                                      paid_by: 'payer_fees'
+                                      payer_fees: '0.01'
+                                      recipient_fees: '0.01'
+        payout-quote-resp:
+            description: request for quote
+            content:
+                application/json:
+                    schema:
+                        $ref: ../quotes.yaml#/components/schemas/PayoutQuote
+        payout-quote-list-resp:
+            description: "'a list of request for quotes'"
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            has_more:
+                                type: boolean
+                            data:
+                                type: array
+                                items:
+                                    $ref: ../quotes.yaml#/components/schemas/PayoutQuote

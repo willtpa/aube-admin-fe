@@ -1,0 +1,1620 @@
+openapi: 3.0.0
+info:
+    title: admin API
+    version: '1.0'
+    description: api for the needs of the admin backoffice
+    contact:
+        name: contact
+        email: contact@triple-a.io
+        url: 'https://triple-a.io/contact-us/'
+    termsOfService: 'https://triple-a.io/privacy-and-terms-policy/'
+    license:
+        name: apache 2
+        url: 'https://apache.org/licenses/LICENSE-2.0'
+servers:
+    - url: 'http://localhost:8085/'
+      description: local dev server
+paths:
+    /admin/api/v1/rates:
+        get:
+            summary: get latest rates
+            operationId: get-admin-api-v1-latest-rates
+            description: 'get latest rates for all supported currencies, not paginated'
+            tags:
+                - rates
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: ../common.yaml#/components/schemas/Rates
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+    '/admin/api/v1/accounts/{account-id}':
+        parameters:
+            - name: account-id
+              description: account id
+              in: path
+              required: true
+              schema:
+                  $ref: ../common.yaml#/components/schemas/AccountID
+        get:
+            summary: get details on account
+            description: get details on specific account
+            operationId: get-admin-api-v1-accounts-account-id
+            tags:
+                - account
+            responses:
+                '200':
+                    $ref: '#/components/responses/account-response'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+    '/admin/api/v1/accounts/{account-id}/balances':
+        parameters:
+            - name: account-id
+              description: account id
+              in: path
+              required: true
+              schema:
+                  $ref: ../common.yaml#/components/schemas/AccountID
+        get:
+            summary: get account balance
+            description: get balance for a specific account
+            operationId: get-admin-api-v1-accounts-account-id-balance
+            tags:
+                - account
+            responses:
+                '200':
+                    $ref: '#/components/responses/get-balance-response'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+    '/admin/api/v1/accounts/{account-id}/transactions':
+        parameters:
+            - name: account-id
+              description: account id
+              in: path
+              required: true
+              schema:
+                  $ref: ../common.yaml#/components/schemas/AccountID
+        get:
+            summary: list account transactions
+            description: list all transaction for a specific account
+            operationId: get-admin-api-v1-accounts-account-id-transactions
+            tags:
+                - account
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/limit
+                - $ref: ../common.yaml#/components/parameters/starting_after
+                - $ref: ../common.yaml#/components/parameters/ending_before
+            responses:
+                '200':
+                    $ref: '#/components/responses/transaction-list'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+    /admin/api/v1/accounts:
+        get:
+            summary: get accounts
+            operationId: get-admin-api-v1-accounts
+            description: get a list of all accounts
+            tags:
+                - account
+            parameters:
+                - name: account_locality
+                  in: query
+                  required: false
+                  schema:
+                      $ref: ../common.yaml#/components/schemas/AccountLocality
+                - $ref: ../common.yaml#/components/parameters/limit
+                - $ref: ../common.yaml#/components/parameters/starting_after
+                - $ref: ../common.yaml#/components/parameters/ending_before
+            responses:
+                '200':
+                    $ref: '#/components/responses/account-list'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+        post:
+            summary: create an account
+            description: create an account
+            operationId: post-admin-api-v1-accounts
+            tags:
+                - account
+            requestBody:
+                $ref: '#/components/requestBodies/create-account'
+            responses:
+                '201':
+                    $ref: '#/components/responses/account-response'
+                '202':
+                    description: accepted
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '409':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+    /admin/api/v1/entities:
+        get:
+            summary: get entities
+            operationId: get-admin-api-v1-entities
+            description: get a list of all entities
+            tags:
+                - entity
+            responses:
+                '200':
+                    $ref: '#/components/responses/entity-list'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+        post:
+            summary: create an entity
+            operationId: post-admin-api-v1-entities
+            description: create an entity
+            tags:
+                - entity
+            requestBody:
+                $ref: '#/components/requestBodies/create-entity'
+            responses:
+                '201':
+                    $ref: '#/components/responses/entity-response'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '409':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+    '/admin/api/v1/entities/{entity-id}':
+        parameters:
+            - name: entity-id
+              description: entity id
+              in: path
+              required: true
+              schema:
+                  $ref: ../common.yaml#/components/schemas/EntityID
+        get:
+            summary: get entity
+            description: get an entity
+            tags:
+                - entity
+            responses:
+                '200':
+                    $ref: '#/components/responses/entity-response'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+            operationId: get-admin-api-v1-entity
+            x-stoplight:
+                id: uzlxjvu5li8kj
+    '/admin/api/v1/entities/{entity-id}/accounts':
+        parameters:
+            - name: entity-id
+              description: entity id
+              in: path
+              required: true
+              schema:
+                  $ref: ../common.yaml#/components/schemas/EntityID
+        get:
+            summary: get entity accounts
+            operationId: get-admin-api-v1-entity-accounts
+            description: get all accounts related to the entity
+            tags:
+                - entity
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/limit
+                - $ref: ../common.yaml#/components/parameters/starting_after
+                - $ref: ../common.yaml#/components/parameters/ending_before
+            responses:
+                '200':
+                    $ref: '#/components/responses/account-list'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+    /admin/api/v1/compliance/legal-entities:
+        get:
+            summary: get legal entities
+            operationId: get-admin-api-v1-legal-entities
+            description: get legal entities
+            tags:
+                - legal entity
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/limit
+                - $ref: ../common.yaml#/components/parameters/starting_after
+                - $ref: ../common.yaml#/components/parameters/ending_before
+            responses:
+                '200':
+                    $ref: '#/components/responses/legal-entity-list'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+        post:
+            summary: create legal entity
+            operationId: post-admin-api-v1-compliance-legal-entities
+            description: create legal entity
+            tags:
+                - legal entity
+            requestBody:
+                $ref: '#/components/requestBodies/create-legal-entity'
+            responses:
+                '201':
+                    $ref: '#/components/responses/legal-entity'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '409':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+    '/admin/api/v1/compliance/legal-entities/{legal-entity-id}':
+        parameters:
+            - name: legal-entity-id
+              description: legal entity id
+              in: path
+              required: true
+              schema:
+                  $ref: ../common.yaml#/components/schemas/LegalEntityID
+        get:
+            summary: get legal entity
+            description: get legal entity
+            operationId: get-admin-api-v1-compliance-legal-entities
+            tags:
+                - legal entity
+            responses:
+                '200':
+                    $ref: '#/components/responses/legal-entity'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+        put:
+            summary: update legal entity
+            description: update legal entity
+            operationId: update-admin-api-v1-compliance-legal-entities
+            tags:
+                - legal entity
+            requestBody:
+                $ref: '#/components/requestBodies/update-legal-entity'
+            responses:
+                '200':
+                    $ref: '#/components/responses/legal-entity'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                '409':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+        delete:
+            summary: delete legal entity
+            description: delete legal entity
+            operationId: delete-admin-api-v1-compliance-legal-entities
+            tags:
+                - legal entity
+            responses:
+                '200':
+                    description: ''
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+    '/admin/api/v1/compliance/legal-entities/{legal-entity-id}/related-parties':
+        parameters:
+            - name: legal-entity-id
+              description: legal entity id
+              in: path
+              required: true
+              schema:
+                  $ref: ../common.yaml#/components/schemas/LegalEntityID
+        get:
+            summary: get related parties
+            description: get related parties
+            operationId: get-admin-api-v1-compliance-legal-entities-related-parties
+            tags:
+                - legal entity
+            responses:
+                '200':
+                    $ref: '#/components/responses/legal-entity-related-party-list'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+        post:
+            summary: create related party
+            operationId: post-admin-api-v1-compliance-legal-entities-related-party
+            description: create related party
+            tags:
+                - legal entity
+            requestBody:
+                $ref: '#/components/requestBodies/create-legal-entity-related-party'
+            responses:
+                '201':
+                    $ref: '#/components/responses/legal-entity-related-party'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '409':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+    '/admin/api/v1/compliance/legal-entities/{legal-entity-id}/related-parties/{related-party-id}':
+        parameters:
+            - name: legal-entity-id
+              description: legal entity id
+              in: path
+              required: true
+              schema:
+                  $ref: ../common.yaml#/components/schemas/LegalEntityID
+            - name: related-party-id
+              description: related party id
+              in: path
+              required: true
+              schema:
+                  $ref: ../common.yaml#/components/schemas/LegalEntityRelatedPartyID
+        get:
+            summary: get related party
+            description: get related party
+            operationId: get-admin-api-v1-compliance-legal-entities-related-party
+            tags:
+                - legal entity
+            responses:
+                '200':
+                    $ref: '#/components/responses/legal-entity-related-party'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+        put:
+            summary: update related party
+            description: update related party
+            operationId: update-admin-api-v1-compliance-legal-entities-related-party
+            tags:
+                - legal entity
+            requestBody:
+                $ref: '#/components/requestBodies/update-legal-entity-related-party'
+            responses:
+                '200':
+                    $ref: '#/components/responses/legal-entity-related-party'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                '409':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+        delete:
+            summary: delete related party
+            description: delete related party
+            operationId: delete-admin-api-v1-compliance-legal-entities-related-party
+            tags:
+                - legal entity
+            responses:
+                '200':
+                    description: ''
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+    /admin/api/v1/transactions:
+        post:
+            summary: create a transaction
+            description: create a transaction
+            operationId: post-admin-api-v1-transaction
+            tags:
+                - account
+            requestBody:
+                $ref: '#/components/requestBodies/create-transaction'
+            responses:
+                '201':
+                    $ref: '#/components/responses/transaction-response'
+                '202':
+                    description: accepted
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '409':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+            parameters:
+                - $ref: ../common.yaml#/components/parameters/X-Idempotency-Key
+    /admin/api/v1/const/industries:
+        get:
+            summary: get industry list
+            operationId: get-admin-api-v1-const-industries
+            description: get a list of all industries
+            tags:
+                - const
+            responses:
+                '200':
+                    $ref: '#/components/responses/list-industry-response'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+    /admin/api/v1/const/occupations:
+        get:
+            summary: get occupation list
+            operationId: get-admin-api-v1-const-occupations
+            description: get a list of all occupations
+            tags:
+                - const
+            responses:
+                '200':
+                    $ref: '#/components/responses/list-occupation-response'
+                '400':
+                    $ref: '#/components/responses/problem-detail'
+                '404':
+                    $ref: '#/components/responses/problem-detail'
+                5XX:
+                    $ref: '#/components/responses/problem-detail'
+components:
+    schemas:
+        CreateEntityIndividual:
+            title: CreateEntityIndividual
+            type: object
+            required:
+                - entity_type
+                - email
+                - gender
+                - first_name
+                - last_name
+                - street
+                - city
+                - postal_code
+                - country
+                - nationality
+                - birth_country
+                - birth_date
+                - birth_place
+            properties:
+                entity_type:
+                    $ref: ../common.yaml#/components/schemas/EntityType
+                email:
+                    type: string
+                    format: email
+                    x-go-type: entity.Email
+                    example: random@example.com
+                gender:
+                    $ref: ../common.yaml#/components/schemas/Gender
+                first_name:
+                    type: string
+                    example: John
+                last_name:
+                    type: string
+                    example: Doe
+                street:
+                    type: string
+                    example: 53 Sungei Tengah Rd
+                city:
+                    type: string
+                    example: Singapore
+                postal_code:
+                    type: string
+                    example: '698998'
+                country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                nationality:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                birth_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                birth_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                birth_place:
+                    type: string
+                    example: Paris
+        CreateEntityCorporate:
+            title: CreateEntityCorporate
+            type: object
+            required:
+                - entity_type
+                - email
+                - street
+                - city
+                - postal_code
+                - country
+                - company_name
+                - registration_country
+                - incorporation_date
+            properties:
+                entity_type:
+                    $ref: ../common.yaml#/components/schemas/EntityType
+                email:
+                    type: string
+                    format: email
+                    x-go-type: entity.Email
+                    example: random@example.com
+                street:
+                    type: string
+                    example: 'Blk 447 Clementi Ave 3 #01-201 S()'
+                city:
+                    type: string
+                    example: singapore
+                postal_code:
+                    type: string
+                    example: '120447'
+                country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                company_name:
+                    type: string
+                    example: Wisoky - Berge
+                registration_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                incorporation_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+        CreateEntity:
+            oneOf:
+                - $ref: '#/components/schemas/CreateEntityIndividual'
+                - $ref: '#/components/schemas/CreateEntityCorporate'
+            discriminator:
+                propertyName: entity_type
+                mapping:
+                    individual: '#/components/schemas/CreateEntityIndividual'
+                    corporate: '#/components/schemas/CreateEntityCorporate'
+        CreateLegalEntityCorporate:
+            title: CreateLegalEntityCorporate
+            type: object
+            required:
+                - entity_type
+                - kyb_status
+                - onboarding_mode
+                - alias_names
+                - trade_names
+                - former_registered_names
+                - company_name
+                - incorporation_date
+                - incorporation_number
+                - incorporation_country
+                - operation_countries
+                - websites
+                - industry_id
+                - mcc_codes
+                - business_activities
+                - sources_of_fund
+                - addresses
+            properties:
+                entity_type:
+                    $ref: ../common.yaml#/components/schemas/EntityType
+                kyb_status:
+                    $ref: ../common.yaml#/components/schemas/KybStatus
+                onboarding_mode:
+                    $ref: ../common.yaml#/components/schemas/OnboardingMode
+                company_name:
+                    type: string
+                    example: Example Corp
+                alias_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Example Corp
+                trade_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Example Corp
+                former_registered_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Example Corp
+                incorporation_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                incorporation_number:
+                    type: string
+                    example: '12345678'
+                incorporation_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                operation_countries:
+                    type: array
+                    items:
+                        $ref: ../common.yaml#/components/schemas/CountryCode2
+                websites:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - 'https://example.com'
+                        - 'https://example.org'
+                industry_id:
+                    type: integer
+                    example: 1
+                mcc_codes:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - '1234'
+                        - '5678'
+                business_activities:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - software development
+                        - consulting
+                sources_of_fund:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - investors
+                        - revenue
+                addresses:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CreateEntityAddress'
+        CreateLegalEntityIndividual:
+            title: CreateLegalEntityIndividual
+            type: object
+            required:
+                - entity_type
+                - kyb_status
+                - onboarding_mode
+                - first_name
+                - last_name
+                - alias_names
+                - gender
+                - nationalities
+                - birth_country
+                - birth_date
+                - residence_country
+                - identity_document_type
+                - identity_document_number
+                - identity_document_issue_date
+                - identity_document_expiry_date
+                - sources_of_fund
+                - addresses
+                - occupation_id
+            properties:
+                entity_type:
+                    $ref: ../common.yaml#/components/schemas/EntityType
+                kyb_status:
+                    $ref: ../common.yaml#/components/schemas/KybStatus
+                onboarding_mode:
+                    $ref: ../common.yaml#/components/schemas/OnboardingMode
+                first_name:
+                    type: string
+                    example: John
+                last_name:
+                    type: string
+                    example: Doe
+                alias_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - John D
+                gender:
+                    $ref: ../common.yaml#/components/schemas/Gender
+                nationalities:
+                    type: array
+                    items:
+                        $ref: ../common.yaml#/components/schemas/CountryCode2
+                birth_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                birth_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                residence_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                identity_document_type:
+                    type: string
+                    example: International Passport
+                identity_document_number:
+                    type: string
+                    example: '123456'
+                identity_document_issue_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                identity_document_expiry_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                occupation_id:
+                    type: integer
+                    example: 1
+                sources_of_fund:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - investors
+                        - revenue
+                addresses:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CreateEntityAddress'
+        CreateLegalEntity:
+            oneOf:
+                - $ref: '#/components/schemas/CreateLegalEntityIndividual'
+                - $ref: '#/components/schemas/CreateLegalEntityCorporate'
+            required:
+                - entity_type
+            discriminator:
+                propertyName: entity_type
+                mapping:
+                    individual: '#/components/schemas/CreateLegalEntityIndividual'
+                    corporate: '#/components/schemas/CreateLegalEntityCorporate'
+        UpdateLegalEntityCorporate:
+            title: UpdateLegalEntityCorporate
+            type: object
+            required:
+                - entity_type
+                - kyb_status
+                - onboarding_mode
+                - alias_names
+                - trade_names
+                - former_registered_names
+                - company_name
+                - incorporation_date
+                - incorporation_number
+                - incorporation_country
+                - operation_countries
+                - websites
+                - industry_id
+                - mcc_codes
+                - business_activities
+                - sources_of_fund
+                - addresses
+            properties:
+                entity_type:
+                    $ref: ../common.yaml#/components/schemas/EntityType
+                kyb_status:
+                    $ref: ../common.yaml#/components/schemas/KybStatus
+                onboarding_mode:
+                    $ref: ../common.yaml#/components/schemas/OnboardingMode
+                company_name:
+                    type: string
+                    example: Example Corp
+                alias_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Example Corp
+                trade_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Example Corp
+                former_registered_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Example Corp
+                incorporation_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                incorporation_number:
+                    type: string
+                    example: '12345678'
+                incorporation_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                operation_countries:
+                    type: array
+                    items:
+                        $ref: ../common.yaml#/components/schemas/CountryCode2
+                websites:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - 'https://example.com'
+                        - 'https://example.org'
+                industry_id:
+                    type: integer
+                    example: Technology
+                mcc_codes:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - '1234'
+                        - '5678'
+                business_activities:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Software Development
+                        - Consulting
+                sources_of_fund:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Investors
+                        - Revenue
+                addresses:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UpdateEntityAddress'
+        UpdateLegalEntityIndividual:
+            title: UpdateLegalEntityIndividual
+            type: object
+            required:
+                - entity_type
+                - kyb_status
+                - onboarding_mode
+                - first_name
+                - last_name
+                - alias_names
+                - gender
+                - nationalities
+                - birth_country
+                - birth_date
+                - residence_country
+                - identity_document_type
+                - identity_document_number
+                - identity_document_issue_date
+                - identity_document_expiry_date
+                - sources_of_fund
+                - addresses
+            properties:
+                entity_type:
+                    $ref: ../common.yaml#/components/schemas/EntityType
+                kyb_status:
+                    $ref: ../common.yaml#/components/schemas/KybStatus
+                onboarding_mode:
+                    $ref: ../common.yaml#/components/schemas/OnboardingMode
+                first_name:
+                    type: string
+                    example: John
+                last_name:
+                    type: string
+                    example: Doe
+                alias_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - John D
+                gender:
+                    $ref: ../common.yaml#/components/schemas/Gender
+                nationalities:
+                    type: array
+                    items:
+                        $ref: ../common.yaml#/components/schemas/CountryCode2
+                birth_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                birth_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                residence_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                identity_document_type:
+                    type: string
+                    example: International Passport
+                identity_document_number:
+                    type: string
+                    example: '123456'
+                identity_document_issue_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                identity_document_expiry_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                sources_of_fund:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Investors
+                        - Revenue
+                addresses:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UpdateEntityAddress'
+        UpdateLegalEntity:
+            oneOf:
+                - $ref: '#/components/schemas/UpdateLegalEntityIndividual'
+                - $ref: '#/components/schemas/UpdateLegalEntityCorporate'
+            required:
+                - entity_type
+            discriminator:
+                propertyName: entity_type
+                mapping:
+                    individual: '#/components/schemas/UpdateLegalEntityIndividual'
+                    corporate: '#/components/schemas/UpdateLegalEntityCorporate'
+        CreateLegalEntityRelatedPartyCorporate:
+            title: CreateLegalEntityRelatedPartyCorporate
+            type: object
+            required:
+                - entity_type
+                - alias_names
+                - trade_names
+                - former_registered_names
+                - company_name
+                - incorporation_date
+                - incorporation_number
+                - incorporation_country
+                - operation_countries
+                - websites
+                - industry
+                - mcc_codes
+                - business_activities
+                - addresses
+                - roles
+                - ownership_structure
+            properties:
+                entity_type:
+                    $ref: ../common.yaml#/components/schemas/EntityType
+                company_name:
+                    type: string
+                    example: Example Corp
+                alias_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Example Corp
+                trade_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Example Corp
+                former_registered_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Example Corp
+                incorporation_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                incorporation_number:
+                    type: string
+                    example: '12345678'
+                incorporation_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                operation_countries:
+                    type: array
+                    items:
+                        $ref: ../common.yaml#/components/schemas/CountryCode2
+                websites:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - 'https://example.com'
+                        - 'https://example.org'
+                industry:
+                    type: string
+                    example: Technology
+                mcc_codes:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - '1234'
+                        - '5678'
+                business_activities:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Software Development
+                        - Consulting
+                addresses:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CreateEntityAddress'
+                roles:
+                    type: array
+                    items:
+                        $ref: ../common.yaml#/components/schemas/RelatedPartyRoles
+                ownership_structure:
+                    type: integer
+                    minimum: 0
+                    maximum: 3
+        CreateLegalEntityRelatedPartyIndividual:
+            title: CreateLegalEntityRelatedPartyIndividual
+            type: object
+            required:
+                - entity_type
+                - first_name
+                - last_name
+                - alias_names
+                - gender
+                - nationalities
+                - birth_country
+                - birth_date
+                - residence_country
+                - identity_document_type
+                - identity_document_number
+                - identity_document_issue_date
+                - identity_document_expiry_date
+                - addresses
+                - roles
+            properties:
+                entity_type:
+                    $ref: ../common.yaml#/components/schemas/EntityType
+                first_name:
+                    type: string
+                    example: John
+                last_name:
+                    type: string
+                    example: Doe
+                alias_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - John D
+                gender:
+                    $ref: ../common.yaml#/components/schemas/Gender
+                nationalities:
+                    type: array
+                    items:
+                        $ref: ../common.yaml#/components/schemas/CountryCode2
+                birth_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                birth_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                residence_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                identity_document_type:
+                    type: string
+                    example: International Passport
+                identity_document_number:
+                    type: string
+                    example: '123456'
+                identity_document_issue_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                identity_document_expiry_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                addresses:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CreateEntityAddress'
+                roles:
+                    type: array
+                    items:
+                        $ref: ../common.yaml#/components/schemas/RelatedPartyRoles
+        CreateLegalEntityRelatedParty:
+            oneOf:
+                - $ref: '#/components/schemas/CreateLegalEntityRelatedPartyIndividual'
+                - $ref: '#/components/schemas/CreateLegalEntityRelatedPartyCorporate'
+            required:
+                - entity_type
+            discriminator:
+                propertyName: entity_type
+                mapping:
+                    individual: '#/components/schemas/CreateLegalEntityRelatedPartyIndividual'
+                    corporate: '#/components/schemas/CreateLegalEntityRelatedPartyCorporate'
+        UpdateLegalEntityRelatedPartyCorporate:
+            title: UpdateLegalEntityRelatedPartyCorporate
+            type: object
+            required:
+                - entity_type
+                - alias_names
+                - trade_names
+                - former_registered_names
+                - company_name
+                - incorporation_date
+                - incorporation_number
+                - incorporation_country
+                - operation_countries
+                - websites
+                - industry
+                - mcc_codes
+                - business_activities
+                - addresses
+                - roles
+                - ownership_structure
+            properties:
+                entity_type:
+                    $ref: ../common.yaml#/components/schemas/EntityType
+                company_name:
+                    type: string
+                    example: Example Corp
+                alias_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Example Corp
+                trade_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Example Corp
+                former_registered_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Example Corp
+                incorporation_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                incorporation_number:
+                    type: string
+                    example: '12345678'
+                incorporation_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                operation_countries:
+                    type: array
+                    items:
+                        $ref: ../common.yaml#/components/schemas/CountryCode2
+                websites:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - 'https://example.com'
+                        - 'https://example.org'
+                industry:
+                    type: string
+                    example: Technology
+                mcc_codes:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - '1234'
+                        - '5678'
+                business_activities:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - Software Development
+                        - Consulting
+                addresses:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UpdateEntityAddress'
+                roles:
+                    type: array
+                    items:
+                        $ref: ../common.yaml#/components/schemas/RelatedPartyRoles
+                ownership_structure:
+                    type: integer
+                    minimum: 0
+                    maximum: 3
+        UpdateLegalEntityRelatedPartyIndividual:
+            title: UpdateLegalEntityRelatedPartyIndividual
+            type: object
+            required:
+                - entity_type
+                - first_name
+                - last_name
+                - alias_names
+                - gender
+                - nationalities
+                - birth_country
+                - birth_date
+                - residence_country
+                - identity_document_type
+                - identity_document_number
+                - identity_document_issue_date
+                - identity_document_expiry_date
+                - addresses
+                - roles
+            properties:
+                entity_type:
+                    $ref: ../common.yaml#/components/schemas/EntityType
+                first_name:
+                    type: string
+                    example: John
+                last_name:
+                    type: string
+                    example: Doe
+                alias_names:
+                    type: array
+                    items:
+                        type: string
+                    example:
+                        - John D
+                gender:
+                    $ref: ../common.yaml#/components/schemas/Gender
+                nationalities:
+                    type: array
+                    items:
+                        $ref: ../common.yaml#/components/schemas/CountryCode2
+                birth_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                birth_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                residence_country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+                identity_document_type:
+                    type: string
+                    example: International Passport
+                identity_document_number:
+                    type: string
+                    example: '123456'
+                identity_document_issue_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                identity_document_expiry_date:
+                    $ref: ../common.yaml#/components/schemas/Date
+                addresses:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UpdateEntityAddress'
+                roles:
+                    type: array
+                    items:
+                        $ref: ../common.yaml#/components/schemas/RelatedPartyRoles
+        UpdateLegalEntityRelatedParty:
+            oneOf:
+                - $ref: '#/components/schemas/UpdateLegalEntityRelatedPartyIndividual'
+                - $ref: '#/components/schemas/UpdateLegalEntityRelatedPartyCorporate'
+            required:
+                - entity_type
+            discriminator:
+                propertyName: entity_type
+                mapping:
+                    individual: '#/components/schemas/UpdateLegalEntityRelatedPartyIndividual'
+                    corporate: '#/components/schemas/UpdateLegalEntityRelatedPartyCorporate'
+        CreateEntityAddress:
+            title: EntityAddress
+            type: object
+            x-go-type: legalentity.Address
+            required:
+                - country
+            properties:
+                address_line_one:
+                    type: string
+                    example: 1st main street
+                address_line_two:
+                    type: string
+                    example: 'Tower One #01-50'
+                city:
+                    type: string
+                    example: SG
+                state_region:
+                    type: string
+                    example: Singapore
+                postal_code:
+                    type: string
+                    example: '609431'
+                country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+        UpdateEntityAddress:
+            title: EntityAddress
+            type: object
+            x-go-type: legalentity.Address
+            required:
+                - country
+            properties:
+                id:
+                    type: string
+                    example: addr-ykrit3642ha2gzdthfagghbnme
+                address_line_one:
+                    type: string
+                    example: 1st main street
+                address_line_two:
+                    type: string
+                    example: 'Tower One #01-50'
+                city:
+                    type: string
+                    example: SG
+                state_region:
+                    type: string
+                    example: Singapore
+                postal_code:
+                    type: string
+                    example: '609431'
+                country:
+                    $ref: ../common.yaml#/components/schemas/CountryCode2
+        CreateTransaction:
+            title: CreateEntityIndividual
+            type: object
+            required:
+                - from_account_id
+                - to_account_id
+                - amount
+            properties:
+                from_account_id:
+                    $ref: ../common.yaml#/components/schemas/AccountID
+                to_account_id:
+                    $ref: ../common.yaml#/components/schemas/AccountID
+                amount:
+                    $ref: ../common.yaml#/components/schemas/Decimal
+    responses:
+        problem-detail:
+            description: |-
+                RFC 9457: Problem Details for HTTP APIs
+                https://www.rfc-editor.org/rfc/rfc9457.html
+            content:
+                application/json:
+                    schema:
+                        $ref: ../common.yaml#/components/schemas/ProblemDetail
+                    examples:
+                        Example 1:
+                            value:
+                                type: 'https://api.triple-a.io/v2/problems/xxx'
+                                title: a title explaining the problem
+                                instance: accounts/123
+                                detail: information to help solve the issue
+        account-response:
+            description: Example response
+            content:
+                application/json:
+                    schema:
+                        oneOf:
+                            - $ref: ../common.yaml#/components/schemas/BankAccount
+                            - $ref: ../common.yaml#/components/schemas/VirtualAccount
+                            - $ref: ../common.yaml#/components/schemas/CryptoAccount
+        get-balance-response:
+            description: Example response
+            content:
+                application/json:
+                    schema:
+                        $ref: ../common.yaml#/components/schemas/Balance
+        account-list:
+            description: List of accounts
+            content:
+                application/json:
+                    schema:
+                        required:
+                            - has_more
+                            - data
+                        properties:
+                            has_more:
+                                type: boolean
+                                example: true
+                            data:
+                                type: array
+                                items:
+                                    x-go-type: account.Account
+                                    oneOf:
+                                        - $ref: ../common.yaml#/components/schemas/BankAccount
+                                        - $ref: ../common.yaml#/components/schemas/VirtualAccount
+                                        - $ref: ../common.yaml#/components/schemas/CryptoAccount
+        transaction-list:
+            description: List of transactions
+            content:
+                application/json:
+                    schema:
+                        required:
+                            - has_more
+                            - data
+                        properties:
+                            has_more:
+                                type: boolean
+                                example: true
+                            data:
+                                type: array
+                                items:
+                                    $ref: ../common.yaml#/components/schemas/LedgerTransaction
+        entity-response:
+            description: Example response
+            content:
+                application/json:
+                    schema:
+                        oneOf:
+                            - $ref: ../common.yaml#/components/schemas/IndividualEntity
+                            - $ref: ../common.yaml#/components/schemas/CorporateEntity
+        entity-list:
+            description: List of entities
+            content:
+                application/json:
+                    schema:
+                        required:
+                            - has_more
+                            - data
+                        properties:
+                            has_more:
+                                type: boolean
+                                example: true
+                            data:
+                                type: array
+                                items:
+                                    x-go-type: entity.Entity
+                                    oneOf:
+                                        - $ref: ../common.yaml#/components/schemas/IndividualEntity
+                                        - $ref: ../common.yaml#/components/schemas/CorporateEntity
+        legal-entity:
+            description: Example response
+            content:
+                application/json:
+                    schema:
+                        oneOf:
+                            - $ref: ../common.yaml#/components/schemas/LegalEntityIndividual
+                            - $ref: ../common.yaml#/components/schemas/LegalEntityCorporate
+        legal-entity-list:
+            description: List of legal entities
+            content:
+                application/json:
+                    schema:
+                        required:
+                            - has_more
+                            - data
+                        properties:
+                            has_more:
+                                type: boolean
+                                example: true
+                            data:
+                                type: array
+                                items:
+                                    x-go-type: legalentity.LegalEntity
+                                    oneOf:
+                                        - $ref: ../common.yaml#/components/schemas/LegalEntityIndividual
+                                        - $ref: ../common.yaml#/components/schemas/LegalEntityCorporate
+        legal-entity-related-party:
+            description: Example response
+            content:
+                application/json:
+                    schema:
+                        oneOf:
+                            - $ref: ../common.yaml#/components/schemas/LegalEntityRelatedPartyIndividual
+                            - $ref: ../common.yaml#/components/schemas/LegalEntityRelatedPartyCorporate
+        legal-entity-related-party-list:
+            description: List of related parties
+            content:
+                application/json:
+                    schema:
+                        required:
+                            - has_more
+                            - data
+                        properties:
+                            has_more:
+                                type: boolean
+                                example: true
+                            data:
+                                type: array
+                                items:
+                                    x-go-type: legalentityrelatedparty.RelatedParty
+                                    oneOf:
+                                        - $ref: ../common.yaml#/components/schemas/LegalEntityRelatedPartyIndividual
+                                        - $ref: ../common.yaml#/components/schemas/LegalEntityRelatedPartyCorporate
+        transaction-response:
+            description: Example response
+            content:
+                application/json:
+                    schema:
+                        $ref: ../common.yaml#/components/schemas/Transaction
+        list-industry-response:
+            description: Example response
+            content:
+                application/json:
+                    schema:
+                        required:
+                            - data
+                        properties:
+                            data:
+                                type: array
+                                items:
+                                    title: industry
+                                    type: object
+                                    x-go-type: industry.Industry
+                                    properties:
+                                        id:
+                                            type: string
+                                            example: 1
+                                        label:
+                                            type: string
+                                            example: Technology
+        list-occupation-response:
+            description: Example response
+            content:
+                application/json:
+                    schema:
+                        required:
+                            - data
+                        properties:
+                            data:
+                                type: array
+                                items:
+                                    title: industry
+                                    type: object
+                                    x-go-type: occupation.Occupation
+                                    properties:
+                                        id:
+                                            type: string
+                                            example: 1
+                                        label:
+                                            type: string
+                                            example: Technology
+    requestBodies:
+        create-entity:
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/CreateEntity'
+        create-account:
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required:
+                            - entity_id
+                            - account_category
+                            - account_locality
+                            - label
+                            - network_currency_id
+                        properties:
+                            entity_id:
+                                $ref: ../common.yaml#/components/schemas/EntityID
+                            account_category:
+                                $ref: ../common.yaml#/components/schemas/AccountCategory
+                            account_locality:
+                                $ref: ../common.yaml#/components/schemas/AccountLocality
+                            label:
+                                $ref: ../common.yaml#/components/schemas/Label
+                            network_currency_id:
+                                $ref: ../money.yaml#/components/schemas/AnyNetworkCurrencyID
+                            IBAN:
+                                type: string
+                                description: 0nly if the account locality is external and account category is bank account
+                                example: FR7616408000020100000037430
+                            BIC:
+                                type: string
+                                description: 0nly if the account locality is external and account category is bank account
+                                example: CRLYFRPPXXX
+        create-legal-entity:
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/CreateLegalEntity'
+        update-legal-entity:
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/UpdateLegalEntity'
+        create-legal-entity-related-party:
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/CreateLegalEntityRelatedParty'
+        update-legal-entity-related-party:
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/UpdateLegalEntityRelatedParty'
+        create-transaction:
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/CreateTransaction'
+tags:
+    - name: account
+      description: relates to the account
+    - name: adminapi
+      description: relates to the adminapi
+    - name: entity
+      description: relates to the entity
+    - name: legal entity
+      description: relates to the legal entity
+    - name: rates
+      description: relates to the rates
+x-internal: true
