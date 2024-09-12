@@ -46,6 +46,14 @@ jobs:
                 ls -la sveltekitbuild
                 pwd
                 echo "github.workspace: ${{ github.workspace }}"
+
+                echo "install prism-cli..."
+                npm install -g @stoplight/prism-cli
+
+                echo "starting mock server..."
+                prism mock src/api-specs/adminapi.yaml
+
+                curl http://127.0.0.1:4010/admin/api/v1/rates
                 
 
             - name: Upload svelte-kit Artifacts    
