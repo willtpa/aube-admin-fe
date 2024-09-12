@@ -100,6 +100,9 @@ jobs:
             # run e2e tests on deployed preview url
             - name: Run e2e Tests
               run: |
+                echo "curl api for testing..."
+                curl http://127.0.0.1:4010/admin/api/v1/rates
+
                 npm run test:integration
             
             # - name: Check for Deployment & Cleanup
