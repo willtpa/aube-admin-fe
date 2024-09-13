@@ -1,8 +1,8 @@
-import type { PageServerLoad } from './$types';
 import { handleRequestError } from '$utils/http';
-import { getRates } from '$services/currency-rate';
+import { getRates } from '$services/adminapi/currency-rate';
 import { CurrencyTypeFilter } from '$utils/enum';
 import { isEnumType } from '$utils/common';
+import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {
     try {
@@ -16,6 +16,6 @@ export const load: PageServerLoad = async ({ url }) => {
             currencyRates,
         };
     } catch (err) {
-        handleRequestError(err);
+        return handleRequestError(err);
     }
 };

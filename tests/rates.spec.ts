@@ -2,44 +2,41 @@ import { isCrypto } from '$utils/common';
 import {
     test,
     expect,
-    type Browser,
-    chromium,
+    // type Browser,
+    // chromium,
     type Page,
     type ElementHandle,
 } from '@playwright/test';
 
-let browser: Browser;
+// let browser: Browser;
 let newPage: Page;
-// const previewURL = 'https://aubesee-admin-stg.triple-a.rocks';
 const previewURL = process.env['PREVIEW_URL'] ?? '';
-test.beforeAll(async () => {
-    browser = await chromium.launch();
-    newPage = await browser.newPage();
-    console.log('Preview URL:', previewURL, previewURL.length);
 
-    if (previewURL.length > 0) {
-        const url = new URL(previewURL);
-        const cookiesData = [
-            {
-                name: 'CF_Authorization',
-                value: process.env['CF_Authorization'] ?? '',
-                domain: url.hostname,
-                path: '/',
-                httpOnly: true,
-                secure: true,
-                // url: 'https://aubesee-admin-stg.triple-a.rocks',
-            },
-        ];
-        console.log('Adding cookies...', cookiesData);
-        await newPage.context().addCookies(cookiesData);
-    }
+// test.beforeAll(async () => {
+//     browser = await chromium.launch();
+//     newPage = await browser.newPage();
 
-    await newPage.goto(`${previewURL}/rates`);
-});
+//     if (previewURL.length > 0) {
+//         const url = new URL(previewURL);
+//         const cookiesData = [
+//             {
+//                 name: 'CF_Authorization',
+//                 value: process.env['CF_Authorization'] ?? '',
+//                 domain: url.hostname,
+//                 path: '/',
+//                 httpOnly: true,
+//                 secure: true,
+//             },
+//         ];
+//         await newPage.context().addCookies(cookiesData);
+//     }
 
-test.afterAll(async () => {
-    await browser.close();
-});
+//     await newPage.goto(`${previewURL}/rates`);
+// });
+
+// test.afterAll(async () => {
+//     await browser.close();
+// });
 
 test.describe('Currency rates table', () => {
     test('it should render currency rate information in the table', async () => {

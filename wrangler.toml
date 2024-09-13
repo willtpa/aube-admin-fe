@@ -4,10 +4,10 @@ workers_dev = true
 compatibility_date = "2024-01-01"
 
 [env.development]
-vars = { PUBLIC_ADMINAPI_HOST="http://localhost:8085" }
+vars = { PUBLIC_ADMINAPI_HOST="http://localhost:8085", PUBLIC_FIATPAYOUTAPI_HOST="https://api-internal.triple-a.work" }
 
 [env.staging]
-vars = { PUBLIC_ADMINAPI_HOST="https://aubesee-admin-stg.triple-a.rocks" }
+vars = { PUBLIC_ADMINAPI_HOST="https://aubesee-admin-stg.triple-a.rocks", PUBLIC_FIATPAYOUTAPI_HOST="https://api-internal.triple-a.work"  }
 
 [env.production]
-vars = { PUBLIC_ADMINAPI_HOST="https://aubesee-admin.triple-a.rocks" }
+vars = { PUBLIC_ADMINAPI_HOST="https://aubesee-admin.triple-a.rocks", PUBLIC_FIATPAYOUTAPI_HOST="https://api-internal.triple-a.live" }

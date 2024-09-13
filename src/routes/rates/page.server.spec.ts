@@ -1,12 +1,10 @@
-import type { CurrencyCodeToMedianFxRateV1Map } from '$services/currency-rate.d';
-import * as rateService from '$services/currency-rate';
+import * as rateService from '$services/adminapi/currency-rate';
 import { afterAll, beforeAll, describe, expect, test, vi, type MockInstance } from 'vitest';
-import Decimal from 'decimal.js';
 import { load } from './+page.server';
 import type { ServerLoadEvent } from '@sveltejs/kit';
-import type { RouteParams } from '../$types';
-import type { PageData } from './$types';
-import type { CurrencyTypeFilter } from '$utils/enum';
+import type { PageData, RouteParams } from './$types';
+import type { components } from '$lib/openapi/adminapi.schema';
+import type { APIResponse } from '$lib/openapi/types';
 
 let baseURL: string;
 let mockGetRates: MockInstance;
@@ -17,17 +15,22 @@ beforeAll(async () => {
         BTC: {
             id: '018fe2aa-ac22-7aec-9771-28c9462b32a2',
             version: 1,
-            providers_contrib: { coinbase: new Decimal('168') },
+            providers_contrib: { coinbase: 123 },
             rates_count: 168,
             outliers_perc: 0,
-            created_at: new Date('2024-06-04T09:53:07.106035417Z'),
-            base: 'BTC',
-            quote: 'USD',
-            rate_base_quote: new Decimal('68555'),
-            rate_base_usd: new Decimal('68555'),
-            rate_usd_quote: new Decimal('0.0000145868280942'),
+            created_at: '2024-06-04T09:53:07.106035417Z',
+            providers_medians: { coinbase: '314' },
+            rate: {
+                rate_base_quote: '68555',
+                rate_base_usd: '68555',
+                rate_usd_quote: '0.0000145868280942',
+                pair: {
+                    quote: 'USD',
+                    base: 'BTC',
+                },
+            },
         },
-    } as CurrencyCodeToMedianFxRateV1Map;
+    } as Record<string, APIResponse<components['schemas']['MedianFxRateV1']>>;
     mockGetRates = vi.spyOn(rateService, 'getRates');
     mockGetRates.mockResolvedValue(mockGetRatesValue);
 });
@@ -53,7 +56,7 @@ describe('load handler of rates page', () => {
                 url: new URL(`${baseURL}?${qParams}`),
             } as ServerLoadEvent<RouteParams, object, '/rates'>;
             const result = (await load(mockLoadEvent)) as PageData;
-            const currencyType = result.currencyType as CurrencyTypeFilter;
+            const currencyType = result.currencyType;
             expect(currencyType).toBe('all');
         },
     );
@@ -65,7 +68,7 @@ describe('load handler of rates page', () => {
                 url: new URL(`${baseURL}?${qParams}`),
             } as ServerLoadEvent<RouteParams, object, '/rates'>;
             const result = (await load(mockLoadEvent)) as PageData;
-            const currencyType = result.currencyType as CurrencyTypeFilter;
+            const currencyType = result.currencyType;
             expect(['all', 'crypto', 'fiat']).toContain(currencyType);
         },
     );

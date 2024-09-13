@@ -2,6 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-    overflow-y: scroll;
+.svelte-select {
+    @apply !select !select-bordered !w-full !h-auto !text-base;
+
+    &.focused {
+        @apply !shadow-none !border-base-content !border-opacity-20 !outline !outline-2 !outline-offset-2;
+        outline-color: oklch(var(--bc) / 0.2) !important;
+    }
+
+    input {
+        @apply !relative !h-5 !m-0 !bg-transparent !outline-none;
+        --placeholder-color: var(--tw-prose-body);
+        --input-color: var(--tw-prose-body);
+    }
+
+    .svelte-select-list {
+        @apply !bg-base-200;
+
+        .item {
+            @apply !bg-base-200 !text-base-content;
+
+            &.hover {
+                @apply !bg-primary !text-primary-content;
+            }
+        }
+    }
+
+    &.multi {
+        .multi-item {
+            @apply !bg-primary !outline-0 !rounded-3xl !pl-2;
+
+            .multi-item-text {
+                @apply !text-primary-content;
+            }
+
+            .multi-item-clear {
+                --clear-icon-color: oklch(var(--pc));
+            }
+        }
+    }
+
+    &:not(.multi) {
+        input {
+            @apply !absolute !left-0 !top-[13px];
+        }
+    }
 }

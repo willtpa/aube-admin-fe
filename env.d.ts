@@ -3,6 +3,7 @@
 declare module '$env/static/public' {
     export const PUBLIC_ADMINAPI_HOST: string;
     // Add more environment variables as needed
+    export const PUBLIC_FIATPAYOUTAPI_HOST: string;
 }
 
 declare module '$env/static/private' {

@@ -1,32 +1,22 @@
-<script>
+<script lang="ts">
     import '../app.css';
+    import type { Snippet } from 'svelte';
+    import Header from '$components/Header.svelte';
+    import Footer from '$components/Footer.svelte';
+
+    interface Props {
+        children: Snippet;
+    }
+
+    const { children }: Props = $props();
 </script>
 
-<!-- <div class="navbar bg-base-100">
-	<div class="flex-1">
-		<a class="btn btn-neutral text-xl" href="/">Home</a>
-		<ul class="menu menu-horizontal px-1">
-			<li>
-				<details class="btn btn-neutral text-xl px-0">
-					<summary> Services </summary>
-					<ul class="p-2 bg-base-100 rounded-t-none">
-						<li><a href="/rates">Rates</a></li>
-						<li><a href="/accounts">Ledger Accounts</a></li>
-					</ul>
-				</details>
-			</li>
-		</ul>
-		<ul class="menu menu-horizontal px-1">
-			<li>
-				<details class="btn btn-neutral text-xl px-0">
-					<summary> Compliance </summary>
-					<ul class="p-2 bg-base-100 rounded-t-none">
-						<li><a href="/compliance/customer">Customers</a></li>
-					</ul>
-				</details>
-			</li>
-		</ul>
-	</div>
-</div> -->
+<svelte:head>
+    <title>Triple-A Backoffice</title>
+</svelte:head>
 
-<slot />
+<Header />
+<main class="min-h-screen container my-10">
+    {@render children()}
+</main>
+<Footer />

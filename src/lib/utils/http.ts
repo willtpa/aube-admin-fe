@@ -29,21 +29,20 @@ export class HTTPError extends Error {
     }
 }
 
-export function querystring(params: QueryParams): string {
-    return Object.entries(params)
+export const querystring = (params: QueryParams): string =>
+    Object.entries(params)
         .filter(([, v]) => Boolean(v))
         .map(([k, v]) => `${k}=${encodeURIComponent(v ?? '')}`)
         .join('&');
-}
 
-export function handleRequestError(err: unknown): never {
+export const handleRequestError = (err: unknown): never => {
     if (isHttpError(err)) {
         error(err.status, err.body);
     } else if (err instanceof Error) {
         error(StatusInternalServerError);
     }
     error(StatusInternalServerError);
-}
+};
 
 export class Requestor {
     constructor(private readonly baseURL: string) {}
@@ -65,7 +64,11 @@ export class Requestor {
             throw new Error(`HTTP error: ${result.status}`);
         }
 
-        return result.json() as Promise<T>;
+        if (config?.headers?.['Content-Type'] === 'application/csv') {
+            return result.blob() as Promise<T>;
+        } else {
+            return result.json() as Promise<T>;
+        }
     }
 
     async get<T>(url: string, config?: RequestConfigGet): Promise<T> {

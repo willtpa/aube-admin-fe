@@ -9,6 +9,7 @@ async function globalSetup(_: FullConfig): Promise<void> {
     process.env['CF_ACCESS_CLIENT_ID'] = process.env['CF_ACCESS_CLIENT_ID'] ?? 'test-client-id';
     process.env['CF_ACCESS_CLIENT_SECRET'] =
         process.env['CF_ACCESS_CLIENT_SECRET'] ?? 'test-client-secret';
+    process.env['PREVIEW_URL'] = process.env['PREVIEW_URL'] ?? '';
 }
 
 export default globalSetup;

@@ -6,6 +6,7 @@ async function globalTeardown(_: FullConfig): Promise<void> {
     delete process.env['PUBLIC_RATES_SSE_PREFIX'];
     delete process.env['CF_ACCESS_CLIENT_ID'];
     delete process.env['CF_ACCESS_CLIENT_SECRET'];
+    delete process.env['PREVIEW_URL'];
 }
 
 export default globalTeardown;

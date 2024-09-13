@@ -166,4 +166,5 @@ export enum CryptoCurrency {
     XLM = 'XLM',
     USDT = 'USDT',
     USDC = 'USDC',
+    BNB = 'BNB',
 }

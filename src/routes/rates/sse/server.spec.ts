@@ -1,6 +1,6 @@
 import { describe, test, vi } from 'vitest';
 import { GET } from './+server';
-import type { RequestEvent } from '../$types';
+import type { RequestEvent } from '@sveltejs/kit';
 
 describe('GET handler of rates/sse', () => {
     test('it should return response with SSE content type', async ({ expect }) => {

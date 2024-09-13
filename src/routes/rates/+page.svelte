@@ -1,49 +1,53 @@
 <script lang="ts">
+    import Decimal from 'decimal.js';
     import { onMount, onDestroy } from 'svelte';
     import { fade } from 'svelte/transition';
     import { CurrencyTypeFilter } from '$utils/enum';
-    import {
-        type CurrencyCodeToMedianFxRateV1Map,
-        type MedianFxRateV1,
-    } from '$lib/services/currency-rate.d';
     import type { PageData } from './$types';
-    import Decimal from 'decimal.js';
     import { browser } from '$app/environment';
     import { isCrypto } from '$utils/common';
+    import type { components } from '$lib/openapi/adminapi.schema';
+    import type { APIResponse } from '$lib/openapi/types';
 
-    export let data: PageData;
+    interface Props {
+        data: PageData;
+    }
+
+    const { data }: Props = $props();
 
     // re-order currency rates by crypto first and non crypto after
-    let currencyRates = Object.fromEntries(
-        Object.entries(data.currencyRates).sort(([aKey], [bKey]) => {
-            if (isCrypto(aKey) && !isCrypto(bKey)) {
-                return -1;
-            } else if (!isCrypto(aKey) && isCrypto(bKey)) {
-                return 1;
-            } else {
-                return aKey.localeCompare(bKey);
-            }
-        }),
+    let currencyRates = $state(
+        Object.fromEntries(
+            Object.entries(data.currencyRates).sort(([aKey], [bKey]) => {
+                if (isCrypto(aKey) && !isCrypto(bKey)) {
+                    return -1;
+                } else if (!isCrypto(aKey) && isCrypto(bKey)) {
+                    return 1;
+                } else {
+                    return aKey.localeCompare(bKey);
+                }
+            }),
+        ),
     );
 
     const allIsPriceUps: Record<string, boolean> = {};
 
     function updateCurrencyGrp(
-        currencyGrp: CurrencyCodeToMedianFxRateV1Map,
-        currRate: MedianFxRateV1,
-    ): CurrencyCodeToMedianFxRateV1Map {
-        Object.keys(currencyGrp)
-            .filter((base) => currRate.base === base)
-            .map((base) => {
+        currencyGrp: PageData['currencyRates'],
+        currRate: APIResponse<components['schemas']['MedianFxRateV1']>,
+    ): Record<string, APIResponse<components['schemas']['MedianFxRateV1']>> {
+        const currencies = Object.entries(currencyGrp);
+        for (const [base, rate] of currencies) {
+            if (base === currRate.base && currRate.rate_base_quote && rate.rate_base_quote) {
                 const currRateDec = new Decimal(currRate.rate_base_quote);
-                const prevRateDec = new Decimal(
-                    (currencyGrp[base] as MedianFxRateV1).rate_base_quote,
-                );
+                const prevRateDec = new Decimal(rate.rate_base_quote);
                 allIsPriceUps[base] = currRateDec.gt(prevRateDec);
 
-                currencyGrp[base] = { ...(currencyGrp[base] ?? {}), ...currRate };
-            });
-        return Object.keys(currencyGrp).length > 0 ? currencyGrp : {};
+                currencyGrp[base] = { ...currencyGrp[base], ...currRate };
+            }
+        }
+
+        return currencies.length > 0 ? currencyGrp : {};
     }
 
     let sse: EventSource | undefined = undefined;
@@ -60,7 +64,9 @@
         };
 
         sse.onmessage = (rate): void => {
-            const currencyRate = JSON.parse(rate.data) as MedianFxRateV1;
+            const currencyRate = JSON.parse(rate.data) as APIResponse<
+                components['schemas']['MedianFxRateV1']
+            >;
             if (Object.keys(currencyRate).length > 0) {
                 currencyRates = {
                     ...currencyRates,
@@ -70,7 +76,7 @@
         };
     }
 
-    let allTimeAgos: Record<string, string> = {};
+    let allTimeAgos: Record<string, string> = $state({});
 
     // return a map of quote to timeAgo
     function updateTimeAgo(): void {
@@ -102,16 +108,15 @@
 
     // leave it for now. If no use in future, will remove
     // TODO: modify to use rate status returning from the backend (when it is ready)
-    function isValid(currRate: MedianFxRateV1): boolean {
+    function isValid(currRate: APIResponse<components['schemas']['MedianFxRateV1']>): boolean {
         const maxRateLifespan = 3600000; // 1h (in milliseconds) // just example modify as needed
         const rateCreatedAtDate = new Date(currRate.created_at);
-        const now = new Date();
-        const diff = now.getTime() - rateCreatedAtDate.getTime();
+        const diff = Date.now() - rateCreatedAtDate.getTime();
 
         return diff < maxRateLifespan;
     }
 
-    let showToast = false;
+    let showToast = $state(false);
 
     async function copyToClipboard(text: string): Promise<void> {
         await navigator.clipboard.writeText(text);
@@ -121,7 +126,7 @@
         showToast = false;
     }
 
-    let currencyTypeFilter = data.currencyType;
+    let currencyTypeFilter = $state(data.currencyType);
 
     function filterByType(base: string): boolean {
         switch (currencyTypeFilter) {
@@ -129,13 +134,12 @@
                 return isCrypto(base);
             case CurrencyTypeFilter.Fiat:
                 return !isCrypto(base);
-            case CurrencyTypeFilter.All:
+            default:
                 return true;
         }
-        return true;
     }
 
-    let favCurrencies: string[] = [];
+    let favCurrencies: string[] = $state([]);
 
     // set favorite currencies to localstorage
     function setFavCurrency(base: string): void {
@@ -216,13 +220,15 @@
 
     <!-- pin favorite currencies -->
     {#each favCurrencies as base}
-        {#if currencyRates[base] !== undefined}
+        {@const currencyBase = currencyRates[base]}
+
+        {#if currencyBase !== undefined}
             <div class="stats shadow px-1 fav-currency">
                 <div class="stat w-72">
                     <div class="stat-figure text-secondary">
                         <div class="indicator" id="fav-{base}">
                             <span class="indicator-item">
-                                {#if !isValid(currencyRates[base]!)}
+                                {#if !isValid(currencyBase)}
                                     <span class="material-symbols-outlined text-error">
                                         warning
                                     </span>
@@ -237,19 +243,19 @@
                                         class="inline-block w-8 h-8 stroke-current"
                                     >
                                         <image
-                                            href="/{currencyRates[base]!.base}.svg"
+                                            href="/{currencyBase.base}.svg"
                                             width="24"
                                             height="24"
                                         />
                                     </svg>
                                 </div>
                             {:else}
-                                <span class="text-xl">{currencyRates[base]!.base}</span>
+                                <span class="text-xl">{currencyBase.base}</span>
                             {/if}
                         </div>
                     </div>
                     <div class="stat-title">
-                        {currencyRates[base]!.base}/USD
+                        {currencyBase.base}/USD
                     </div>
                     <div
                         class="stat-desc {allIsPriceUps[base] === true
@@ -258,13 +264,17 @@
                     >
                         <button
                             class="text-left inline-block w-44 overflow-hidden truncate"
-                            on:click={async (): Promise<void> => { await copyToClipboard(currencyRates[base]!.rate_base_quote.toString()) }}
+                            onclick={async () => {
+                                if (currencyBase.rate_base_quote) {
+                                    await copyToClipboard(currencyBase.rate_base_quote);
+                                }
+                            }}
                         >
-                            {currencyRates[base]!.rate_base_quote}
+                            {currencyBase.rate_base_quote}
                         </button>
                     </div>
                     <div class="stat-title">
-                        USD/{currencyRates[base]!.base}
+                        USD/{currencyBase.base}
                     </div>
                     <div
                         class="stat-desc {allIsPriceUps[base] === true
@@ -273,9 +283,13 @@
                     >
                         <button
                             class="text-left inline-block w-44 overflow-hidden truncate"
-                            on:click={async (): Promise<void> => { await copyToClipboard(currencyRates[base]!.rate_usd_quote.toString()) }}
+                            onclick={async () => {
+                                if (currencyBase.rate_usd_quote) {
+                                    await copyToClipboard(currencyBase.rate_usd_quote);
+                                }
+                            }}
                         >
-                            {currencyRates[base]!.rate_usd_quote}
+                            {currencyBase.rate_usd_quote}
                         </button>
                     </div>
                 </div>
@@ -303,12 +317,12 @@
                 </tr>
             </thead>
             <tbody>
-                {#each Object.entries(currencyRates).filter( ([base, _]) => filterByType(base), ) as [base, rates] (base)}
+                {#each Object.entries(currencyRates).filter( ([base]) => filterByType(base), ) as [base, rates] (base)}
                     <tr class="hover" in:fade>
                         <!-- favorite -->
                         <td class="text-center fav-btn">
                             <button
-                                on:click={():void => setFavCurrency(base)}
+                                onclick={() => setFavCurrency(base)}
                                 data-testid="add-fav-{base}"
                                 id="add-fav-{base}"
                             >
@@ -348,7 +362,11 @@
                                 class="text-secondary"
                                 data-testid="copy-rate-{base}-to-usd"
                                 id="copy-rate-{base}-to-usd"
-                                on:click={async (): Promise<void> => { await copyToClipboard(rates.rate_base_quote.toString()) }}
+                                onclick={async () => {
+                                    if (rates.rate_base_quote) {
+                                        await copyToClipboard(rates.rate_base_quote);
+                                    }
+                                }}
                             >
                                 <span class="material-symbols-outlined">content_copy</span>
                             </button>
@@ -368,7 +386,11 @@
                                 class="text-secondary"
                                 data-testid="copy-rate-usd-to-{base}"
                                 id="copy-rate-usd-to-{base}"
-                                on:click={async (): Promise<void> => { await copyToClipboard(rates.rate_usd_quote.toString()) }}
+                                onclick={async () => {
+                                    if (rates.rate_usd_quote) {
+                                        await copyToClipboard(rates.rate_usd_quote);
+                                    }
+                                }}
                             >
                                 <span class="material-symbols-outlined">content_copy</span>
                             </button>

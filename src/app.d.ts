@@ -6,7 +6,7 @@ declare global {
             // follow problem detail from RFC9457
             type: string;
             title: string;
-            status: string;
+            status: number;
             detail: string;
             instance: string;
         }

@@ -2,10 +2,17 @@
 export default {
 	content: ['./src/**/*.{html,svelte,js,ts}'],
 	theme: {
+		container: {
+			center: true,
+			padding: '2rem',
+			screens: {
+				'2xl': '1400px'
+			}
+		},
 		extend: {},
 	},
-	plugins: [require('daisyui'), require('@tailwindcss/typography')],
+	plugins: [require('@tailwindcss/typography'), require('daisyui')],
 	daisyui: {
-		themes: ['corporate'],
+		themes: ['dark'],
 	},
 };
