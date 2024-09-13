@@ -32,10 +32,10 @@ jobs:
                 echo "Install dependencies..."
                 npm ci
 
-                # echo "PUBLIC_ADMINAPI_HOST: ${{ vars.PUBLIC_ADMINAPI_HOST }}" > .env
-                echo "PUBLIC_ADMINAPI_HOST: http://127.0.0.1:4010" > .env
-                echo "CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}" >> .env
-                echo "CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" >> .env
+                # echo "PUBLIC_ADMINAPI_HOST= ${{ vars.PUBLIC_ADMINAPI_HOST }}" > .env
+                echo "PUBLIC_ADMINAPI_HOST= http://127.0.0.1:4010" > .env
+                echo "CF_ACCESS_CLIENT_ID= ${{ secrets.CF_ACCESS_CLIENT_ID }}" >> .env
+                echo "CF_ACCESS_CLIENT_SECRET= ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" >> .env
                 
                 echo "Build project..."
                 npm run build
@@ -88,7 +88,8 @@ jobs:
               run: |
                 echo "Retrieve Preview URL..."
                 PREVIEW_URL=$(echo $DEPLOY_PREVIEW_OUTPUT | grep -o 'https://.*.pages.dev')
-                echo "PREVIEW_URL= $PREVIEW_URL" >> .env
+                # echo "PREVIEW_URL= $PREVIEW_URL" >> .env
+                echo "PREVIEW_URL= http://localhost:5173" >> .env
 
                 echo "Get Auth Cookie..." 
                 curl -H 'CF-Access-Client-Id: ${{ secrets.CF_PAGE_CLIENT_ID }}' -H 'CF-Access-Client-Secret: ${{ secrets.CF_PAGE_CLIENT_SECRET }}' $PREVIEW_URL -c .tmp > /dev/null 2>&1
@@ -103,6 +104,11 @@ jobs:
                 echo "curl api for testing..."
                 curl http://127.0.0.1:4010/admin/api/v1/rates
 
+                echo "start frontend..."
+                npm run dev &
+
+                sleep 5
+                echo "start integ tests..."
                 npm run test:integration
             
             # - name: Check for Deployment & Cleanup
