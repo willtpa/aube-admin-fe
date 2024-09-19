@@ -135,6 +135,20 @@ jobs:
           name: ${{ needs.build-and-test.outputs.deploy_env }}
         runs-on: ubuntu-latest
         steps:
+            - name: test log environment
+              run: |
+                echo "deploy_env: ${{ needs.build-and-test.outputs.deploy_env }}"
+                STOPLIGHT_MOCK_URL=https://stoplight.io/mocks
+                if [[ "${{ needs.build-and-test.outputs.deploy_env }}" == "staging" ]]; then
+                  echo "deploy to staging..."
+                  echo "PUBLIC_ADMINAPI_HOST: $STOPLIGHT_MOCK_URL" >> .env
+                elif [[ "${{ needs.build-and-test.outputs.deploy_env }}" == "production" ]]; then
+                  echo "deploy to production..."
+                  echo "PUBLIC_ADMINAPI_HOST: stagingadminapi/api/v1" >> .env
+                else
+                  echo "deploy to none..."
+                fi
+
             - name: Checkout Code
               uses: actions/checkout@v4
 
